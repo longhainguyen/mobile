@@ -13,7 +13,7 @@ export default function Login() {
 
             accessible={false}>
 
-            <View style={styles.container}>
+            <ScrollView style={styles.container} >
                 <View style={{
                     flexDirection: 'row',
                     alignItems: 'center',
@@ -86,7 +86,7 @@ export default function Login() {
                         Đăng nhập
                     </Text>
                 </TouchableOpacity>
-                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
                     <TouchableOpacity>
                         <Text
                             style={{
@@ -99,30 +99,27 @@ export default function Login() {
                     </TouchableOpacity>
                 </KeyboardAvoidingView>
 
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                    style={{ flex: 1 }}
-                >
-                    <TouchableOpacity style={{
-                        position: 'absolute', bottom: 40, left: 0, right: 0,
-                        paddingVertical: 18,
-                        marginHorizontal: 18,
-                        backgroundColor: COLORS.lightWhite,
-                        borderRadius: 30,
-                        borderColor: COLORS.redButton,
-                        borderWidth: 1,
+
+                <TouchableOpacity style={{
+                    marginTop: 200,
+                    paddingVertical: 18,
+                    marginHorizontal: 18,
+                    backgroundColor: COLORS.lightWhite,
+                    borderRadius: 30,
+                    borderColor: COLORS.redButton,
+                    borderWidth: 1,
+                }}>
+                    <Text style={{
+                        textAlign: 'center',
+                        color: COLORS.redButton,
+                        fontFamily: FONT.medium,
+                        fontSize: FONT_SIZE.small,
                     }}>
-                        <Text style={{
-                            textAlign: 'center',
-                            color: COLORS.redButton,
-                            fontFamily: FONT.medium,
-                            fontSize: FONT_SIZE.small,
-                        }}>
-                            Tạo tạo khoản mới
-                        </Text>
-                    </TouchableOpacity>
-                </KeyboardAvoidingView>
-            </View>
+                        Tạo tạo khoản mới
+                    </Text>
+                </TouchableOpacity>
+
+            </ScrollView>
         </TouchableWithoutFeedback>
 
     )
@@ -131,6 +128,7 @@ export default function Login() {
 
 const styles = StyleSheet.create({
     container: {
+
         flex: 1,
         marginTop: 15,
         backgroundColor: 'rgba(255, 0, 0, 0.5)',
