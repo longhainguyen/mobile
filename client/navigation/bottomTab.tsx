@@ -2,7 +2,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Home from '../app/home/Home';
 import Login from '../app/authen/Login';
 import Post from '../app/post/NewPost';
-import Account from '../app/account/account';
+import Account from '../app/account/Account';
 import { MaterialIcons } from '@expo/vector-icons';
 import { COLORS } from '../constants';
 import { Entypo } from '@expo/vector-icons';

@@ -22,6 +22,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { LINK } from '../../config/localhot';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import User from '../../dataTemp/User';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login', 'MyStack'>;
 
@@ -33,16 +34,22 @@ export default function Login({ route, navigation }: Props) {
 
     const handleLogin = async () => {
         try {
-            const response = await axios.post('http://192.168.1.223:5000/login', {
-                password,
-                email,
-            });
-            AsyncStorage.setItem('userId', JSON.stringify(response.data.data[0].id));
-            AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
-            AsyncStorage.setItem('userName', response.data.data[0].username);
-            AsyncStorage.setItem('email', response.data.data[0].email);
-            navigation.navigate('BottomTab');
+            // Example call api
+            // const response = await axios.post(`http://${LINK.localhot}:${LINK.port}/login`, {
+            //     password,
+            //     email,
+            // });
+            // AsyncStorage.setItem('userId', JSON.stringify(response.data.data[0].id));
+            // AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+            // AsyncStorage.setItem('userName', response.data.data[0].username);
+            // AsyncStorage.setItem('email', response.data.data[0].email);
+            // navigation.navigate('BottomTab');
             // Handle success response from API
+            await AsyncStorage.setItem('userId', JSON.stringify(User[0].id));
+            await AsyncStorage.setItem('userName', JSON.stringify(User[0].name));
+            await AsyncStorage.setItem('email', JSON.stringify(User[0].email));
+            AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+            navigation.navigate('BottomTab');
         } catch (error) {
             console.error('Error registering user:', error);
             // Handle error response from API
