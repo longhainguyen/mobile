@@ -1,52 +1,52 @@
 const COLORS = {
-    primary: "#F1E0E0",
-    secondary: "#444262",
-    tertiary: "#FF7754",
-  
-    gray: "#83829A",
-    gray2: "#C1C0C8",
-  
-    white: "#F3F4F8",
-    lightWhite: "#FAFAFC",
+    primary: '#F1E0E0',
 
-    darkText: "#626262",
+    borderColor: '#EEEEEE',
+    green: '#0F9804',
 
-    redButton: "#EA5B5B",
+    gray: '#83829A',
+    gray2: '#C1C0C8',
 
-    background: "#fff",
-  };
+    white: '#F3F4F8',
+    lightWhite: '#FAFAFC',
 
-  
-  const SIZES = {
+    darkText: '#626262',
+
+    redButton: '#EA5B5B',
+
+    background: '#fff',
+};
+
+const SIZES = {
     xSmall: 10,
     small: 12,
     medium: 16,
     large: 20,
     xLarge: 24,
     xxLarge: 32,
-  };
-  
-  const SHADOWS = {
+};
+
+const SHADOWS = {
     small: {
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.25,
-      shadowRadius: 3.84,
-      elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 2,
     },
     medium: {
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.25,
-      shadowRadius: 5.84,
-      elevation: 5,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 5.84,
+        elevation: 5,
     },
-  };
-  
-  export { COLORS, SIZES, SHADOWS };
+};
+
+export { COLORS, SIZES, SHADOWS };
