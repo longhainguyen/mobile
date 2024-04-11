@@ -6,20 +6,32 @@ import {
     ScrollView,
     Image,
     Dimensions,
+    FlatList,
+    ImageSourcePropType,
 } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS } from '../../constants';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../navigation';
 import UserIcon from '../../compoments/UserIcon';
-import { FONT } from '../../constants/font';
-import User from '../../dataTemp/User';
+import { FONT, FONT_SIZE } from '../../constants/font';
+import UserData from '../../dataTemp/UserData';
+import PostData from '../../dataTemp/PostData';
+import PostContent from '../../compoments/PostContent';
+import Interact from '../../compoments/Interact';
+import BottomSheet from '@gorhom/bottom-sheet';
+import Comment from '../../compoments/Comment';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const { height, width } = Dimensions.get('window');
 
-export default function Home() {
+type ItemProps = {
+    source: ImageSourcePropType;
+    sources: ImageSourcePropType[];
+    index: number;
+    navigation: any;
+};
+
+export default function Home({ navigation }: any) {
     const [userName, setUsername] = useState('');
     const [userId, setUserId] = useState('');
     const [email, setEmail] = useState('');
@@ -45,6 +57,10 @@ export default function Home() {
         });
     }, []);
 
+    const handleTransportPort = () => {
+        console.log();
+    };
+
     return (
         <ScrollView style={{ flex: 1, marginTop: 15 }}>
             <View
@@ -56,12 +72,103 @@ export default function Home() {
                     borderColor: COLORS.borderColor,
                 }}
             >
-                <Text style={{ fontFamily: FONT.medium, fontSize: 20 }}>Social Network</Text>
+                <Text style={{ fontFamily: FONT.medium, fontSize: FONT_SIZE.large }}>
+                    Social Network
+                </Text>
             </View>
-            <UserIcon avatar={User[1].avatar} isFollowed={false} userName={User[1].name} />
 
-            <UserIcon avatar={User[0].avatar} isFollowed={true} userName={User[0].name} />
-            <UserIcon avatar={User[2].avatar} isFollowed={true} userName={User[2].name} />
+            <UserIcon
+                avatar={UserData[0].avatar}
+                isFollowed={false}
+                userName={UserData[0].name}
+                isOwner={true}
+                openAccount={() => {
+                    navigation.navigate('Account');
+                }}
+            />
+            <TouchableOpacity
+                onPress={() =>
+                    navigation.navigate('ShowPost', {
+                        avatar: UserData[0].avatar,
+                        isFollowed: false,
+                        userName: UserData[0].name,
+                        isOwner: true,
+                        images: PostData[0].images,
+                        time: PostData[0].time,
+                        description: PostData[0].description,
+                        comment: PostData[0].comments.length,
+                        like: PostData[0].like,
+                        share: PostData[0].share,
+                    })
+                }
+            >
+                <PostContent
+                    navigation={navigation}
+                    images={PostData[0].images}
+                    time={PostData[0].time}
+                    description={PostData[0].description}
+                />
+            </TouchableOpacity>
+            <Interact
+                comment={PostData[0].comments.length}
+                like={PostData[0].like}
+                share={PostData[0].share}
+                avatar={UserData[0].avatar}
+                atHome={true}
+                openComment={() => {
+                    navigation.navigate('CommentHome', {});
+                }}
+            />
+
+            <UserIcon
+                avatar={UserData[1].avatar}
+                isFollowed={false}
+                userName={UserData[1].name}
+                isOwner={false}
+                openAccount={() => {
+                    navigation.navigate('AccountOther', {
+                        avatar: UserData[1].avatar,
+                        isFollowed: false,
+                        userName: UserData[1].name,
+                        isOwner: false,
+                    });
+                }}
+            />
+            <TouchableOpacity
+                onPress={() =>
+                    navigation.navigate('ShowPost', {
+                        avatar: UserData[1].avatar,
+                        isFollowed: false,
+                        userName: UserData[1].name,
+                        isOwner: false,
+                        images: PostData[1].images,
+                        time: PostData[1].time,
+                        description: PostData[1].description,
+                        comment: PostData[1].comments.length,
+                        like: PostData[1].like,
+                        share: PostData[1].share,
+                    })
+                }
+            >
+                <PostContent
+                    navigation={navigation}
+                    images={PostData[1].images}
+                    time={PostData[1].time}
+                    description={PostData[1].description}
+                />
+            </TouchableOpacity>
+            <Interact
+                comment={PostData[1].comments.length}
+                like={PostData[1].like}
+                share={PostData[1].share}
+                avatar={UserData[1].avatar}
+                atHome={true}
+                openComment={() => {
+                    navigation.navigate('CommentHome');
+                }}
+            />
+
+            <View style={{ height: 100 }}></View>
         </ScrollView>
     );
 }

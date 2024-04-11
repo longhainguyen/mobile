@@ -1,4 +1,4 @@
-const User = [
+const UserData = [
     {
         id: 1,
         name: 'Long',
@@ -27,4 +27,4 @@ const User = [
     },
 ];
 
-export default User;
+export default UserData;

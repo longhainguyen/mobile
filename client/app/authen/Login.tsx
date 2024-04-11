@@ -22,7 +22,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import { LINK } from '../../config/localhot';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import User from '../../dataTemp/User';
+import UserData from '../../dataTemp/UserData';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login', 'MyStack'>;
 
@@ -45,9 +45,9 @@ export default function Login({ route, navigation }: Props) {
             // AsyncStorage.setItem('email', response.data.data[0].email);
             // navigation.navigate('BottomTab');
             // Handle success response from API
-            await AsyncStorage.setItem('userId', JSON.stringify(User[0].id));
-            await AsyncStorage.setItem('userName', JSON.stringify(User[0].name));
-            await AsyncStorage.setItem('email', JSON.stringify(User[0].email));
+            await AsyncStorage.setItem('userId', JSON.stringify(UserData[0].id));
+            await AsyncStorage.setItem('userName', UserData[0].name);
+            await AsyncStorage.setItem('email', UserData[0].email);
             AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
             navigation.navigate('BottomTab');
         } catch (error) {

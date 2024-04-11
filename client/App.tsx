@@ -9,12 +9,6 @@ import { SplashScreen } from 'expo-router';
 export default function App() {
     const [fontsLoaded] = useFonts(fonts);
 
-    useEffect(() => {
-        setTimeout(() => {
-            SplashScreen.hideAsync();
-        }, 900);
-    }, []);
-
     return !fontsLoaded ? null : (
         <View style={styles.container}>
             <Navigation />

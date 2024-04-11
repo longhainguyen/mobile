@@ -3,11 +3,14 @@ const COLORS = {
 
     borderColor: '#EEEEEE',
     green: '#0F9804',
+    textGrey: '#919191',
+    black: '#1A1B23',
+    shadowColor: '#000',
 
     gray: '#83829A',
     gray2: '#C1C0C8',
 
-    white: '#F3F4F8',
+    white: '#FFF',
     lightWhite: '#FAFAFC',
 
     darkText: '#626262',
