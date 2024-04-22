@@ -25,7 +25,8 @@
             "@pipes/*": ["src/pipes/*"],
             "@utils/*": ["src/utils/*"],
             "@configs/*": ["src/configs/*"],
-            "@constants/*": ["src/constants/*"]
+            "@constants/*": ["src/constants/*"],
+            "@shares/*": ["src/share/*"]
         }
     }
 }

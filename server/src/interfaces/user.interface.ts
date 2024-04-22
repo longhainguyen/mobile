@@ -31,9 +31,16 @@ export interface ICreateProfile {
 
 export interface ICreatePost {
     caption: string;
+    images?: string[];
+    videos?: string[];
 }
 
 export interface IFollowUser {
     userId: number;
     followingId: number;
+}
+
+export interface IChangePassword {
+    oldPassword: string;
+    newPassword: string;
 }

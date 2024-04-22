@@ -2,6 +2,7 @@ import { PostEntity } from '@entities/post.entity';
 import { ProfileEntity } from '@entities/profile.entity';
 import { UserEntity } from '@entities/user.entity';
 import {
+    IChangePassword,
     ICreatePost,
     ICreateProfile,
     IFindUser,
@@ -11,6 +12,7 @@ import {
 } from '@interfaces/user.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { BcryptService } from '@shares/services/bcrypt/bcrypt.service';
 import { Like, Repository } from 'typeorm';
 
 @Injectable()
@@ -19,11 +21,12 @@ export class UserService {
         @InjectRepository(UserEntity) private UserReposity: Repository<UserEntity>,
         @InjectRepository(ProfileEntity) private ProfileReposity: Repository<ProfileEntity>,
         @InjectRepository(PostEntity) private PostReposity: Repository<PostEntity>,
+        private readonly bcryptService: BcryptService,
     ) {}
     getUsers() {
         return this.UserReposity.find({
             select: ['id', 'email', 'username'],
-            relations: ['profile', 'posts', 'followers', 'followings'],
+            relations: ['profile', 'posts', 'followers', 'followings', 'posts.images', 'posts.videos'],
         });
     }
 
@@ -78,6 +81,17 @@ export class UserService {
         });
         if (!followingUser) throw new HttpException('Following User not found', HttpStatus.NOT_FOUND);
         if (user.followings) user.followings = user.followings.filter((follow) => follow.id !== followingUser.id);
+        await this.UserReposity.save(user);
+        return;
+    }
+
+    async changePassword(id: number, { oldPassword, newPassword }: IChangePassword) {
+        const user = await this.UserReposity.findOneBy({ id });
+        if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+        const isPasswordMatch = await this.bcryptService.comparePassword(oldPassword, user.password);
+        if (!isPasswordMatch) throw new HttpException('Old password is incorrect', HttpStatus.BAD_REQUEST);
+        const hashedPassword = await this.bcryptService.hashPassword(newPassword);
+        user.password = hashedPassword;
         await this.UserReposity.save(user);
         return;
     }

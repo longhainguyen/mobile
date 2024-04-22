@@ -8,12 +8,16 @@ import { AuthService } from '../service/auth.service';
 export class AuthController {
     constructor(private AuthService: AuthService) {}
     @Post('login')
-    login(@Body() data: LoginDto) {
-        return this.AuthService.login({ ...data });
+    async login(@Body() data: LoginDto) {
+        const user = await this.AuthService.login({ ...data });
+        delete user.password;
+        return { ...user };
     }
 
     @Post('register')
-    register(@Body() createUserDto: CreateUserDto) {
-        return this.AuthService.register(createUserDto);
+    async register(@Body() createUserDto: CreateUserDto) {
+        const newUser = await this.AuthService.register(createUserDto);
+        delete newUser.password;
+        return { ...newUser };
     }
 }
