@@ -4,7 +4,7 @@ const list_comments = [
         post_id: '1',
         parent_id: '0',
         name: 'david',
-        image: require('../assets/images/avatar.jpeg'),
+        avatar: require('../assets/images/avatar.jpeg'),
         text: 'this is parent cooment 1 this is parent cooment 1 this is parent cooment 1 this is parent cooment 1 this is parent cooment 1',
     },
     {
@@ -12,7 +12,7 @@ const list_comments = [
         parent_id: '0',
         post_id: '1',
         name: 'kumar',
-        image: require('../assets/images/avatar.jpeg'),
+        avatar: require('../assets/images/avatar.jpeg'),
         text: 'this is parent cooment 2 this is parent cooment 2 this is parent cooment 2 this is parent cooment 2 this is parent cooment 2 ',
     },
     {
@@ -20,7 +20,7 @@ const list_comments = [
         parent_id: '0',
         post_id: '1',
         name: 'selva',
-        image: require('../assets/images/avatar.jpeg'),
+        avatar: require('../assets/images/avatar.jpeg'),
         text: 'this is parent cooment 3',
     },
     {
@@ -28,7 +28,7 @@ const list_comments = [
         parent_id: '1',
         post_id: '1',
         name: 'arul',
-        image: require('../assets/images/avatar.jpeg'),
+        avatar: require('../assets/images/avatar.jpeg'),
         text: 'this is c1 comment of p1',
     },
     {
@@ -36,7 +36,7 @@ const list_comments = [
         parent_id: '1',
         post_id: '1',
         name: 'vinoth',
-        image: require('../assets/images/avatar.jpeg'),
+        avatar: require('../assets/images/avatar.jpeg'),
         text: 'this is c2 comment of p1',
     },
     {
@@ -44,7 +44,7 @@ const list_comments = [
         parent_id: '2',
         post_id: '1',
         name: 'vishnu',
-        image: require('../assets/images/avatar.jpeg'),
+        avatar: require('../assets/images/avatar.jpeg'),
         text: 'this is c1 comment of p2',
     },
     {
@@ -52,8 +52,32 @@ const list_comments = [
         parent_id: '4',
         post_id: '1',
         name: 'martin',
-        image: require('../assets/images/avatar.jpeg'),
+        avatar: require('../assets/images/avatar.jpeg'),
         text: 'this is c1 comment of p1c1',
+    },
+    {
+        id: '8',
+        post_id: '2',
+        parent_id: '0',
+        name: 'david',
+        avatar: require('../assets/images/avatar.jpeg'),
+        text: 'this is parent cooment 1 this is parent cooment 1 this is parent cooment 1 this is parent cooment 1 this is parent cooment 1',
+    },
+    {
+        id: '9',
+        parent_id: '8',
+        post_id: '2',
+        name: 'kumar',
+        avatar: require('../assets/images/avatar.jpeg'),
+        text: 'this is parent cooment 2 this is parent cooment 2 this is parent cooment 2 this is parent cooment 2 this is parent cooment 2 ',
+    },
+    {
+        id: '10',
+        post_id: '3',
+        parent_id: '0',
+        name: 'david',
+        avatar: require('../assets/images/avatar.jpeg'),
+        text: 'this is parent cooment 1 this is parent cooment 1 this is parent cooment 1 this is parent cooment 1 this is parent cooment 1',
     },
 ];
 

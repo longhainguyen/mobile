@@ -20,9 +20,14 @@ import PostContent from '../../compoments/PostContent';
 import Interact from '../../compoments/Interact';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import BottomSheet, { BottomSheetBackdrop, BottomSheetTextInput } from '@gorhom/bottom-sheet';
+import BottomSheet, {
+    BottomSheetBackdrop,
+    BottomSheetModal,
+    BottomSheetTextInput,
+} from '@gorhom/bottom-sheet';
 import { COLORS } from '../../constants';
-import Comment from '../../compoments/Comment';
+import Comment, { ItemCommentProps } from '../../compoments/Comment';
+import _list_comments from '../../dataTemp/CommentData';
 
 const { height, width } = Dimensions.get('window');
 
@@ -43,13 +48,25 @@ const ShowPost = ({ route, navigation }: ShowPostProps) => {
         share,
         time,
         userName,
+        postId,
     } = route.params;
 
     const bottemSheet = useRef<BottomSheet>(null);
 
-    const openComment = (index: number) => {
+    const openComment = (index: number, post_id: string) => {
         bottemSheet.current?.snapToIndex(index);
+        setPostIdOpen(post_id);
     };
+
+    const [listComment, setListComment] = useState<ItemCommentProps[]>();
+    const [postIdOpen, setPostIdOpen] = useState('');
+    console.log(postIdOpen);
+
+    useEffect(() => {
+        var arr: ItemCommentProps[] = [];
+        arr = _list_comments.filter((ele) => ele.post_id == postIdOpen);
+        setListComment(arr);
+    }, [postIdOpen]);
 
     useEffect(() => {
         bottemSheet.current?.close;
@@ -91,10 +108,16 @@ const ShowPost = ({ route, navigation }: ShowPostProps) => {
                     like={like}
                     share={share}
                     avatar={avatar}
-                    openComment={() => openComment(0)}
+                    openComment={() => openComment(0, postId)}
                 />
             </View>
-            <Comment title="Bình luận" atHome={false} ref={bottemSheet} avatar={avatar} />
+            <Comment
+                title="Bình luận"
+                atSinglePost={true}
+                ref={bottemSheet}
+                avatar={avatar}
+                dataCommentsOfPost={listComment || []}
+            />
         </GestureHandlerRootView>
     );
 };

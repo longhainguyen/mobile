@@ -5,15 +5,20 @@ import fonts from './config/font';
 import Navigation from './navigation';
 import { useEffect } from 'react';
 import { SplashScreen } from 'expo-router';
+import { Provider } from 'react-redux';
+import { store } from './redux/Store';
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 export default function App() {
     const [fontsLoaded] = useFonts(fonts);
 
     return !fontsLoaded ? null : (
-        <View style={styles.container}>
-            <Navigation />
-            <StatusBar style="auto" />
-        </View>
+        <Provider store={store}>
+            <View style={styles.container}>
+                <Navigation />
+                <StatusBar style="auto" />
+            </View>
+        </Provider>
     );
 }
 

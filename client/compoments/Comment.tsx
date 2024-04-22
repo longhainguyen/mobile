@@ -1,7 +1,6 @@
 import BottomSheet, {
     BottomSheetBackdrop,
-    BottomSheetScrollView,
-    BottomSheetTextInput,
+    BottomSheetModal,
     BottomSheetView,
 } from '@gorhom/bottom-sheet';
 import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -19,43 +18,43 @@ import {
 import { COLORS } from '../constants';
 import { FONT, FONT_SIZE } from '../constants/font';
 import { FlatList, ScrollView, TextInput } from 'react-native-gesture-handler';
-import list_comments from '../dataTemp/CommentData';
 import { AntDesign } from '@expo/vector-icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { decremented, setState } from '../redux/stateComment/stateComment';
+import { RootState, store } from '../redux/Store';
 
 const { height, width } = Dimensions.get('window');
 
 interface Props {
     title: string;
     avatar: ImageSourcePropType;
-    atHome?: boolean;
-    backHome?: () => void;
+    atSinglePost?: boolean;
+    dataCommentsOfPost: ItemCommentProps[];
 }
 
 type Ref = BottomSheet;
 
-interface ItemProps {
+export interface ItemCommentProps {
     id: string;
     parent_id: string;
-    post_id: string;
     text: string;
     avatar: any;
     name: string;
-    type: number;
+    type?: number;
     name_parent?: string;
-    input_answer: React.RefObject<TextInput>;
+    input_answer?: React.RefObject<TextInput>;
 }
 
 const Item = ({
     id,
     parent_id,
-    post_id,
     text,
     avatar,
     name,
     type,
     name_parent,
     input_answer,
-}: ItemProps) => {
+}: ItemCommentProps) => {
     return (
         <View
             style={{
@@ -140,53 +139,53 @@ const Item = ({
 const Comment = forwardRef<Ref, Props>((props, ref) => {
     const snapPoints = useMemo(() => ['50%'], []);
     const snapPointsHome = useMemo(() => ['99%'], []);
-    const [listComment, setListComment] = useState<ItemProps[]>();
+    const [listComment, setListComment] = useState<ItemCommentProps[]>([]);
 
     const inputRef = useRef<TextInput>(null);
 
     useEffect(() => {
         // form object to render child
-        var arr: ItemProps[] = [];
-        var arr2: ItemProps[] = [];
-        var arr3: ItemProps[] = [];
-        for (let item of list_comments) {
+        var arr: ItemCommentProps[] = [];
+        var arr2: ItemCommentProps[] = [];
+        var arr3: ItemCommentProps[] = [];
+        for (let item of props.dataCommentsOfPost) {
             if (item.parent_id === '0') {
-                const newItem: ItemProps = {
-                    avatar: item.image,
+                const newItem: ItemCommentProps = {
+                    avatar: item.avatar,
                     id: item.id,
                     name: item.name,
                     parent_id: item.parent_id,
-                    post_id: item.post_id,
+
                     text: item.text,
                     name_parent: '',
                     type: 0,
                     input_answer: inputRef,
                 };
                 arr.push(newItem);
-                arr2 = list_comments
+                arr2 = props.dataCommentsOfPost
                     .filter((ele) => ele.parent_id === item.id)
                     .map((filteredItem) => ({
                         text: filteredItem.text,
-                        avatar: filteredItem.image,
+                        avatar: filteredItem.avatar,
                         name: filteredItem.name,
                         id: filteredItem.id,
                         parent_id: filteredItem.parent_id,
-                        post_id: filteredItem.post_id,
+
                         name_parent: item.name,
                         input_answer: inputRef,
                         type: 1,
                     }));
                 if (arr2.length) {
                     for (let item2 of arr2) {
-                        arr3 = list_comments
+                        arr3 = props.dataCommentsOfPost
                             .filter((ele) => ele.parent_id === item2.id)
                             .map((filteredItem) => ({
                                 text: filteredItem.text,
-                                avatar: filteredItem.image,
+                                avatar: filteredItem.avatar,
                                 name: filteredItem.name,
                                 id: filteredItem.id,
                                 parent_id: filteredItem.parent_id,
-                                post_id: filteredItem.post_id,
+
                                 name_parent: item2.name,
                                 input_answer: inputRef,
                                 type: 2,
@@ -202,17 +201,13 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
             }
         }
         setListComment(arr);
-    }, []);
+    }, [props.dataCommentsOfPost]);
 
     const handleSheetChanges = useCallback((index: number) => {
         if (index == -1) {
             Keyboard.dismiss();
-            if (props.atHome) {
-                if (props.backHome) {
-                    props.backHome();
-                }
-            }
         }
+        store.dispatch(setState(index));
     }, []);
 
     const renderBackdrop = useCallback(
@@ -225,13 +220,13 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
     return (
         <BottomSheet
             ref={ref}
-            snapPoints={props.atHome ? snapPointsHome : snapPoints}
+            snapPoints={props.atSinglePost ? snapPoints : snapPointsHome}
             enablePanDownToClose={true}
-            index={props.atHome ? 0 : -1}
+            index={-1}
             backdropComponent={renderBackdrop}
             onChange={handleSheetChanges}
-            backgroundStyle={{ backgroundColor: COLORS.white }}
-            handleHeight={props.atHome ? 80 : 40}
+            backgroundStyle={{ backgroundColor: COLORS.lightWhite }}
+            handleHeight={props.atSinglePost ? 40 : 80}
         >
             <Text
                 style={{
@@ -248,7 +243,7 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
                     backgroundColor: COLORS.white,
                 }}
             >
-                Comments {list_comments.length}
+                Comments {listComment.length}
             </Text>
 
             <FlatList
@@ -261,7 +256,6 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
                         avatar={item.avatar}
                         type={item.type}
                         id={item.id}
-                        post_id={item.post_id}
                         parent_id={item.parent_id}
                         name_parent={item.name_parent}
                         input_answer={inputRef}
