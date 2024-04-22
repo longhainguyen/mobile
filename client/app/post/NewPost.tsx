@@ -1,7 +1,7 @@
 import { Feather } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { Image, ImageBackground, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-import { Button, Card, useThemeColor } from '../../components/Themed';
+import { Button, Card, useThemeColor } from '../../compoments/Themed';
 import * as ImagePicker from 'expo-image-picker';
 import { COLORS } from '../../constants';
 
