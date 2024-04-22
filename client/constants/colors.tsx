@@ -1,4 +1,26 @@
+const primary = "#3bd08f";
+const tintColorLight = primary;
+const tintColorDark = primary;
+
 const COLORS = {
+    light: {
+        text: "#111827",
+        background: "#f3f4f6",
+        card: "#fff",
+        tint: tintColorLight,
+        tabIconDefault: "#e5e7eb",
+        tabIconSelected: tintColorLight,
+        primary ,
+      },
+      dark: {
+        text: "#fff",
+        background: "#111827",
+        card: "#374151",
+        tint: tintColorDark,
+        tabIconDefault: "#e5e7eb",
+        tabIconSelected: tintColorDark,
+        primary,
+      },
     primary: '#F1E0E0',
 
     borderColor: '#EEEEEE',
@@ -15,6 +37,8 @@ const COLORS = {
     redButton: '#EA5B5B',
 
     background: '#fff',
+
+    black:'#000000'
 };
 
 const SIZES = {

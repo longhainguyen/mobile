@@ -13,7 +13,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS } from '../../constants';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation';
-import UserIcon from '../../compoments/UserIcon';
+import UserIcon from '../../components/UserIcon';
 import { FONT } from '../../constants/font';
 import User from '../../dataTemp/User';
 
