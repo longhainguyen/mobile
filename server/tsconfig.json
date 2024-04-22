@@ -24,7 +24,8 @@
             "@middlewares/*": ["src/middlewares/*"],
             "@pipes/*": ["src/pipes/*"],
             "@utils/*": ["src/utils/*"],
-            "@configs/*": ["src/configs/*"]
+            "@configs/*": ["src/configs/*"],
+            "@constants/*": ["src/constants/*"]
         }
     }
 }

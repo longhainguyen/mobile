@@ -26,9 +26,14 @@ export interface ICreateProfile {
     age: number;
     birthday: Date;
     avatar: string;
-    cover_photo: string;
+    background: string;
 }
 
 export interface ICreatePost {
     caption: string;
+}
+
+export interface IFollowUser {
+    userId: number;
+    followingId: number;
 }

@@ -16,5 +16,5 @@ export class CreateProfileDto {
     avatar: string;
     @IsDefined()
     @IsString()
-    cover_photo: string;
+    background: string;
 }

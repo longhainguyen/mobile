@@ -1,5 +1,6 @@
 import { CreateUserDto } from '@cores/user/dto/create-user.dto';
 import { FindUserDto } from '@cores/user/dto/find-user.dto';
+import { FollowUserDto } from '@cores/user/dto/follow-user.dto';
 import { UserService } from '@cores/user/service/user/user.service';
 import { IUpdateUser } from '@interfaces/user.interface';
 import {
@@ -7,6 +8,8 @@ import {
     Controller,
     Delete,
     Get,
+    HttpCode,
+    HttpStatus,
     Param,
     ParseIntPipe,
     Patch,
@@ -38,5 +41,19 @@ export class UserController {
     @Delete('delete-user/:id')
     deleateUser(@Param('id', ParseIntPipe) id: number) {
         return this.UserService.deleteUser(id);
+    }
+
+    @Post('follow-user')
+    @UsePipes(new ValidationPipe())
+    @HttpCode(HttpStatus.CREATED)
+    followUser(@Body() followUserData: FollowUserDto) {
+        return this.UserService.followUser({ ...followUserData });
+    }
+
+    @Post('unfollow-user')
+    @UsePipes(new ValidationPipe())
+    @HttpCode(HttpStatus.CREATED)
+    unFollowUser(@Body() followUserData: FollowUserDto) {
+        return this.UserService.unFollowUser({ ...followUserData });
     }
 }

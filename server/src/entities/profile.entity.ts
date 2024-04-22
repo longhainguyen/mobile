@@ -1,17 +1,16 @@
+import { DEFAULT_AVATAR, DEFAULT_COVER_PHOTO } from '@constants/profile.constant';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'profiles' })
 export class ProfileEntity {
     @PrimaryGeneratedColumn()
     id: number;
-    @Column()
-    name: string;
-    @Column()
+    @Column({ nullable: true, default: null })
     age: number;
-    @Column()
+    @Column({ nullable: true, default: null })
     birthday: Date;
-    @Column()
+    @Column({ default: DEFAULT_AVATAR })
     avatar: string;
-    @Column()
-    cover_photo: string;
+    @Column({ default: DEFAULT_COVER_PHOTO })
+    background: string;
 }

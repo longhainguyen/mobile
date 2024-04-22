@@ -2,26 +2,23 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity, PostEntity, ProfileEntity } from '@entities/index';
+import { UserEntity, PostEntity, ProfileEntity, VideoEntity, ImageEntity } from '@entities/index';
 import { AuthModule } from '@cores/auth/module/auth.module';
 import { UserModule } from '@cores/user/module/user.module';
 import { PostModule } from '@cores/post/module/post.module';
+import { typeormConfig } from '@configs/typeorm.config';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
     imports: [
-        TypeOrmModule.forRoot({
-            type: 'mysql',
-            host: 'localhost',
-            port: 3306,
-            username: 'root',
-            password: 'manhburn453',
-            database: 'social_media',
-            entities: [UserEntity, ProfileEntity, PostEntity],
-            synchronize: true,
-        }),
+        TypeOrmModule.forRootAsync(typeormConfig),
         AuthModule,
         UserModule,
         PostModule,
+        ConfigModule.forRoot({
+            isGlobal: true,
+            cache: true,
+        }),
     ],
     controllers: [AppController],
     providers: [AppService],
