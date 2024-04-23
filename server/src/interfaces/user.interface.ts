@@ -35,6 +35,12 @@ export interface ICreatePost {
     videos?: string[];
 }
 
+export interface ICreateFormDataPost {
+    caption: string;
+    images?: Express.Multer.File[];
+    videos?: Express.Multer.File[];
+}
+
 export interface IFollowUser {
     userId: number;
     followingId: number;

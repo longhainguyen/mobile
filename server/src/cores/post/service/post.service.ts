@@ -3,9 +3,10 @@ import { PostEntity } from '@entities/post.entity';
 import { UserEntity } from '@entities/user.entity';
 import { VideoEntity } from '@entities/video.entity';
 import { IGetPost } from '@interfaces/post.interface';
-import { ICreatePost } from '@interfaces/user.interface';
+import { ICreateFormDataPost, ICreatePost } from '@interfaces/user.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CloudinaryService } from '@shares/modules/cloudinary/cloudinary.service';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -15,16 +16,25 @@ export class PostService {
         @InjectRepository(PostEntity) private PostReposity: Repository<PostEntity>,
         @InjectRepository(ImageEntity) private ImageReposity: Repository<ImageEntity>,
         @InjectRepository(VideoEntity) private VideoReposity: Repository<VideoEntity>,
+        private readonly CloudinaryService: CloudinaryService,
     ) {}
 
-    async createPost(id: number, { caption, images, videos }: ICreatePost) {
+    async createPost(id: number, { caption, images, videos }: ICreateFormDataPost) {
         const user = await this.UserReposity.findOneBy({ id });
         if (!user) throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
         const newPost = this.PostReposity.create({ caption, user });
+        // console.log('imgaes', JSON.stringify(images));
         if (images) {
             const imageEntities = await Promise.all(
                 images.map(async (image) => {
-                    const newImage = this.ImageReposity.create({ url: image, public_id: 'public_id' });
+                    const response = await this.CloudinaryService.uploadImageFile(image);
+                    if (!response) {
+                        throw new HttpException('Upload image failed', HttpStatus.BAD_REQUEST);
+                    }
+                    const newImage = this.ImageReposity.create({
+                        url: response.secure_url,
+                        public_id: response.public_id,
+                    });
                     return await this.ImageReposity.save(newImage);
                 }),
             );
@@ -33,7 +43,14 @@ export class PostService {
         if (videos) {
             const videoEntities = await Promise.all(
                 videos.map(async (video) => {
-                    const newVideo = this.VideoReposity.create({ url: video, public_id: 'public_id' });
+                    const response = await this.CloudinaryService.uploadVideoFile(video);
+                    if (!response) {
+                        throw new HttpException('Upload video failed', HttpStatus.BAD_REQUEST);
+                    }
+                    const newVideo = this.ImageReposity.create({
+                        url: response.secure_url,
+                        public_id: response.public_id,
+                    });
                     return await this.VideoReposity.save(newVideo);
                 }),
             );

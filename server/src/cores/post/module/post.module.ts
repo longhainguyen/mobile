@@ -6,10 +6,11 @@ import { PostEntity } from '@entities/post.entity';
 import { UserEntity } from '@entities/user.entity';
 import { VideoEntity } from '@entities/video.entity';
 import { ImageEntity } from '@entities/image.entity';
+import { CloudinaryModule } from '@shares/modules/cloudinary/cloudinary.module';
 
 @Module({
     providers: [PostService],
     controllers: [PostController],
-    imports: [TypeOrmModule.forFeature([PostEntity, UserEntity, ImageEntity, VideoEntity])],
+    imports: [TypeOrmModule.forFeature([PostEntity, UserEntity, ImageEntity, VideoEntity]), CloudinaryModule],
 })
 export class PostModule {}
