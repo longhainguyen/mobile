@@ -27,7 +27,7 @@ export class PostController {
             { name: 'videos', maxCount: 2 },
         ]),
     )
-    async createPostTest(
+    async createPost(
         @Param('id', ParseIntPipe) id: number,
         @Body() post: CreatePostDto,
         @UploadedFiles() files: { images: Express.Multer.File[]; videos: Express.Multer.File[] },
