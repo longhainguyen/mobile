@@ -8,12 +8,16 @@ interface InfoAccountProps {
     avatar: any;
     cover: any;
     name: string;
+    age?: string;
+    birthday?: string;
     isOwn: boolean;
     isFollow?: boolean;
 }
 
 const InfoAccount: React.FC<InfoAccountProps> = ({
     avatar,
+    age,
+    birthday,
     cover,
     name,
     isOwn,
@@ -124,6 +128,28 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
                 >
                     {name}
                 </Text>
+                <View>
+                    <Text
+                        style={{
+                            fontFamily: FONT.regular,
+                            fontSize: FONT_SIZE.small,
+                            textAlign: 'center',
+                        }}
+                    >
+                        {age ? 'Tuổi' + age : 'Tuổi: Chưa có'}
+                    </Text>
+
+                    <Text
+                        style={{
+                            fontFamily: FONT.regular,
+                            fontSize: FONT_SIZE.small,
+                            textAlign: 'center',
+                        }}
+                    >
+                        {birthday ? 'Ngày sinh ' + birthday : 'Ngày sinh: Chưa có'}
+                    </Text>
+                </View>
+
                 {isOwn ? (
                     <TouchableOpacity
                         style={{

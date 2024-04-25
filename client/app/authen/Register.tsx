@@ -1,4 +1,5 @@
 import {
+    Alert,
     Dimensions,
     Image,
     Keyboard,
@@ -20,6 +21,9 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation';
 import { useState } from 'react';
 import axios from 'axios';
+import request from '../../config/request';
+import { AntDesign } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 
 const { height, width } = Dimensions.get('window');
 
@@ -28,20 +32,36 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Register', 'MyStack'>;
 export default function Register({ route, navigation }: Props) {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [rePassword, setRePassword] = useState('');
     const [email, setEmail] = useState('');
+    const [showPass, setShowPass] = useState(false);
+    const [showRePass, setShowRePass] = useState(false);
+
+    const createTwoButtonAlert = () =>
+        Alert.alert('Mật Khẩu', 'Mật khẩu nhâp lại sai', [
+            {
+                text: 'Cancel',
+                onPress: () => console.log('Cancel Pressed'),
+                style: 'cancel',
+            },
+            { text: 'OK', onPress: () => console.log('OK Pressed') },
+        ]);
 
     const handleRegister = async () => {
         try {
-            const response = await axios.post('http://192.168.1.139:5000/register', {
-                username,
-                password,
-                email,
+            if (rePassword !== password || rePassword === '' || password === '') {
+                createTwoButtonAlert();
+                return;
+            }
+            const response = await request.post('/auth/register', {
+                username: username,
+                password: password,
+                email: email,
             });
             console.log(response.data);
-            // Handle success response from API
+            navigation.navigate('Login');
         } catch (error) {
-            console.error('Error registering user:', error);
-            // Handle error response from API
+            console.log('Error registering user:', error);
         }
     };
 
@@ -87,7 +107,7 @@ export default function Register({ route, navigation }: Props) {
                         <TextInput
                             placeholder="Số điện thoại hoặc email"
                             placeholderTextColor={COLORS.darkText}
-                            onChangeText={setEmail}
+                            onChangeText={(text) => setEmail(text.trim())}
                             style={{
                                 fontFamily: FONT.regular,
                                 paddingLeft: 10,
@@ -97,31 +117,71 @@ export default function Register({ route, navigation }: Props) {
                     </View>
 
                     <View>
-                        <View style={[styles.input_box, { marginTop: 20 }]}>
+                        <View
+                            style={[
+                                styles.input_box,
+                                {
+                                    marginTop: 20,
+                                    paddingRight: 20,
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                },
+                            ]}
+                        >
                             <TextInput
+                                secureTextEntry={showPass ? false : true}
                                 placeholder="Mật khẩu"
                                 onChangeText={setPassword}
                                 placeholderTextColor={COLORS.darkText}
                                 style={{
+                                    flex: 1,
                                     fontFamily: FONT.regular,
                                     paddingLeft: 10,
                                     fontSize: FONT_SIZE.small,
                                 }}
                             ></TextInput>
+                            <TouchableOpacity onPress={() => setShowPass(!showPass)}>
+                                {showPass ? (
+                                    <AntDesign name="eyeo" size={20} color="black" />
+                                ) : (
+                                    <Feather name="eye-off" size={20} color="black" />
+                                )}
+                            </TouchableOpacity>
                         </View>
                     </View>
 
                     <View>
-                        <View style={[styles.input_box, { marginTop: 20 }]}>
+                        <View
+                            style={[
+                                styles.input_box,
+                                {
+                                    marginTop: 20,
+                                    paddingRight: 20,
+                                    flexDirection: 'row',
+                                    justifyContent: 'space-between',
+                                },
+                            ]}
+                        >
                             <TextInput
+                                secureTextEntry={showRePass ? false : true}
                                 placeholder="Gõ lại mật khẩu"
                                 placeholderTextColor={COLORS.darkText}
+                                onChangeText={setRePassword}
                                 style={{
+                                    flex: 1,
                                     fontFamily: FONT.regular,
                                     paddingLeft: 10,
                                     fontSize: FONT_SIZE.small,
                                 }}
                             ></TextInput>
+
+                            <TouchableOpacity onPress={() => setShowRePass(!showRePass)}>
+                                {showRePass ? (
+                                    <AntDesign name="eyeo" size={20} color="black" />
+                                ) : (
+                                    <Feather name="eye-off" size={20} color="black" />
+                                )}
+                            </TouchableOpacity>
                         </View>
                     </View>
 

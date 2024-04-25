@@ -87,10 +87,12 @@ const LoggedInNav = () => {
 export default function Navigation() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     async function getData() {
-        const data = await AsyncStorage.getItem('isLoggedIn');
-        setIsLoggedIn(Boolean(data));
-        console.log(data, 'at navigation/index.tsx');
-        console.log(isLoggedIn);
+        const userString = await AsyncStorage.getItem('User');
+        if (userString) {
+            const user = JSON.parse(userString);
+            setIsLoggedIn(user.isLoggedIn);
+            console.log(user.isLoggedIn, 'at navigation/index.tsx');
+        }
     }
 
     useEffect(() => {

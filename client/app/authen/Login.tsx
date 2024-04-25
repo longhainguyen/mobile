@@ -23,6 +23,11 @@ import axios from 'axios';
 import { LINK } from '../../config/localhot';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import UserData from '../../dataTemp/UserData';
+import request from '../../config/request';
+import { AntDesign } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
+import createTwoButtonAlert from '../../compoments/AlertComponent';
+import { IUser } from '../../type/User.type';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login', 'MyStack'>;
 
@@ -31,28 +36,29 @@ const { height, width } = Dimensions.get('window');
 export default function Login({ route, navigation }: Props) {
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
+    const [showPass, setShowPass] = useState(false);
 
     const handleLogin = async () => {
         try {
-            // Example call api
-            // const response = await axios.post(`http://${LINK.localhot}:${LINK.port}/login`, {
-            //     password,
-            //     email,
-            // });
-            // AsyncStorage.setItem('userId', JSON.stringify(response.data.data[0].id));
-            // AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
-            // AsyncStorage.setItem('userName', response.data.data[0].username);
-            // AsyncStorage.setItem('email', response.data.data[0].email);
-            // navigation.navigate('BottomTab');
-            // Handle success response from API
-            await AsyncStorage.setItem('userId', JSON.stringify(UserData[0].id));
-            await AsyncStorage.setItem('userName', UserData[0].name);
-            await AsyncStorage.setItem('email', UserData[0].email);
-            AsyncStorage.setItem('isLoggedIn', JSON.stringify(true));
+            const response = await request.post('/auth/login', {
+                email: email,
+                password: password,
+            });
+            const user: IUser = {
+                id: response.data.id,
+                email: response.data.email,
+                username: response.data.username,
+                isLoggedIn: true,
+                profile: {
+                    avatar: response.data.profile.avatar,
+                    background: response.data.profile.background,
+                },
+            };
+            await AsyncStorage.removeItem('User');
+            await AsyncStorage.setItem('User', JSON.stringify(user));
             navigation.navigate('BottomTab');
         } catch (error) {
-            console.error('Error registering user:', error);
-            // Handle error response from API
+            createTwoButtonAlert('Đăng nhập', 'Đăng nhập không thành công');
         }
     };
 
@@ -86,21 +92,40 @@ export default function Login({ route, navigation }: Props) {
                                 paddingLeft: 10,
                                 fontSize: FONT_SIZE.small,
                             }}
-                            onChangeText={setEmail}
+                            onChangeText={(text) => setEmail(text.trim())}
                         ></TextInput>
                     </View>
 
-                    <View style={[styles.input_box, { marginTop: 20 }]}>
+                    <View
+                        style={[
+                            styles.input_box,
+                            {
+                                marginTop: 20,
+                                paddingRight: 20,
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                            },
+                        ]}
+                    >
                         <TextInput
+                            secureTextEntry={showPass ? false : true}
                             placeholder="Mật khẩu"
                             placeholderTextColor={COLORS.darkText}
                             style={{
                                 fontFamily: FONT.regular,
                                 paddingLeft: 10,
                                 fontSize: FONT_SIZE.small,
+                                flex: 1,
                             }}
                             onChangeText={setPassword}
                         ></TextInput>
+                        <TouchableOpacity onPress={() => setShowPass(!showPass)}>
+                            {showPass ? (
+                                <AntDesign name="eyeo" size={20} color="black" />
+                            ) : (
+                                <Feather name="eye-off" size={20} color="black" />
+                            )}
+                        </TouchableOpacity>
                     </View>
 
                     <TouchableOpacity

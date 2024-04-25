@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View, Image, ActivityIndicator } from 'react-native';
 import { COLORS } from '../../constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -9,39 +9,67 @@ import PostContent from '../../compoments/PostContent';
 import Interact from '../../compoments/Interact';
 import InfoAccount from '../../compoments/InfoAccount';
 import BottomSheet from '@gorhom/bottom-sheet';
-import Comment from '../../compoments/Comment';
+import Comment, { ItemCommentProps } from '../../compoments/Comment';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import list_comments from '../../dataTemp/CommentData';
+import _list_comments from '../../dataTemp/CommentData';
+import { IUser } from '../../type/User.type';
 
 export default function Account({ navigation }: any) {
-    const logout = () => {
-        AsyncStorage.setItem('isLoggedIn', '');
+    const [user, setUser] = useState<IUser>();
+    const [listComment, setListComment] = useState<ItemCommentProps[]>();
+    const [postIdOpen, setPostIdOpen] = useState('');
+
+    useEffect(() => {
+        var arr: ItemCommentProps[] = [];
+        arr = _list_comments.filter((ele) => ele.post_id === postIdOpen);
+        setListComment(arr);
+    }, [postIdOpen]);
+
+    const bottemSheet = useRef<BottomSheet>(null);
+
+    const openComment = (index: number, post_id: string) => {
+        bottemSheet.current?.snapToIndex(index);
+        setPostIdOpen(post_id);
+    };
+
+    const logout = async () => {
+        const userString = await AsyncStorage.getItem('User');
+        if (userString) {
+            const user = JSON.parse(userString);
+            user.isLoggedIn = false;
+            await AsyncStorage.setItem('User', JSON.stringify(user));
+        }
         navigation.navigate('Login');
     };
 
     useEffect(() => {
-        AsyncStorage.getItem('userName').then((results) => {
-            console.log(results);
+        AsyncStorage.getItem('User').then((userString) => {
+            if (userString) {
+                const user = JSON.parse(userString);
+                setUser(user);
+            }
         });
     }, []);
-
-    const bottemSheet = useRef<BottomSheet>(null);
-
-    const openComment = (index: number) => {
-        bottemSheet.current?.snapToIndex(index);
-    };
 
     return (
         <GestureHandlerRootView style={{ flex: 1, marginTop: 15 }}>
             <ScrollView style={{ backgroundColor: COLORS.white }}>
                 <InfoAccount
                     isOwn={true}
-                    avatar={UserData[0].avatar}
-                    cover={UserData[0].background}
-                    name={UserData[0].name}
+                    avatar={
+                        user?.profile.avatar ? { uri: user?.profile.avatar } : UserData[0].avatar
+                    }
+                    cover={
+                        user?.profile.background
+                            ? { uri: user?.profile.background }
+                            : UserData[0].background
+                    }
+                    name={user?.username ? user?.username : ''}
                 />
                 <UserIcon
-                    avatar={UserData[0].avatar}
+                    avatar={
+                        user?.profile.avatar ? { uri: user?.profile.avatar } : UserData[0].avatar
+                    }
                     isFollowed={false}
                     userName={UserData[0].name}
                     isOwner={true}
@@ -62,6 +90,7 @@ export default function Account({ navigation }: any) {
                             comment: PostData[0].comments.length,
                             like: PostData[0].like,
                             share: PostData[0].share,
+                            postId: PostData[0].id,
                         })
                     }
                 >
@@ -78,7 +107,7 @@ export default function Account({ navigation }: any) {
                     share={PostData[0].share}
                     avatar={UserData[0].avatar}
                     atHome={true}
-                    openComment={() => openComment(0)}
+                    openComment={() => openComment(0, PostData[0].id + '')}
                 />
 
                 <TouchableOpacity
@@ -92,7 +121,7 @@ export default function Account({ navigation }: any) {
                 title="Bình luận"
                 atSinglePost={false}
                 ref={bottemSheet}
-                dataCommentsOfPost={list_comments}
+                dataCommentsOfPost={listComment || []}
                 avatar={UserData[0].avatar}
             />
         </GestureHandlerRootView>
