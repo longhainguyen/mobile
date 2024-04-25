@@ -43,12 +43,20 @@ export default function Account({ navigation }: any) {
     };
 
     useEffect(() => {
-        AsyncStorage.getItem('User').then((userString) => {
-            if (userString) {
-                const user = JSON.parse(userString);
-                setUser(user);
+        const fetchUserData = async () => {
+            try {
+                const userString = await AsyncStorage.getItem('User');
+                if (userString) {
+                    const user = JSON.parse(userString);
+                    setUser(user);
+                    console.log(user);
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
             }
-        });
+        };
+
+        fetchUserData();
     }, []);
 
     return (
@@ -71,7 +79,7 @@ export default function Account({ navigation }: any) {
                         user?.profile.avatar ? { uri: user?.profile.avatar } : UserData[0].avatar
                     }
                     isFollowed={false}
-                    userName={UserData[0].name}
+                    userName={user?.username ? user?.username : ''}
                     isOwner={true}
                     openAccount={() => {
                         navigation.navigate('Account');

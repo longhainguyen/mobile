@@ -54,6 +54,8 @@ export default function Login({ route, navigation }: Props) {
                     background: response.data.profile.background,
                 },
             };
+            console.log(user);
+
             await AsyncStorage.removeItem('User');
             await AsyncStorage.setItem('User', JSON.stringify(user));
             navigation.navigate('BottomTab');
