@@ -22,6 +22,7 @@ import BottomSheet, { BottomSheetModal } from '@gorhom/bottom-sheet';
 import Comment, { ItemCommentProps } from '../../compoments/Comment';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import _list_comments from '../../dataTemp/CommentData';
+import { EvilIcons } from '@expo/vector-icons';
 
 const { height, width } = Dimensions.get('window');
 
@@ -80,13 +81,34 @@ export default function Home({ navigation }: any) {
                         marginHorizontal: 10,
                         height: height / 15,
                         borderBottomWidth: 2,
-                        justifyContent: 'center',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
                         borderColor: COLORS.borderColor,
+                        flexDirection: 'row',
+                        flex: 1,
                     }}
                 >
                     <Text style={{ fontFamily: FONT.medium, fontSize: FONT_SIZE.large }}>
                         Social Network
                     </Text>
+                    <View style={{ flexDirection: 'row', gap: 3 }}>
+                        <TouchableOpacity
+                            style={{ padding: 5 }}
+                            onPress={() => {
+                                navigation.navigate('Search');
+                            }}
+                        >
+                            <EvilIcons name="search" size={26} color="black" />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={{ padding: 5 }}
+                            onPress={() => {
+                                navigation.navigate('Inform');
+                            }}
+                        >
+                            <EvilIcons name="bell" size={26} color="black" />
+                        </TouchableOpacity>
+                    </View>
                 </View>
 
                 <UserIcon

@@ -16,6 +16,8 @@ import CommentHome from '../app/home/CommentHome';
 import AccountOther from '../app/account/AccountOther';
 import { store } from '../redux/Store';
 import { setStateUser } from '../redux/stateUser/stateUser';
+import Search from '../app/search/Search';
+import Inform from '../app/inform/Inform';
 
 const theme = {
     ...DefaultTheme,
@@ -34,6 +36,8 @@ export type RootStackParamList = {
     ShowPost: undefined;
     CommentHome: undefined;
     AccountOther: undefined;
+    Search: undefined;
+    Inform: undefined;
 };
 
 const NotLoggInNav = () => {
@@ -57,6 +61,8 @@ const NotLoggInNav = () => {
             <RootStack.Screen name="ShowPost" component={ShowPost} />
             <RootStack.Screen name="CommentHome" component={CommentHome} />
             <RootStack.Screen name="AccountOther" component={AccountOther} />
+            <RootStack.Screen name="Search" component={Search} />
+            <RootStack.Screen name="Inform" component={Inform} />
         </RootStack.Navigator>
     );
 };
@@ -82,6 +88,8 @@ const LoggedInNav = () => {
             <RootStack.Screen name="ShowPost" component={ShowPost} />
             <RootStack.Screen name="CommentHome" component={CommentHome} />
             <RootStack.Screen name="AccountOther" component={AccountOther} />
+            <RootStack.Screen name="Search" component={Search} />
+            <RootStack.Screen name="Inform" component={Inform} />
         </RootStack.Navigator>
     );
 };
