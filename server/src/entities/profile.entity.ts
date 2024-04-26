@@ -3,14 +3,14 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'profiles' })
 export class ProfileEntity {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({})
     id: number;
-    @Column({ nullable: true, default: null })
+    @Column({ select: false, nullable: true, default: null })
     age: number;
-    @Column({ nullable: true, default: null })
+    @Column({ select: false, nullable: true, default: null })
     birthday: Date;
     @Column({ default: DEFAULT_AVATAR })
     avatar: string;
-    @Column({ default: DEFAULT_COVER_PHOTO })
+    @Column({ select: false, default: DEFAULT_COVER_PHOTO })
     background: string;
 }

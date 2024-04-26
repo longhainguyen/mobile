@@ -5,6 +5,8 @@ import { UserEntity } from '@entities/user.entity';
 import { VideoEntity } from '@entities/video.entity';
 import { TypeOrmModuleAsyncOptions, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CommentEntity } from '@entities/comment.entity';
+import { LikeEntity } from '@entities/like.entity';
 
 export default class TypeOrmConfig {
     static getOrmConfig(configService: ConfigService): TypeOrmModuleOptions {
@@ -15,7 +17,7 @@ export default class TypeOrmConfig {
             username: configService.get('DB_USERNAME'),
             password: configService.get('DB_PASSWORD'),
             database: configService.get('DB_NAME'),
-            entities: [UserEntity, ProfileEntity, PostEntity, ImageEntity, VideoEntity],
+            entities: [UserEntity, ProfileEntity, PostEntity, ImageEntity, VideoEntity, LikeEntity, CommentEntity],
             synchronize: true,
         };
     }

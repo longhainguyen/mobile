@@ -26,7 +26,7 @@ export class UserService {
     getUsers() {
         return this.UserReposity.find({
             select: ['id', 'email', 'username'],
-            relations: ['profile', 'posts', 'followers', 'followings', 'posts.images', 'posts.videos'],
+            relations: ['profile', 'followers', 'followings'],
         });
     }
 
