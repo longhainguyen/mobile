@@ -13,11 +13,14 @@ import Comment, { ItemCommentProps } from '../../compoments/Comment';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import _list_comments from '../../dataTemp/CommentData';
 import { IUser } from '../../type/User.type';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/Store';
 
 export default function Account({ navigation }: any) {
     const [user, setUser] = useState<IUser>();
     const [listComment, setListComment] = useState<ItemCommentProps[]>();
     const [postIdOpen, setPostIdOpen] = useState('');
+    const stateUser = useSelector((state: RootState) => state.reducerUser);
 
     useEffect(() => {
         var arr: ItemCommentProps[] = [];
@@ -49,7 +52,6 @@ export default function Account({ navigation }: any) {
                 if (userString) {
                     const user = JSON.parse(userString);
                     setUser(user);
-                    console.log(user);
                 }
             } catch (error) {
                 console.error('Error fetching user data:', error);
@@ -64,22 +66,14 @@ export default function Account({ navigation }: any) {
             <ScrollView style={{ backgroundColor: COLORS.white }}>
                 <InfoAccount
                     isOwn={true}
-                    avatar={
-                        user?.profile.avatar ? { uri: user?.profile.avatar } : UserData[0].avatar
-                    }
-                    cover={
-                        user?.profile.background
-                            ? { uri: user?.profile.background }
-                            : UserData[0].background
-                    }
-                    name={user?.username ? user?.username : ''}
+                    avatar={{ uri: stateUser.profile.avatar }}
+                    cover={{ uri: stateUser.profile.background }}
+                    name={stateUser.username}
                 />
                 <UserIcon
-                    avatar={
-                        user?.profile.avatar ? { uri: user?.profile.avatar } : UserData[0].avatar
-                    }
+                    avatar={{ uri: stateUser.profile.avatar }}
                     isFollowed={false}
-                    userName={user?.username ? user?.username : ''}
+                    userName={stateUser.username}
                     isOwner={true}
                     openAccount={() => {
                         navigation.navigate('Account');

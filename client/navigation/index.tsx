@@ -14,6 +14,8 @@ import ShowPost from '../app/home/ShowPost';
 import { SplashScreen } from 'expo-router';
 import CommentHome from '../app/home/CommentHome';
 import AccountOther from '../app/account/AccountOther';
+import { store } from '../redux/Store';
+import { setStateUser } from '../redux/stateUser/stateUser';
 
 const theme = {
     ...DefaultTheme,
@@ -91,6 +93,7 @@ export default function Navigation() {
         if (userString) {
             const user = JSON.parse(userString);
             setIsLoggedIn(user.isLoggedIn);
+            store.dispatch(setStateUser(user));
             console.log(user.isLoggedIn, 'at navigation/index.tsx');
         }
     }

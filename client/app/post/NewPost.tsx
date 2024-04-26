@@ -5,19 +5,13 @@ import { Button, Card, useThemeColor } from '../../compoments/Themed';
 import * as ImagePicker from 'expo-image-picker';
 import { COLORS } from '../../constants';
 
-interface Props {
-    onSubmit: (content: string, image: string) => void;
-    theme: 'light' | 'dark';
-}
-
-export default function AddPostForm({ onSubmit, theme }: Props) {
+export default function Post() {
     const [content, setContent] = useState('');
     const color = useThemeColor({}, 'primary');
-    const styles = createStyles(theme);
+
     const [image, setImage] = useState('');
 
     const handleSubmit = () => {
-        onSubmit(content, image);
         setContent('');
         setImage('');
     };
@@ -58,37 +52,36 @@ export default function AddPostForm({ onSubmit, theme }: Props) {
     );
 }
 
-const createStyles = (theme: 'light' | 'dark') =>
-    StyleSheet.create({
-        container: {
-            width: '100%',
-            paddingHorizontal: 16,
-            paddingTop: 24,
-        },
-        row: {
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            width: '100%',
-            margin: 8,
-        },
-        textInput: {
-            fontSize: 18,
-            color: COLORS.black,
-            marginTop: 8,
-            marginLeft: 8,
-        },
-        image: {
-            height: 100,
-            width: 100,
-            alignItems: 'flex-start',
-            padding: 8,
-        },
-        imageButton: {
-            backgroundColor: 'white',
-            borderRadius: 16,
-            padding: 2,
-            borderColor: 'black',
-            borderWidth: 2,
-        },
-    });
+const styles = StyleSheet.create({
+    container: {
+        width: '100%',
+        paddingHorizontal: 16,
+        paddingTop: 24,
+    },
+    row: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        width: '100%',
+        margin: 8,
+    },
+    textInput: {
+        fontSize: 18,
+        color: COLORS.black,
+        marginTop: 8,
+        marginLeft: 8,
+    },
+    image: {
+        height: 100,
+        width: 100,
+        alignItems: 'flex-start',
+        padding: 8,
+    },
+    imageButton: {
+        backgroundColor: 'white',
+        borderRadius: 16,
+        padding: 2,
+        borderColor: 'black',
+        borderWidth: 2,
+    },
+});

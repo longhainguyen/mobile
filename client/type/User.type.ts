@@ -4,6 +4,8 @@ interface IUser {
     email: string;
     isLoggedIn: boolean;
     profile: {
+        phoneNumber?: string;
+        address?: string;
         age?: number;
         birthday?: Date;
         avatar: string;

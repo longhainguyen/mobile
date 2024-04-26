@@ -28,6 +28,8 @@ import { AntDesign } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
 import createTwoButtonAlert from '../../compoments/AlertComponent';
 import { IUser } from '../../type/User.type';
+import { store } from '../../redux/Store';
+import { setStateUser } from '../../redux/stateUser/stateUser';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login', 'MyStack'>;
 
@@ -55,6 +57,7 @@ export default function Login({ route, navigation }: Props) {
                 },
             };
             console.log(user);
+            store.dispatch(setStateUser(user));
 
             await AsyncStorage.removeItem('User');
             await AsyncStorage.setItem('User', JSON.stringify(user));
