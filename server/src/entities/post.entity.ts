@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, RelationCount } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, RelationCount } from 'typeorm';
 import { UserEntity } from './user.entity';
 import { ImageEntity } from './image.entity';
 import { VideoEntity } from './video.entity';
@@ -18,8 +18,11 @@ export class PostEntity {
     @OneToMany(() => VideoEntity, (video) => video.post)
     videos: VideoEntity[];
 
-    @Column({ type: 'int', default: 0 })
-    shares: number;
+    @ManyToOne(() => PostEntity, (post) => post.shareds)
+    origin: PostEntity;
+
+    @OneToMany(() => PostEntity, (post) => post.origin)
+    shareds: PostEntity[];
 
     @OneToMany(() => LikeEntity, (like) => like.post)
     likes: LikeEntity[];

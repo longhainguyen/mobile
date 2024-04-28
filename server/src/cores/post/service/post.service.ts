@@ -1,11 +1,11 @@
 import { CommentType } from '@constants/enums/comment.enum';
 import { CommentEntity, ImageEntity, LikeEntity, PostEntity, UserEntity, VideoEntity } from '@entities/index';
-import { ICommentPost, IGetPost, ILikePost } from '@interfaces/post.interface';
+import { ICommentPost, IGetPost, ILikePost, ISharePost } from '@interfaces/post.interface';
 import { ICreateFormDataPost, ICreatePost } from '@interfaces/user.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CloudinaryService } from '@shares/modules/cloudinary/cloudinary.service';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class PostService {
@@ -62,39 +62,81 @@ export class PostService {
 
     async getPosts({ limit = 10, page = 0 }: IGetPost) {
         const posts = await this.PostReposity.find({
-            select: ['id', 'caption', 'shares', 'comments', 'createdAt'],
+            select: ['id', 'caption', 'createdAt'],
             relations: [
-                'user.profile',
                 'images',
                 'videos',
-                'user.followers',
-                'user.followings',
                 'likes',
                 'comments',
                 'comments.childrens',
-                'comments.user',
-                'comments.childrens.user',
-                'comments.childrens.user.profile',
+                'user.profile',
+                'user.followers',
+                'user.followings',
+                'shareds',
+                'origin',
+                'origin.images',
+                'origin.videos',
             ],
             order: { createdAt: 'DESC' },
             skip: limit * page,
             take: limit,
         });
 
-        const filerPosts = posts.map((post) => {
-            const { user, ...props } = post;
-            return {
-                ...props,
-                user: {
-                    id: user.id,
-                    username: user.username,
-                    followers: user.followers,
-                    followings: user.followings,
-                    profile: user.profile,
-                },
+        // const count = await this.PostReposity.createQueryBuilder('posts')
+        //     .leftJoin('posts.likes', 'likes')
+        //     .select('posts.id', 'id')
+        //     .addSelect('COUNT(likes.postId)', 'likeCount')
+        //     .groupBy('id')
+        //     .skip(limit * page)
+        //     .limit(limit)
+        //     .getRawMany();
+
+        return posts.map((post) => {
+            const filterPost = {
+                ...post,
+                likeCount: post.likes.length,
+                commentCount: post.comments.length + post.comments.reduce((acc, cur) => acc + cur.childrens.length, 0),
             };
+            delete filterPost.comments;
+            delete filterPost.likes;
+            return filterPost;
         });
-        return filerPosts || [];
+    }
+
+    async getPostByUserId(userId: number, { limit = 5, page = 0 }: IGetPost) {
+        const user = await this.UserReposity.findOneBy({ id: userId });
+        if (!user) throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+        const posts = await this.PostReposity.find({
+            select: ['id', 'caption', 'createdAt'],
+            relations: [
+                'images',
+                'videos',
+                'likes',
+                'comments',
+                'comments.childrens',
+                'user.profile',
+                'user.followers',
+                'user.followings',
+                'shareds',
+                'origin',
+                'origin.images',
+                'origin.videos',
+            ],
+            where: { user: { id: userId } },
+            order: { createdAt: 'DESC' },
+            skip: limit * page,
+            take: limit,
+        });
+        return posts.map((post) => {
+            const filterPost = {
+                ...post,
+                likeCount: post.likes.length,
+                commentCount: post.comments.length + post.comments.reduce((acc, cur) => acc + cur.childrens.length, 0),
+            };
+            delete filterPost.comments;
+            delete filterPost.likes;
+            return filterPost;
+        });
     }
 
     async updateCaptionPost(id: number, caption: string) {
@@ -133,5 +175,14 @@ export class PostService {
         if (!parentComment) throw new HttpException('Parent comment not found', HttpStatus.BAD_REQUEST);
         const newComment = this.CommentReposity.create({ content, user, parent: parentComment });
         return await this.CommentReposity.save(newComment);
+    }
+
+    async sharePost(id: number, { originId, caption }: ISharePost) {
+        const user = await this.UserReposity.findOneBy({ id });
+        if (!user) throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+        const origin = await this.PostReposity.findOneBy({ id: originId });
+        if (!origin) throw new HttpException('Origin post not found', HttpStatus.BAD_REQUEST);
+        const newPost = this.PostReposity.create({ caption, user, origin });
+        return await this.PostReposity.save(newPost);
     }
 }

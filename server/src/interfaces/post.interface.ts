@@ -14,3 +14,8 @@ export interface ICommentPost {
     content: string;
     parentId: number;
 }
+
+export interface ISharePost {
+    originId: number;
+    caption: string;
+}

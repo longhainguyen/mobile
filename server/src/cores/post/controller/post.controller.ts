@@ -48,6 +48,15 @@ export class PostController {
         return this.PostService.getPosts({ limit, page });
     }
 
+    @Get('get-posts/:id')
+    getPostByUserId(
+        @Param('id', ParseIntPipe) id: number,
+        @Query('limit', ParseIntPipe) limit: number,
+        @Query('page', ParseIntPipe) page: number,
+    ) {
+        return this.PostService.getPostByUserId(id, { limit, page });
+    }
+
     @Patch('update-caption-post/:id')
     updateCaptionPost(@Param('id', ParseIntPipe) id: number, @Body(new ValidationPipe()) data: UpdateCaptionDto) {
         return this.PostService.updateCaptionPost(id, data.caption);
@@ -64,5 +73,14 @@ export class PostController {
         @Body(new ValidationPipe()) { content, parentId, userId }: CommentPostDto,
     ) {
         return this.PostService.commentPost({ content, parentId, userId, postId: id });
+    }
+
+    @Post('share-post/:id')
+    sharePost(
+        @Param('id', ParseIntPipe) id: number,
+        @Body('originId', ParseIntPipe) originId: number,
+        @Body('caption') caption: string,
+    ) {
+        return this.PostService.sharePost(id, { originId, caption });
     }
 }

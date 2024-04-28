@@ -25,14 +25,14 @@ export class UserService {
     ) {}
     getUsers() {
         return this.UserReposity.find({
-            select: ['id', 'email', 'username'],
+            select: ['id', 'username'],
             relations: ['profile', 'followers', 'followings'],
         });
     }
 
     getUsersByName({ keyword, limit = 5, page = 0 }: IFindUser) {
         return this.UserReposity.find({
-            select: ['id', 'username', 'email'],
+            select: ['id', 'username'],
             where: { username: Like(`%${keyword}%`) },
             order: { username: 'ASC' },
             skip: limit * page,
