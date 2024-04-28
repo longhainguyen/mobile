@@ -1,13 +1,38 @@
+const primary = "#3bd08f";
+const tintColorLight = primary;
+const tintColorDark = primary;
+
 const COLORS = {
+    light: {
+        text: "#111827",
+        background: "#f3f4f6",
+        card: "#fff",
+        tint: tintColorLight,
+        tabIconDefault: "#e5e7eb",
+        tabIconSelected: tintColorLight,
+        primary ,
+      },
+      dark: {
+        text: "#fff",
+        background: "#111827",
+        card: "#374151",
+        tint: tintColorDark,
+        tabIconDefault: "#e5e7eb",
+        tabIconSelected: tintColorDark,
+        primary,
+      },
     primary: '#F1E0E0',
 
     borderColor: '#EEEEEE',
     green: '#0F9804',
+    textGrey: '#919191',
+    black: '#1A1B23',
+    shadowColor: '#000',
 
     gray: '#83829A',
     gray2: '#C1C0C8',
 
-    white: '#F3F4F8',
+    white: '#FFF',
     lightWhite: '#FAFAFC',
 
     darkText: '#626262',
@@ -15,6 +40,8 @@ const COLORS = {
     redButton: '#EA5B5B',
 
     background: '#fff',
+
+    black:'#000000'
 };
 
 const SIZES = {

@@ -9,6 +9,15 @@ import ForgetPass from '../app/authen/FogetPass';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import BottomTab from './bottomTab';
+import ShowImage from '../compoments/ShowImage';
+import ShowPost from '../app/home/ShowPost';
+import { SplashScreen } from 'expo-router';
+import CommentHome from '../app/home/CommentHome';
+import AccountOther from '../app/account/AccountOther';
+import { store } from '../redux/Store';
+import { setStateUser } from '../redux/stateUser/stateUser';
+import Search from '../app/search/Search';
+import Inform from '../app/inform/Inform';
 
 const theme = {
     ...DefaultTheme,
@@ -23,6 +32,12 @@ export type RootStackParamList = {
     Register: undefined;
     FogetPass: undefined;
     BottomTab: undefined;
+    ShowImage: undefined;
+    ShowPost: undefined;
+    CommentHome: undefined;
+    AccountOther: undefined;
+    Search: undefined;
+    Inform: undefined;
 };
 
 const NotLoggInNav = () => {
@@ -42,6 +57,12 @@ const NotLoggInNav = () => {
             />
             <RootStack.Screen name="Register" component={Register} />
             <RootStack.Screen name="FogetPass" component={ForgetPass} />
+            <RootStack.Screen name="ShowImage" component={ShowImage} />
+            <RootStack.Screen name="ShowPost" component={ShowPost} />
+            <RootStack.Screen name="CommentHome" component={CommentHome} />
+            <RootStack.Screen name="AccountOther" component={AccountOther} />
+            <RootStack.Screen name="Search" component={Search} />
+            <RootStack.Screen name="Inform" component={Inform} />
         </RootStack.Navigator>
     );
 };
@@ -55,14 +76,20 @@ const LoggedInNav = () => {
                 headerShown: false,
             }}
         >
-            <RootStack.Screen name="Login" component={Login} />
             <RootStack.Screen
                 name="BottomTab"
                 component={BottomTab}
                 options={{ headerShown: false }}
             />
+            <RootStack.Screen name="ShowImage" component={ShowImage} />
+            <RootStack.Screen name="Login" component={Login} />
             <RootStack.Screen name="Register" component={Register} />
             <RootStack.Screen name="FogetPass" component={ForgetPass} />
+            <RootStack.Screen name="ShowPost" component={ShowPost} />
+            <RootStack.Screen name="CommentHome" component={CommentHome} />
+            <RootStack.Screen name="AccountOther" component={AccountOther} />
+            <RootStack.Screen name="Search" component={Search} />
+            <RootStack.Screen name="Inform" component={Inform} />
         </RootStack.Navigator>
     );
 };
@@ -70,15 +97,22 @@ const LoggedInNav = () => {
 export default function Navigation() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     async function getData() {
-        const data = await AsyncStorage.getItem('isLoggedIn');
-        console.log(data, 'at navigation/index.tsx');
-        setIsLoggedIn(Boolean(data));
-        console.log(isLoggedIn);
+        const userString = await AsyncStorage.getItem('User');
+        if (userString) {
+            const user = JSON.parse(userString);
+            setIsLoggedIn(user.isLoggedIn);
+            store.dispatch(setStateUser(user));
+            console.log(user.isLoggedIn, 'at navigation/index.tsx');
+        }
     }
 
     useEffect(() => {
         getData();
+        setTimeout(() => {
+            SplashScreen.hideAsync();
+        }, 900);
     }, []);
+
     return (
         <NavigationContainer theme={theme}>
             {isLoggedIn ? <LoggedInNav /> : <NotLoggInNav />}
