@@ -1,12 +1,20 @@
-import React from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, ImageSourcePropType } from 'react-native';
+import React, { useState } from 'react';
+import {
+    StyleSheet,
+    Text,
+    View,
+    Image,
+    TouchableOpacity,
+    ImageSourcePropType,
+    Modal,
+} from 'react-native';
 import { COLORS } from '../constants';
 import { FONT, FONT_SIZE } from '../constants/font';
 import { Entypo } from '@expo/vector-icons';
 
 interface UserProp {
     userName: string;
-    avatar: ImageSourcePropType;
+    avatar: any;
     isFollowed: boolean;
     isOwner: boolean;
     width?: number;
@@ -23,6 +31,7 @@ const UserIcon: React.FC<UserProp> = ({
     isOwner,
     openAccount,
 }) => {
+    const [modalVisible, setModalVisible] = useState(false);
     return (
         <View
             style={{
@@ -71,13 +80,37 @@ const UserIcon: React.FC<UserProp> = ({
                         </Text>
                     </TouchableOpacity>
                 )}
-                <TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => {
+                        setModalVisible(!modalVisible);
+                    }}
+                >
                     <Entypo
                         name="dots-three-vertical"
                         size={24}
                         color="black"
                         style={{ marginTop: 3 }}
-                    />
+                    >
+                        <Modal
+                            animationType="fade"
+                            transparent={true}
+                            visible={modalVisible}
+                            style={{}}
+                            onRequestClose={() => {
+                                setModalVisible(!modalVisible);
+                            }}
+                        >
+                            <View
+                                style={{
+                                    backgroundColor: COLORS.gray,
+                                    padding: 20,
+                                    position: 'absolute',
+                                }}
+                            >
+                                <Text>Hello world</Text>
+                            </View>
+                        </Modal>
+                    </Entypo>
                 </TouchableOpacity>
             </View>
         </View>

@@ -1,13 +1,13 @@
 const PostData = [
     {
         id: 1,
-        time: '52 phút trước',
+        time: '2024-04-25T11:03:36.000Z',
         images: [
             require('../assets/images/avatar.jpeg'),
             require('../assets/images/backgound.jpeg'),
             require('../assets/images/spiderman.jpeg'),
         ],
-        videos: [],
+        videos: [require('../assets/videos/Download.mp4')],
         share: 10,
         like: 10,
         comments: [1, 2, 3],
@@ -16,7 +16,7 @@ const PostData = [
     },
     {
         id: 2,
-        time: '53 phút trước',
+        time: '2024-04-26T11:03:36.000Z',
         images: [
             require('../assets/images/avatar.jpeg'),
             require('../assets/images/avatar.jpeg'),
@@ -30,7 +30,7 @@ const PostData = [
     },
     {
         id: 3,
-        time: '51 phút trước',
+        time: '2024-04-26T11:03:36.000Z',
         share: 10,
         like: 10,
         comments: [1, 2, 3],

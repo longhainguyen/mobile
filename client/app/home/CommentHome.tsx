@@ -16,12 +16,12 @@ const CommentHome = ({ route, navigation }: CommentHomeProps) => {
 
     return (
         <GestureHandlerRootView style={{ flex: 1, marginTop: 15 }}>
-            <Comment
+            {/* <Comment
                 title="Bình luận"
                 atSinglePost={false}
                 ref={bottemSheet}
                 avatar={UserData[0].avatar}
-            />
+            /> */}
         </GestureHandlerRootView>
     );
 };
