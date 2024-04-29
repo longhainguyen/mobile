@@ -22,6 +22,13 @@ export interface IUpdateCommentPost {
     commentId: number;
 }
 
+export interface IDeleteCommentPost {
+    userId: number;
+    postId: number;
+    commentId: number;
+    isParent: boolean;
+}
+
 export interface ISharePost {
     originId: number;
     caption: string;

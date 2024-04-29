@@ -27,7 +27,7 @@ export class PostEntity {
     @OneToMany(() => LikeEntity, (like) => like.post)
     likes: LikeEntity[];
 
-    @OneToMany(() => CommentEntity, (comment) => comment.post)
+    @OneToMany(() => CommentEntity, (comment) => comment.post, { cascade: ['remove'] })
     comments: CommentEntity[];
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
