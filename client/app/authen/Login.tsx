@@ -63,7 +63,7 @@ export default function Login({ route, navigation }: Props) {
             await AsyncStorage.setItem('User', JSON.stringify(user));
             navigation.navigate('BottomTab');
         } catch (error) {
-            createTwoButtonAlert('Đăng nhập', 'Đăng nhập không thành công');
+            createTwoButtonAlert({ title: 'Đăng nhập', content: 'Thất bại' });
         }
     };
 

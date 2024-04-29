@@ -27,7 +27,7 @@ const { height, width } = Dimensions.get('window');
 
 interface Props {
     title: string;
-    avatar: ImageSourcePropType;
+    avatar: any;
     atSinglePost?: boolean;
     dataCommentsOfPost: ItemCommentProps[];
 }

@@ -27,7 +27,7 @@ interface InteractProp {
     like: number;
     comment: number;
     borderTopWidth?: number;
-    avatar: ImageSourcePropType;
+    avatar: any;
     atHome?: boolean;
     openComment?: () => void;
 }

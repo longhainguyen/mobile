@@ -11,13 +11,14 @@ import {
 import { FONT, FONT_SIZE } from '../constants/font';
 import { COLORS } from '../constants';
 import { useState } from 'react';
+import moment from 'moment';
 
 const { height, width } = Dimensions.get('window');
 const maxLength = 100;
 
 type ItemProps = {
-    source: ImageSourcePropType;
-    sources: ImageSourcePropType[];
+    source: any;
+    sources: any[];
     index: number;
     navigation: any;
 };
@@ -68,7 +69,7 @@ const PostContent: React.FC<PostContentProp> = ({ navigation, time, images, desc
                     color: COLORS.textGrey,
                 }}
             >
-                {time}
+                {moment(time).startOf('minutes').fromNow()}
             </Text>
             {images && (
                 <SafeAreaView>

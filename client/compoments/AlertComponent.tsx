@@ -1,6 +1,12 @@
 import { Alert } from 'react-native';
 
-const createTwoButtonAlert = (title: string, content: string) => {
+interface createTwoButtonAlertProps {
+    title: string;
+    content: string;
+    navigateToHome?: () => void;
+}
+
+const createTwoButtonAlert = ({ title, content, navigateToHome }: createTwoButtonAlertProps) => {
     Alert.alert(
         title,
         content,
