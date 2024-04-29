@@ -15,6 +15,13 @@ export interface ICommentPost {
     parentId: number;
 }
 
+export interface IUpdateCommentPost {
+    userId: number;
+    postId: number;
+    content: string;
+    commentId: number;
+}
+
 export interface ISharePost {
     originId: number;
     caption: string;

@@ -17,6 +17,7 @@ import { PostService } from '../service/post.service';
 import { FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { UpdateCaptionDto } from '../dto/update-caption.dto';
 import { CommentPostDto } from '../dto/comment-post.dto';
+import { UpdateCommentPostDto } from '../dto/update-comment-post.dto';
 
 @Controller('posts')
 export class PostController {
@@ -73,6 +74,14 @@ export class PostController {
         @Body(new ValidationPipe()) { content, parentId, userId }: CommentPostDto,
     ) {
         return this.PostService.commentPost({ content, parentId, userId, postId: id });
+    }
+
+    @Patch('update-comment-post/:id')
+    updateCommentPost(
+        @Param('id', ParseIntPipe) id: number,
+        @Body(new ValidationPipe()) { content, commentId, userId }: UpdateCommentPostDto,
+    ) {
+        return this.PostService.updateCommentPost({ content, commentId, userId, postId: id });
     }
 
     @Post('share-post/:id')

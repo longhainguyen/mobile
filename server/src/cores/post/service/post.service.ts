@@ -1,7 +1,7 @@
 import { CommentType } from '@constants/enums/comment.enum';
 import { CommentEntity, ImageEntity, LikeEntity, PostEntity, UserEntity, VideoEntity } from '@entities/index';
-import { ICommentPost, IGetPost, ILikePost, ISharePost } from '@interfaces/post.interface';
-import { ICreateFormDataPost, ICreatePost } from '@interfaces/user.interface';
+import { ICommentPost, IGetPost, ILikePost, ISharePost, IUpdateCommentPost } from '@interfaces/post.interface';
+import { ICreateFormDataPost } from '@interfaces/user.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CloudinaryService } from '@shares/modules/cloudinary/cloudinary.service';
@@ -76,6 +76,8 @@ export class PostService {
                 'origin',
                 'origin.images',
                 'origin.videos',
+                'origin.user',
+                'origin.user.profile',
             ],
             order: { createdAt: 'DESC' },
             skip: limit * page,
@@ -143,7 +145,32 @@ export class PostService {
         const post = await this.PostReposity.findOneBy({ id });
         if (!post) throw new HttpException('Post not found', HttpStatus.BAD_REQUEST);
         post.caption = caption;
-        return await this.PostReposity.save(post);
+        return this.PostReposity.save(post);
+    }
+
+    async commentPost({ content, userId, parentId, postId }: ICommentPost) {
+        const user = await this.UserReposity.findOneBy({ id: userId });
+        if (!user) throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+        const post = await this.PostReposity.findOneBy({ id: postId });
+        if (!post) throw new HttpException('Post not found', HttpStatus.BAD_REQUEST);
+        if (parentId === CommentType.PARENT) {
+            const newComment = this.CommentReposity.create({ content, user, post });
+            return await this.CommentReposity.save(newComment);
+        }
+        const parentComment = await this.CommentReposity.findOneBy({ id: parentId });
+        if (!parentComment) throw new HttpException('Parent comment not found', HttpStatus.BAD_REQUEST);
+        const newComment = this.CommentReposity.create({ content, user, parent: parentComment });
+        return this.CommentReposity.save(newComment);
+    }
+
+    async updateCommentPost({ content, userId, postId, commentId }: IUpdateCommentPost) {
+        const post = await this.PostReposity.findOneBy({ id: postId });
+        if (!post) throw new HttpException('Post not found', HttpStatus.BAD_REQUEST);
+        const comment = await this.CommentReposity.findOneBy({ id: commentId, user: { id: userId } });
+        if (!comment) throw new HttpException('Comment not found', HttpStatus.BAD_REQUEST);
+        comment.content = content;
+        comment.createdAt = new Date();
+        return this.CommentReposity.save(comment);
     }
 
     async likePost({ postId, userId }: ILikePost) {
@@ -160,21 +187,6 @@ export class PostService {
         }
         await this.LikeReposity.delete({ id: like.id });
         return;
-    }
-
-    async commentPost({ content, userId, parentId, postId }: ICommentPost) {
-        const user = await this.UserReposity.findOneBy({ id: userId });
-        if (!user) throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
-        const post = await this.PostReposity.findOneBy({ id: postId });
-        if (!post) throw new HttpException('Post not found', HttpStatus.BAD_REQUEST);
-        if (parentId === CommentType.PARENT) {
-            const newComment = this.CommentReposity.create({ content, user, post });
-            return await this.CommentReposity.save(newComment);
-        }
-        const parentComment = await this.CommentReposity.findOneBy({ id: parentId });
-        if (!parentComment) throw new HttpException('Parent comment not found', HttpStatus.BAD_REQUEST);
-        const newComment = this.CommentReposity.create({ content, user, parent: parentComment });
-        return await this.CommentReposity.save(newComment);
     }
 
     async sharePost(id: number, { originId, caption }: ISharePost) {

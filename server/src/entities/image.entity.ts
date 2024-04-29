@@ -4,7 +4,7 @@ import { PostEntity } from './post.entity';
 export class ImageEntity {
     @PrimaryGeneratedColumn()
     id: number;
-    @Column({ type: 'varchar' })
+    @Column({ type: 'varchar', select: false })
     public_id: string;
     @Column({ type: 'varchar' })
     url: string;
