@@ -97,6 +97,7 @@ export default function Account({ navigation }: any) {
                     }
                 >
                     <PostContent
+                        videos={PostData[0].videos}
                         navigation={navigation}
                         images={PostData[0].images}
                         time={PostData[0].time}

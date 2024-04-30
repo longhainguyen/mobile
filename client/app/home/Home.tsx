@@ -26,10 +26,11 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import _list_comments from '../../dataTemp/CommentData';
 import { EvilIcons } from '@expo/vector-icons';
 import request from '../../config/request';
-import { IPost } from '../../type/Post.type';
+import { IImage, IPost, IVideo } from '../../type/Post.type';
 import { RootState, store } from '../../redux/Store';
 import { incremented } from '../../redux/stateLoadMore/statePage';
 import { useSelector } from 'react-redux';
+import { Video } from 'expo-av';
 
 const { height, width } = Dimensions.get('window');
 
@@ -60,18 +61,35 @@ export default function Home({ navigation }: any) {
                 var _postList: IPost[] = []; // Initialize _postList
 
                 result.data.map((post: any) => {
+                    const _images: IImage[] = post.images.map((image: any) => {
+                        const _image: IImage = {
+                            id: image.id,
+                            uri: image.url,
+                            type: 'image',
+                        };
+                        return _image;
+                    });
+
+                    const _videos: IVideo[] = post.videos.map((video: any) => {
+                        const _video: IVideo = {
+                            id: video.id,
+                            uri: video.url,
+                            type: 'video',
+                        };
+                        return _video;
+                    });
                     const _post: IPost = {
                         id: post.id,
                         content: post.caption,
-                        comments: post.comments,
-                        likes: post.likes,
+                        comments: post.commentCount,
+                        likes: post.likeCount,
                         shares: post.shares,
                         createAt: post.createdAt,
                         avartar: post.user.profile.avatar,
                         idUser: post.user.id,
                         userName: post.user.username,
-                        images: post.images,
-                        videos: post.videos,
+                        images: _images,
+                        videos: _videos,
                     };
                     _postList.push(_post);
                 });
@@ -145,13 +163,19 @@ export default function Home({ navigation }: any) {
 
             <FlatList
                 ref={flatListRef}
+                onViewableItemsChanged={({ viewableItems }) => {
+                    console.log(viewableItems);
+                }}
+                viewabilityConfig={{ viewAreaCoveragePercentThreshold: 70 }}
                 data={postList}
                 keyExtractor={(item, index) => index.toString()}
                 horizontal={false}
-                renderItem={({ item, index }) => (
+                renderItem={({ item }) => (
                     <View>
                         <UserIcon
                             avatar={{ uri: item.avartar }}
+                            width={30}
+                            height={30}
                             isFollowed={false}
                             userName={item.userName}
                             isOwner={true}
@@ -162,21 +186,23 @@ export default function Home({ navigation }: any) {
                         <TouchableOpacity
                             onPress={() =>
                                 navigation.navigate('ShowPost', {
-                                    avatar: UserData[0].avatar,
+                                    avatar: item.avartar,
                                     isFollowed: false,
-                                    userName: UserData[0].name,
+                                    userName: item.userName,
                                     isOwner: true,
-                                    images: PostData[0].images,
-                                    time: PostData[0].time,
-                                    description: PostData[0].description,
-                                    comment: PostData[0].comments.length,
-                                    like: PostData[0].like,
-                                    share: PostData[0].share,
-                                    postId: PostData[0].id,
+                                    images: item.images,
+                                    time: item.createAt,
+                                    description: item.content,
+                                    comment: item.comments,
+                                    like: item.likes,
+                                    share: item.shares,
+                                    postId: item.id,
+                                    videos: item.videos,
                                 })
                             }
                         >
                             <PostContent
+                                videos={item.videos}
                                 navigation={navigation}
                                 images={item.images}
                                 time={item.createAt}
@@ -227,7 +253,6 @@ export default function Home({ navigation }: any) {
                 onEndReached={async () => {
                     setIsLoading(true);
                     setPage(page + 1);
-                    console.log(page);
                     await getData(page);
                     setTimeout(async () => {
                         setIsLoading(false);
