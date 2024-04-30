@@ -13,7 +13,7 @@ export class CommentEntity {
     @ManyToOne(() => PostEntity, (post) => post.comments)
     post: PostEntity;
 
-    @ManyToOne(() => CommentEntity, (comment) => comment.childrens)
+    @ManyToOne(() => CommentEntity, (comment) => comment.childrens, { onDelete: 'CASCADE' })
     parent: CommentEntity;
 
     @OneToMany(() => CommentEntity, (comment) => comment.parent)

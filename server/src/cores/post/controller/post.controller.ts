@@ -1,6 +1,7 @@
 import {
     Body,
     Controller,
+    Delete,
     Get,
     Param,
     ParseIntPipe,
@@ -18,6 +19,7 @@ import { FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-expres
 import { UpdateCaptionDto } from '../dto/update-caption.dto';
 import { CommentPostDto } from '../dto/comment-post.dto';
 import { UpdateCommentPostDto } from '../dto/update-comment-post.dto';
+import { DeleteCommentDto } from '../dto/delete-comment-post.dto';
 
 @Controller('posts')
 export class PostController {
@@ -82,6 +84,11 @@ export class PostController {
         @Body(new ValidationPipe()) { content, commentId, userId }: UpdateCommentPostDto,
     ) {
         return this.PostService.updateCommentPost({ content, commentId, userId, postId: id });
+    }
+
+    @Delete('delete-comment-post/:id')
+    deleteCommentPost(@Param('id', ParseIntPipe) id: number, @Body(new ValidationPipe()) data: DeleteCommentDto) {
+        return this.PostService.deleteCommentPost({ postId: id, ...data });
     }
 
     @Post('share-post/:id')

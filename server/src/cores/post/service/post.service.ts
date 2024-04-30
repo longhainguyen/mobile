@@ -1,6 +1,13 @@
 import { CommentType } from '@constants/enums/comment.enum';
 import { CommentEntity, ImageEntity, LikeEntity, PostEntity, UserEntity, VideoEntity } from '@entities/index';
-import { ICommentPost, IGetPost, ILikePost, ISharePost, IUpdateCommentPost } from '@interfaces/post.interface';
+import {
+    ICommentPost,
+    IDeleteCommentPost,
+    IGetPost,
+    ILikePost,
+    ISharePost,
+    IUpdateCommentPost,
+} from '@interfaces/post.interface';
 import { ICreateFormDataPost } from '@interfaces/user.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -171,6 +178,21 @@ export class PostService {
         comment.content = content;
         comment.createdAt = new Date();
         return this.CommentReposity.save(comment);
+    }
+
+    async deleteCommentPost({ commentId, postId, userId, isParent }: IDeleteCommentPost) {
+        const comment = await (isParent
+            ? this.CommentReposity.findOneBy({
+                  id: commentId,
+                  user: { id: userId },
+                  post: { id: postId },
+              })
+            : this.CommentReposity.findOneBy({
+                  id: commentId,
+                  user: { id: userId },
+              }));
+        if (!comment) throw new HttpException('Comment not found', HttpStatus.BAD_REQUEST);
+        return this.CommentReposity.delete({ id: commentId });
     }
 
     async likePost({ postId, userId }: ILikePost) {
