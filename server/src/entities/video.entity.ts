@@ -8,6 +8,6 @@ export class VideoEntity {
     public_id: string;
     @Column({ type: 'varchar' })
     url: string;
-    @ManyToOne(() => PostEntity, (post) => post.videos)
+    @ManyToOne(() => PostEntity, (post) => post.videos, { onDelete: 'CASCADE' })
     post: PostEntity;
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post, UsePipes, ValidationPipe } from '@nestjs/common';
 import { LoginDto } from '../dto/login.dto';
 import { CreateUserDto } from '@cores/user/dto/create-user.dto';
 import { AuthService } from '../service/auth.service';
@@ -8,6 +8,7 @@ import { AuthService } from '../service/auth.service';
 export class AuthController {
     constructor(private AuthService: AuthService) {}
     @Post('login')
+    @HttpCode(HttpStatus.OK)
     async login(@Body() data: LoginDto) {
         const user = await this.AuthService.login({ ...data });
         delete user.password;
@@ -15,6 +16,7 @@ export class AuthController {
     }
 
     @Post('register')
+    @HttpCode(HttpStatus.CREATED)
     async register(@Body() createUserDto: CreateUserDto) {
         const newUser = await this.AuthService.register(createUserDto);
         delete newUser.password;

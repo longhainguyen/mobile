@@ -18,7 +18,7 @@ export class PostEntity {
     @OneToMany(() => VideoEntity, (video) => video.post)
     videos: VideoEntity[];
 
-    @ManyToOne(() => PostEntity, (post) => post.shareds)
+    @ManyToOne(() => PostEntity, (post) => post.shareds, { onDelete: 'CASCADE' })
     origin: PostEntity;
 
     @OneToMany(() => PostEntity, (post) => post.origin)
@@ -27,7 +27,7 @@ export class PostEntity {
     @OneToMany(() => LikeEntity, (like) => like.post)
     likes: LikeEntity[];
 
-    @OneToMany(() => CommentEntity, (comment) => comment.post, { cascade: ['remove'] })
+    @OneToMany(() => CommentEntity, (comment) => comment.post)
     comments: CommentEntity[];
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

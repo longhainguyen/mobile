@@ -2,6 +2,7 @@ import { ProfileEntity } from '@entities/profile.entity';
 import { UserEntity } from '@entities/user.entity';
 import { ILogin, IUserInfor } from '@interfaces/user.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BcryptService } from '@shares/services/bcrypt/bcrypt.service';
 import { Repository } from 'typeorm';
@@ -12,6 +13,7 @@ export class AuthService {
         @InjectRepository(UserEntity) private UserReposity: Repository<UserEntity>,
         @InjectRepository(ProfileEntity) private ProfileReposity: Repository<ProfileEntity>,
         private readonly bcryptService: BcryptService,
+        private readonly jwtService: JwtService,
     ) {}
 
     async login({ email, password }: ILogin) {
@@ -21,12 +23,14 @@ export class AuthService {
             relations: ['profile', 'posts', 'followers', 'followings'],
         });
         if (!user) {
-            throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+            throw new HttpException('User not found', HttpStatus.UNAUTHORIZED);
         }
         const isPasswordMatch = await this.bcryptService.comparePassword(password, user.password);
         if (!isPasswordMatch) {
-            throw new HttpException('Email or password Invalid', HttpStatus.BAD_REQUEST);
+            throw new HttpException('Email or password Invalid', HttpStatus.UNAUTHORIZED);
         }
+        const payload = { id: user.id, username: user.username };
+        console.log(await this.jwtService.signAsync(payload));
         return user;
     }
 

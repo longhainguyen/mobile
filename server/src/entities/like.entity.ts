@@ -9,7 +9,7 @@ export class LikeEntity {
     @Column({ type: 'int' })
     userId: number;
 
-    @ManyToOne(() => PostEntity, (post) => post.likes)
+    @ManyToOne(() => PostEntity, (post) => post.likes, { onDelete: 'CASCADE' })
     post: PostEntity;
 
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
