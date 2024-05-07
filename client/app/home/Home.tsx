@@ -129,12 +129,12 @@ export default function Home({ navigation }: any) {
     const openComment = async (index: number, post_id: string, avatarUserOwn: any) => {
         bottemSheet.current?.snapToIndex(index);
         console.log(post_id);
-        await postComment({
-            content: 'anh yeu em',
-            parentId: 0,
-            postId: post_id,
-            userId: parseInt(stateUser.id),
-        });
+        // await postComment({
+        //     content: 'anh yeu em',
+        //     parentId: 0,
+        //     postId: post_id,
+        //     userId: parseInt(stateUser.id),
+        // });
 
         setAvartarUserOwnPost(avatarUserOwn);
         setPostIdOpen(post_id);
@@ -305,6 +305,8 @@ export default function Home({ navigation }: any) {
             <View style={{ height: 50 }}></View>
 
             <Comment
+                userId={parseInt(stateUser.id)}
+                postId={postIdOpen}
                 dataCommentsOfPost={listComment || []}
                 title="Bình luận"
                 atSinglePost={false}
