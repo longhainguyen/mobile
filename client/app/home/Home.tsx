@@ -7,9 +7,11 @@ import {
     Image,
     Dimensions,
     FlatList,
+    ListRenderItem,
     RefreshControl,
     ImageSourcePropType,
     ActivityIndicator,
+    Animated,
 } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -31,6 +33,7 @@ import { RootState, store } from '../../redux/Store';
 import { incremented } from '../../redux/stateLoadMore/statePage';
 import { useSelector } from 'react-redux';
 import { Video } from 'expo-av';
+import { postComment } from '../../api/comment.api';
 
 const { height, width } = Dimensions.get('window');
 
@@ -43,6 +46,13 @@ export default function Home({ navigation }: any) {
     const [avartarUserOwnPost, setAvartarUserOwnPost] = useState();
     const [page, setPage] = useState(0);
     const flatListRef = useRef<FlatList>(null);
+    const stateUser = useSelector((state: RootState) => state.reducerUser);
+    const scrollY = new Animated.Value(0);
+    const diffClamp = Animated.diffClamp(scrollY, 0, 55);
+    const translateY = diffClamp.interpolate({
+        inputRange: [0, 55],
+        outputRange: [0, -55],
+    });
 
     const scrollToTop = () => {
         if (flatListRef.current) {
@@ -116,61 +126,83 @@ export default function Home({ navigation }: any) {
 
     const bottemSheet = useRef<BottomSheet>(null);
 
-    const openComment = (index: number, post_id: string, avatarUserOwn: any) => {
+    const openComment = async (index: number, post_id: string, avatarUserOwn: any) => {
         bottemSheet.current?.snapToIndex(index);
+        console.log(post_id);
+        await postComment({
+            content: 'anh yeu em',
+            parentId: 0,
+            postId: post_id,
+            userId: parseInt(stateUser.id),
+        });
+
         setAvartarUserOwnPost(avatarUserOwn);
         setPostIdOpen(post_id);
     };
 
     return (
         <GestureHandlerRootView style={{ flex: 1, marginTop: 15 }}>
-            <View
+            <Animated.View
                 style={{
-                    marginHorizontal: 10,
-                    height: height / 15,
-                    borderBottomWidth: 2,
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    borderColor: COLORS.borderColor,
-                    flexDirection: 'row',
+                    transform: [{ translateY: translateY }],
+                    elevation: 4,
+                    zIndex: 100,
                 }}
             >
-                <TouchableOpacity onPress={scrollToTop}>
-                    <Text style={{ fontFamily: FONT.medium, fontSize: FONT_SIZE.large }}>
-                        Social Network
-                    </Text>
-                </TouchableOpacity>
+                <View
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        marginHorizontal: 10,
+                        height: height / 15,
+                        borderBottomWidth: 2,
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        borderColor: COLORS.borderColor,
+                        flexDirection: 'row',
+                        backgroundColor: COLORS.lightWhite,
+                    }}
+                >
+                    <TouchableOpacity onPress={scrollToTop}>
+                        <Text style={{ fontFamily: FONT.medium, fontSize: FONT_SIZE.large }}>
+                            Social Network
+                        </Text>
+                    </TouchableOpacity>
 
-                <View style={{ flexDirection: 'row', gap: 3 }}>
-                    <TouchableOpacity
-                        style={{ padding: 5 }}
-                        onPress={() => {
-                            navigation.navigate('Search');
-                        }}
-                    >
-                        <EvilIcons name="search" size={26} color="black" />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={{ padding: 5 }}
-                        onPress={() => {
-                            navigation.navigate('Inform');
-                        }}
-                    >
-                        <EvilIcons name="bell" size={26} color="black" />
-                    </TouchableOpacity>
+                    <View style={{ flexDirection: 'row', gap: 3 }}>
+                        <TouchableOpacity
+                            style={{ padding: 5 }}
+                            onPress={() => {
+                                navigation.navigate('Search');
+                            }}
+                        >
+                            <EvilIcons name="search" size={26} color="black" />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={{ padding: 5 }}
+                            onPress={() => {
+                                navigation.navigate('Inform');
+                            }}
+                        >
+                            <EvilIcons name="bell" size={26} color="black" />
+                        </TouchableOpacity>
+                    </View>
                 </View>
-            </View>
-
+            </Animated.View>
             <FlatList
                 ref={flatListRef}
-                onViewableItemsChanged={({ viewableItems }) => {
-                    console.log(viewableItems);
+                ListHeaderComponent={() => {
+                    return <View style={{ height: 50 }}></View>;
                 }}
-                viewabilityConfig={{ viewAreaCoveragePercentThreshold: 70 }}
+                onScroll={(e) => {
+                    scrollY.setValue(e.nativeEvent.contentOffset.y);
+                }}
                 data={postList}
                 keyExtractor={(item, index) => index.toString()}
                 horizontal={false}
-                renderItem={({ item }) => (
+                renderItem={({ item }: { item: IPost }) => (
                     <View>
                         <UserIcon
                             avatar={{ uri: item.avartar }}
@@ -178,9 +210,19 @@ export default function Home({ navigation }: any) {
                             height={30}
                             isFollowed={false}
                             userName={item.userName}
-                            isOwner={true}
+                            isOwner={stateUser.id === item.idUser ? true : false}
                             openAccount={() => {
-                                navigation.navigate('Account');
+                                if (stateUser.id === item.idUser) {
+                                    navigation.navigate('Account');
+                                } else {
+                                    navigation.navigate('AccountOther', {
+                                        avatar: item.avartar,
+                                        isFollowed: false,
+                                        isOwner: false,
+                                        userName: item.userName,
+                                        idUser: item.idUser,
+                                    });
+                                }
                             }}
                         />
                         <TouchableOpacity
@@ -226,9 +268,9 @@ export default function Home({ navigation }: any) {
                             setRefreshControl(true);
                             setPostList([]);
                             setPage(0);
+                            setPostList([]);
+                            await getData(page);
                             setTimeout(async () => {
-                                setPostList([]);
-                                await getData(page);
                                 setRefreshControl(false);
                             }, 2000);
                         }}

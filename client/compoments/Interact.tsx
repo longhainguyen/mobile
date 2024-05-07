@@ -23,7 +23,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 const { height, width } = Dimensions.get('window');
 
 interface InteractProp {
-    share: number;
+    share: string[];
     like: number;
     comment: number;
     borderTopWidth?: number;

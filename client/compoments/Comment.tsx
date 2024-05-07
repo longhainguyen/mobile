@@ -138,7 +138,7 @@ const Item = ({
 };
 const Comment = forwardRef<Ref, Props>((props, ref) => {
     const snapPoints = useMemo(() => ['50%'], []);
-    const snapPointsHome = useMemo(() => ['99%'], []);
+    const snapPointsHome = useMemo(() => ['80%'], []);
     const [listComment, setListComment] = useState<ItemCommentProps[]>([]);
 
     const inputRef = useRef<TextInput>(null);

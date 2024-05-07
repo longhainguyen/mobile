@@ -43,6 +43,9 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
                     style={{
                         width: '100%',
                         position: 'relative',
+                        borderColor: COLORS.borderColor,
+                        borderWidth: 1,
+                        borderRadius: 15,
                     }}
                 >
                     <Image
@@ -55,11 +58,10 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
                                 position: 'absolute',
                                 bottom: 0,
                                 right: 5,
-                                zIndex: 9999,
                                 borderRadius: 50,
                                 borderColor: 'white',
                                 borderWidth: 2,
-                                backgroundColor: COLORS.lightWhite,
+                                // backgroundColor: COLORS.lightWhite,
                             }}
                         >
                             <MaterialIcons name="photo-camera" size={20}></MaterialIcons>
@@ -94,11 +96,10 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
                                     position: 'absolute',
                                     bottom: 0,
                                     right: 15,
-                                    zIndex: 9999,
                                     borderRadius: 50,
                                     borderColor: 'white',
                                     borderWidth: 2,
-                                    backgroundColor: COLORS.lightWhite,
+                                    // backgroundColor: COLORS.lightWhite,
                                 }}
                             >
                                 <MaterialIcons
@@ -128,7 +129,7 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
                 >
                     {name}
                 </Text>
-                <View>
+                {/* <View>
                     <Text
                         style={{
                             fontFamily: FONT.regular,
@@ -148,7 +149,7 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
                     >
                         {birthday ? 'Ngày sinh ' + birthday : 'Ngày sinh: Chưa có'}
                     </Text>
-                </View>
+                </View> */}
 
                 {isOwn ? (
                     <TouchableOpacity
