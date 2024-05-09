@@ -192,6 +192,8 @@ const AccountOther = ({ route, navigation }: AccountOtherProps) => {
                             />
                         </TouchableOpacity>
                         <Interact
+                            postId={parseInt(item.id)}
+                            userId={parseInt(idUser)}
                             comment={item.comments}
                             like={item.likes}
                             share={item.shares}

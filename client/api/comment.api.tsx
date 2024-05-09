@@ -45,7 +45,6 @@ const postComment = async (data: IPostComment) => {
 
         status: 0,
     };
-    console.log(data);
 
     await request
         .post<IResponsePostComment>(`/posts/comment-post/${data.postId}`, data, {

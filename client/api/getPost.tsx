@@ -54,4 +54,34 @@ const getDataById = async (_page: number, _limit: number, idUser: string, postLi
     }
 };
 
-export { getDataById };
+interface ILikePost {
+    postId: number;
+    userId: number;
+}
+interface IResponseLikePost {
+    status: number;
+}
+
+const likePost = async (data: ILikePost) => {
+    var _response: IResponseLikePost = {
+        status: 0,
+    };
+
+    await request
+        .post<IResponseLikePost>(`/posts/like-post/${data.postId}`, data, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+        })
+        .then((response) => {
+            _response.status = response.status;
+        })
+        .catch((e) => {
+            if (e.response) {
+                _response.status = e.response.status;
+            }
+        });
+    return _response;
+};
+
+export { getDataById, likePost };

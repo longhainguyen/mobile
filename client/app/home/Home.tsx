@@ -252,6 +252,9 @@ export default function Home({ navigation }: any) {
                             />
                         </TouchableOpacity>
                         <Interact
+                            isLike={false}
+                            postId={parseInt(item.id)}
+                            userId={parseInt(stateUser.id)}
                             comment={item.comments}
                             like={item.likes}
                             share={item.shares}

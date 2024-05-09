@@ -206,6 +206,8 @@ export default function Account({ navigation }: any) {
                                 />
                             </TouchableOpacity>
                             <Interact
+                                postId={parseInt(item.id)}
+                                userId={parseInt(stateUser.id)}
                                 comment={item.comments}
                                 like={item.likes}
                                 share={item.shares}
