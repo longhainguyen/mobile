@@ -30,6 +30,7 @@ import createTwoButtonAlert from '../../compoments/AlertComponent';
 import { IUser } from '../../type/User.type';
 import { store } from '../../redux/Store';
 import { setStateUser } from '../../redux/stateUser/stateUser';
+import { loginApi } from '../../api/auth.api';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login', 'MyStack'>;
 
@@ -41,29 +42,33 @@ export default function Login({ route, navigation }: Props) {
     const [showPass, setShowPass] = useState(false);
 
     const handleLogin = async () => {
-        try {
-            const response = await request.post('/auth/login', {
-                email: email,
-                password: password,
-            });
+        const response = await loginApi({
+            email: email,
+            password: password,
+        });
+
+        if (response.status === 201) {
             const user: IUser = {
-                id: response.data.id,
-                email: response.data.email,
-                username: response.data.username,
+                id: response.id + '',
+                email: response.email,
+                username: response.username,
                 isLoggedIn: true,
                 profile: {
-                    avatar: response.data.profile.avatar,
-                    background: response.data.profile.background,
+                    avatar: response.profile.avatar,
+                    background: UserData[0].background,
                 },
             };
-            console.log(user);
+            console.log(user, 'at clientappauthenLogin.tsx');
             store.dispatch(setStateUser(user));
 
             await AsyncStorage.removeItem('User');
             await AsyncStorage.setItem('User', JSON.stringify(user));
             navigation.navigate('BottomTab');
-        } catch (error) {
-            createTwoButtonAlert({ title: 'Đăng nhập', content: 'Thất bại' });
+        } else {
+            createTwoButtonAlert({
+                title: 'Đăng nhập',
+                content: response.message || 'Kết nối server thất bại',
+            });
         }
     };
 

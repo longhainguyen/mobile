@@ -65,7 +65,7 @@ export default function Home({ navigation }: any) {
     }, []);
 
     const getData = async (_page: number) => {
-        request
+        await request
             .get(`/posts/get-posts?limit=5&page=${_page}`)
             .then((result) => {
                 var _postList: IPost[] = []; // Initialize _postList
@@ -108,7 +108,6 @@ export default function Home({ navigation }: any) {
                     console.log('refresh home');
                     setPostList(_postList);
                 } else {
-                    // setPage(0);
                     const postListAfterConcat = postList?.concat(_postList);
                     setPostList(postListAfterConcat);
                 }
@@ -129,12 +128,6 @@ export default function Home({ navigation }: any) {
     const openComment = async (index: number, post_id: string, avatarUserOwn: any) => {
         bottemSheet.current?.snapToIndex(index);
         console.log(post_id);
-        // await postComment({
-        //     content: 'anh yeu em',
-        //     parentId: 0,
-        //     postId: post_id,
-        //     userId: parseInt(stateUser.id),
-        // });
 
         setAvartarUserOwnPost(avatarUserOwn);
         setPostIdOpen(post_id);
@@ -200,7 +193,10 @@ export default function Home({ navigation }: any) {
                     scrollY.setValue(e.nativeEvent.contentOffset.y);
                 }}
                 data={postList}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(item, index) => {
+                    // const keyGenerator = () => '_' + Math.random().toString(36).substr(2, 9);
+                    return index.toString();
+                }}
                 horizontal={false}
                 renderItem={({ item }: { item: IPost }) => (
                     <View>

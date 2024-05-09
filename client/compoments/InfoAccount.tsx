@@ -3,6 +3,7 @@ import { COLORS } from '../constants';
 import { MaterialIcons } from '@expo/vector-icons';
 import React from 'react';
 import { FONT, FONT_SIZE } from '../constants/font';
+import UserData from '../dataTemp/UserData';
 
 interface InfoAccountProps {
     avatar: any;
@@ -50,7 +51,7 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
                 >
                     <Image
                         style={{ alignSelf: 'flex-end', height: 200, width: '100%' }}
-                        source={cover}
+                        source={UserData[0].background}
                     />
                     {isOwn && (
                         <View
