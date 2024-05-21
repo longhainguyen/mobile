@@ -20,4 +20,11 @@ export class ProfileService {
         user.profile = savedProfile;
         return this.UserReposity.save(user);
     }
+
+    async updateAvatar(id: number, avatar: Express.Multer.File) {
+        const user = await this.UserReposity.findOneBy({ id });
+        if (!user) throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+        console.log(avatar);
+        return user;
+    }
 }

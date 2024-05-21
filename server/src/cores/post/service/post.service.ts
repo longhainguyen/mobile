@@ -19,7 +19,6 @@ export class PostService {
         const user = await this.UserReposity.findOneBy({ id });
         if (!user) throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
         const newPost = this.PostReposity.create({ caption, user });
-        // console.log('imgaes', JSON.stringify(images));
         if (images) {
             const imageEntities = await Promise.all(
                 images.map(async (image) => {

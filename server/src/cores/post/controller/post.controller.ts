@@ -60,23 +60,24 @@ export class PostController {
         return { ...newPost, videos: newPost?.videos || [], images: newPost?.images || [] };
     }
 
-    @Get('get-posts')
+    @Get('get-posts/:id')
     getPosts(
         @Req() req: Request,
+        @Param('id', ParseIntPipe) id: number,
         @Query('limit', ParseIntPipe) limit: number,
         @Query('page', ParseIntPipe) page: number,
     ) {
-        console.log(req?.user);
-        return this.GetPostService.getPosts({ limit, page });
+        // console.log(req?.user);
+        return this.GetPostService.getPosts(id, { limit, page });
     }
 
-    @Get('get-posts/:id')
+    @Get('get-posts-by-id/:id')
     getPostByUserId(
         @Param('id', ParseIntPipe) id: number,
         @Query('limit', ParseIntPipe) limit: number,
         @Query('page', ParseIntPipe) page: number,
     ) {
-        return this.GetPostService.getPostByUserId(id, { limit, page });
+        return this.GetPostService.getPosts(id, { limit, page }, true);
     }
 
     @Patch('update-caption-post/:id')
