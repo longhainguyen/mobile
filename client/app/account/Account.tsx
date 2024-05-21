@@ -17,7 +17,6 @@ import { COLORS } from '../../constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import UserData from '../../dataTemp/UserData';
 import UserIcon from '../../compoments/UserIcon';
-import PostData from '../../dataTemp/PostData';
 import PostContent from '../../compoments/PostContent';
 import Interact from '../../compoments/Interact';
 import InfoAccount from '../../compoments/InfoAccount';
@@ -25,19 +24,16 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import Comment, { ItemCommentProps } from '../../compoments/Comment';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import _list_comments from '../../dataTemp/CommentData';
-import { IUser } from '../../type/User.type';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
 import { getDataById } from '../../api/getPost';
 import { IImage, IPost, IVideo } from '../../type/Post.type';
 import { AntDesign } from '@expo/vector-icons';
-import { useScrollToTop } from '@react-navigation/native';
 import ModalCompoment from '../../compoments/ModalCompoment';
 
 const { height, width } = Dimensions.get('window');
 
 export default function Account({ navigation }: any) {
-    const [user, setUser] = useState<IUser>();
     const [listComment, setListComment] = useState<ItemCommentProps[]>();
     const [postIdOpen, setPostIdOpen] = useState('');
     const stateUser = useSelector((state: RootState) => state.reducerUser);
@@ -53,18 +49,26 @@ export default function Account({ navigation }: any) {
     });
     const [modalVisible, setModalVisible] = useState(false);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // const postList: IPost[] = (await getDataById(0, 5, stateUser.id)) || [];
-                setPostList(await getDataById(0, 5, stateUser.id, postList || []));
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
+    const fetchData = async () => {
+        try {
+            // const postList: IPost[] = (await getDataById(0, 5, stateUser.id)) || [];
+            setPostList(await getDataById(0, 5, stateUser.id, postList || []));
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
 
-        fetchData();
+    useEffect(() => {
+        if (stateUser) {
+            fetchData();
+        }
     }, [stateUser]);
+
+    useEffect(() => {
+        if (stateUser) {
+            fetchData();
+        }
+    }, []);
 
     const getData = async (_limit: number, _page: number, idUser: string) => {
         // const postList: IPost[] = (await getDataById(_page, _limit, idUser)) || [];
@@ -90,22 +94,6 @@ export default function Account({ navigation }: any) {
         setPage(0);
         navigation.navigate('Login');
     };
-
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const userString = await AsyncStorage.getItem('User');
-                if (userString) {
-                    const user = JSON.parse(userString);
-                    setUser(user);
-                }
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
-        };
-
-        fetchUserData();
-    }, [stateUser]);
 
     const renderSeparator = (index: any) => {
         return (

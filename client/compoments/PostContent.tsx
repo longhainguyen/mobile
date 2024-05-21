@@ -118,6 +118,7 @@ const PostContent = forwardRef<Ref, PostContentProp>((props, ref) => {
                 <SafeAreaView>
                     <FlatList
                         horizontal={true}
+                        keyExtractor={(item, index) => index.toString()}
                         data={props.images.concat(props.videos)}
                         renderItem={({ index, item }) => (
                             <Item

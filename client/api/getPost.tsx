@@ -42,13 +42,14 @@ const getDataById = async (_page: number, _limit: number, idUser: string, postLi
             _postList.push(_post);
         });
 
+        // console.log(_postList);
+        // if(_postList.length == 0) {}
+
         if (_page === 0) {
             return _postList;
         } else {
             return postList.concat(_postList);
         }
-
-        return _postList;
     } catch (error) {
         console.log(error);
     }

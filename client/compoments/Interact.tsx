@@ -49,8 +49,6 @@ const Interact: React.FC<InteractProp> = ({
     atHome = false,
 }) => {
     const [isKeyboardDidShow, setIsKeyboardDidShow] = useState(false);
-    const [viewHeight, setViewHeight] = useState(0);
-    const [modalVisible, setModalVisible] = useState(false);
     const [keyboardHeight, setKeyboardHeight] = useState(0);
     const [_isLike, set_Islike] = useState(isLike);
     const [likeCount, setLikeCount] = useState(like);
@@ -66,21 +64,25 @@ const Interact: React.FC<InteractProp> = ({
         }
     };
 
-    useEffect(() => {
-        const showSubscription = Keyboard.addListener('keyboardDidShow', (event) => {
-            setKeyboardHeight(event.endCoordinates.height);
-            setIsKeyboardDidShow(true);
-        });
-        const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
-            setKeyboardHeight(0);
-            setIsKeyboardDidShow(false);
-        });
+    // useEffect(() => {
+    //     const showSubscription = Keyboard.addListener('keyboardDidShow', (event) => {
+    //         setKeyboardHeight(event.endCoordinates.height);
+    //         setIsKeyboardDidShow(true);
+    //     });
+    //     const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+    //         setKeyboardHeight(0);
+    //         setIsKeyboardDidShow(false);
+    //     });
 
-        return () => {
-            showSubscription.remove();
-            hideSubscription.remove();
-        };
-    }, []);
+    //     return () => {
+    //         showSubscription.remove();
+    //         hideSubscription.remove();
+    //     };
+    // }, []);
+
+    const handleSharePost = (postId: number) => {
+        console.log(postId);
+    };
 
     return (
         <View
@@ -102,6 +104,9 @@ const Interact: React.FC<InteractProp> = ({
                     flexDirection: 'row',
                     justifyContent: 'center',
                     alignItems: 'center',
+                }}
+                onPress={() => {
+                    handleSharePost(postId);
                 }}
             >
                 <AntDesign
