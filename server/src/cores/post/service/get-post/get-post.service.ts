@@ -1,3 +1,4 @@
+import { SearchDefault } from '@constants/enums/default.enum';
 import { LikeEntity, PostEntity, UserEntity } from '@entities/index';
 import { IGetPost } from '@interfaces/post.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
@@ -11,7 +12,11 @@ export class GetPostService {
         @InjectRepository(PostEntity) private PostReposity: Repository<PostEntity>,
         @InjectRepository(LikeEntity) private LikeReposity: Repository<LikeEntity>,
     ) {}
-    async getPosts(id: number, { limit = 10, page = 0 }: IGetPost, isByUserId: boolean = false) {
+    async getPosts(
+        id: number,
+        { limit = SearchDefault.LIMIT, page = SearchDefault.PAGE }: IGetPost,
+        isByUserId: boolean = false,
+    ) {
         const user = await this.UserReposity.findOneBy({ id });
         if (!user) throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
         const postOptions: FindManyOptions<PostEntity> = {
