@@ -33,3 +33,8 @@ export interface ISharePost {
     originId: number;
     caption: string;
 }
+
+export interface IDeletePost {
+    userId: number;
+    postId: number;
+}

@@ -6,12 +6,12 @@ export class LikeEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ type: 'int' })
+    @Column({ type: 'int', select: true })
     userId: number;
 
-    @ManyToOne(() => PostEntity, (post) => post.likes)
+    @ManyToOne(() => PostEntity, (post) => post.likes, { onDelete: 'CASCADE' })
     post: PostEntity;
 
-    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', select: false })
     createdAt: Date;
 }

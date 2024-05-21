@@ -8,22 +8,36 @@ import {
     Patch,
     Post,
     Query,
+    Req,
     UploadedFiles,
+    UseGuards,
     UseInterceptors,
     UsePipes,
     ValidationPipe,
 } from '@nestjs/common';
 import { CreatePostDto } from '../dto/create-post.dto';
 import { PostService } from '../service/post.service';
-import { FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { UpdateCaptionDto } from '../dto/update-caption.dto';
 import { CommentPostDto } from '../dto/comment-post.dto';
 import { UpdateCommentPostDto } from '../dto/update-comment-post.dto';
 import { DeleteCommentDto } from '../dto/delete-comment-post.dto';
+import { GetPostService } from '../service/get-post/get-post.service';
+import { EditPostService } from '../service/edit-post/edit-post.service';
+import { InteractPostService } from '../service/interact-post/interact-post.service';
+import { AuthGuard } from '@cores/auth/guard/auth.guard';
+import { JwtAuthGuard } from '@cores/auth/guard/jwt.guard';
+import { Request } from 'express';
 
 @Controller('posts')
+// @UseGuards(JwtAuthGuard)
 export class PostController {
-    constructor(private PostService: PostService) {}
+    constructor(
+        private readonly PostService: PostService,
+        private readonly GetPostService: GetPostService,
+        private readonly EditPostService: EditPostService,
+        private readonly InteractPostService: InteractPostService,
+    ) {}
 
     @Post('create-post/:id')
     @UsePipes(new ValidationPipe())
@@ -46,28 +60,34 @@ export class PostController {
         return { ...newPost, videos: newPost?.videos || [], images: newPost?.images || [] };
     }
 
-    @Get('get-posts')
-    getPosts(@Query('limit', ParseIntPipe) limit: number, @Query('page', ParseIntPipe) page: number) {
-        return this.PostService.getPosts({ limit, page });
+    @Get('get-posts/:id')
+    getPosts(
+        @Req() req: Request,
+        @Param('id', ParseIntPipe) id: number,
+        @Query('limit', ParseIntPipe) limit: number,
+        @Query('page', ParseIntPipe) page: number,
+    ) {
+        // console.log(req?.user);
+        return this.GetPostService.getPosts(id, { limit, page });
     }
 
-    @Get('get-posts/:id')
+    @Get('get-posts-by-id/:id')
     getPostByUserId(
         @Param('id', ParseIntPipe) id: number,
         @Query('limit', ParseIntPipe) limit: number,
         @Query('page', ParseIntPipe) page: number,
     ) {
-        return this.PostService.getPostByUserId(id, { limit, page });
+        return this.GetPostService.getPosts(id, { limit, page }, true);
     }
 
     @Patch('update-caption-post/:id')
     updateCaptionPost(@Param('id', ParseIntPipe) id: number, @Body(new ValidationPipe()) data: UpdateCaptionDto) {
-        return this.PostService.updateCaptionPost(id, data.caption);
+        return this.EditPostService.updateCaptionPost(id, data.caption, data.userId);
     }
 
     @Post('like-post/:id')
     likePost(@Param('id', ParseIntPipe) id: number, @Body('userId', ParseIntPipe) userId: number) {
-        return this.PostService.likePost({ userId, postId: id });
+        return this.InteractPostService.likePost({ userId, postId: id });
     }
 
     @Post('comment-post/:id')
@@ -75,7 +95,7 @@ export class PostController {
         @Param('id', ParseIntPipe) id: number,
         @Body(new ValidationPipe()) { content, parentId, userId }: CommentPostDto,
     ) {
-        return this.PostService.commentPost({ content, parentId, userId, postId: id });
+        return this.InteractPostService.commentPost({ content, parentId, userId, postId: id });
     }
 
     @Patch('update-comment-post/:id')
@@ -83,12 +103,12 @@ export class PostController {
         @Param('id', ParseIntPipe) id: number,
         @Body(new ValidationPipe()) { content, commentId, userId }: UpdateCommentPostDto,
     ) {
-        return this.PostService.updateCommentPost({ content, commentId, userId, postId: id });
+        return this.EditPostService.updateCommentPost({ content, commentId, userId, postId: id });
     }
 
     @Delete('delete-comment-post/:id')
     deleteCommentPost(@Param('id', ParseIntPipe) id: number, @Body(new ValidationPipe()) data: DeleteCommentDto) {
-        return this.PostService.deleteCommentPost({ postId: id, ...data });
+        return this.EditPostService.deleteCommentPost({ postId: id, ...data });
     }
 
     @Post('share-post/:id')
@@ -97,6 +117,11 @@ export class PostController {
         @Body('originId', ParseIntPipe) originId: number,
         @Body('caption') caption: string,
     ) {
-        return this.PostService.sharePost(id, { originId, caption });
+        return this.InteractPostService.sharePost(id, { originId, caption });
+    }
+
+    @Delete('delete-post/:id')
+    deletePost(@Param('id', ParseIntPipe) id: number, @Body('userId', ParseIntPipe) userId: number) {
+        return this.EditPostService.deletePost({ postId: id, userId });
     }
 }
