@@ -7,13 +7,13 @@ export interface ItemItemProps {
 
 export interface IImage {
     uri: string;
-    name: string;
+    id: string;
     type: string;
 }
 
 export interface IVideo {
     uri: string;
-    name: string;
+    id: string;
     type: string;
 }
 
@@ -22,7 +22,7 @@ export interface IPost {
     idUser: string;
     userName: string;
     avartar: string;
-    shares: number;
+    shares: string[];
     likes: number;
     comments: number;
     createAt: string;

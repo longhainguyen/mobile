@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { LogBox, StyleSheet, Text, View } from 'react-native';
 import { useFonts } from 'expo-font';
 import fonts from './config/font';
 import Navigation from './navigation';
@@ -10,6 +10,7 @@ import { store } from './redux/Store';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
 export default function App() {
+    LogBox.ignoreAllLogs();
     const [fontsLoaded] = useFonts(fonts);
 
     return !fontsLoaded ? null : (

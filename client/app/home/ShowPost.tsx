@@ -49,9 +49,11 @@ const ShowPost = ({ route, navigation }: ShowPostProps) => {
         time,
         userName,
         postId,
+        videos,
     } = route.params;
 
     const bottemSheet = useRef<BottomSheet>(null);
+    console.log(route.params);
 
     const openComment = (index: number, post_id: string) => {
         bottemSheet.current?.snapToIndex(index);
@@ -79,7 +81,7 @@ const ShowPost = ({ route, navigation }: ShowPostProps) => {
             <ScrollView>
                 <View style={{ height: 55 }}></View>
                 <UserIcon
-                    avatar={avatar}
+                    avatar={{ uri: avatar }}
                     isFollowed={isFollowed}
                     userName={userName}
                     isOwner={isOwner}
@@ -93,6 +95,7 @@ const ShowPost = ({ route, navigation }: ShowPostProps) => {
                 />
 
                 <PostContent
+                    videos={videos}
                     navigation={navigation}
                     images={images}
                     time={time}
@@ -115,7 +118,7 @@ const ShowPost = ({ route, navigation }: ShowPostProps) => {
                 title="Bình luận"
                 atSinglePost={true}
                 ref={bottemSheet}
-                avatar={avatar}
+                avatar={{ uri: avatar }}
                 dataCommentsOfPost={listComment || []}
             />
         </GestureHandlerRootView>

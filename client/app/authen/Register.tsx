@@ -24,6 +24,8 @@ import axios from 'axios';
 import request from '../../config/request';
 import { AntDesign } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
+import { registerApi } from '../../api/auth.api';
+import createTwoButtonAlert from '../../compoments/AlertComponent';
 
 const { height, width } = Dimensions.get('window');
 
@@ -37,31 +39,27 @@ export default function Register({ route, navigation }: Props) {
     const [showPass, setShowPass] = useState(false);
     const [showRePass, setShowRePass] = useState(false);
 
-    const createTwoButtonAlert = () =>
-        Alert.alert('Mật Khẩu', 'Mật khẩu nhâp lại sai', [
-            {
-                text: 'Cancel',
-                onPress: () => console.log('Cancel Pressed'),
-                style: 'cancel',
-            },
-            { text: 'OK', onPress: () => console.log('OK Pressed') },
-        ]);
-
     const handleRegister = async () => {
-        try {
-            if (rePassword !== password || rePassword === '' || password === '') {
-                createTwoButtonAlert();
-                return;
-            }
-            const response = await request.post('/auth/register', {
-                username: username,
-                password: password,
-                email: email,
+        if (rePassword !== password || rePassword === '' || password === '') {
+            createTwoButtonAlert({
+                content: 'Mật khẩu điền lại không chính xác',
+                title: 'Đăng ký',
             });
-            console.log(response.data);
+            return;
+        }
+        const response = await registerApi({
+            email: email,
+            password: password,
+            username: username,
+        });
+
+        if (response.status === 201) {
             navigation.navigate('Login');
-        } catch (error) {
-            console.log('Error registering user:', error);
+        } else {
+            createTwoButtonAlert({
+                title: 'Đăng ký',
+                content: response.message || 'Kết nối server thất bại',
+            });
         }
     };
 

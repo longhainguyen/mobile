@@ -1,4 +1,5 @@
 import {
+    
     View,
     Text,
     SafeAreaView,
@@ -7,10 +8,13 @@ import {
     Image,
     Dimensions,
     FlatList,
+    ListRenderItem,
     RefreshControl,
     ImageSourcePropType,
     ActivityIndicator,
+    Animated,
 } from 'react-native';
+import { Searchbar } from 'react-native-paper';
 import React, { useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS } from '../../constants';
@@ -26,10 +30,14 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import _list_comments from '../../dataTemp/CommentData';
 import { EvilIcons } from '@expo/vector-icons';
 import request from '../../config/request';
-import { IPost } from '../../type/Post.type';
+import { IImage, IPost, IVideo } from '../../type/Post.type';
 import { RootState, store } from '../../redux/Store';
 import { incremented } from '../../redux/stateLoadMore/statePage';
 import { useSelector } from 'react-redux';
+import SwitchComponent from '../../compoments/SearchBar';
+import { Video } from 'expo-av';
+import { postComment } from '../../api/comment.api';
+import { SearchBar } from '@rneui/themed';
 
 const { height, width } = Dimensions.get('window');
 
@@ -42,7 +50,14 @@ export default function Home({ navigation }: any) {
     const [avartarUserOwnPost, setAvartarUserOwnPost] = useState();
     const [page, setPage] = useState(0);
     const flatListRef = useRef<FlatList>(null);
-
+    const stateUser = useSelector((state: RootState) => state.reducerUser);
+    const scrollY = new Animated.Value(0);
+    const diffClamp = Animated.diffClamp(scrollY, 0, 55);
+    const translateY = diffClamp.interpolate({
+        inputRange: [0, 55],
+        outputRange: [0, -55],
+    });
+    
     const scrollToTop = () => {
         if (flatListRef.current) {
             flatListRef.current.scrollToOffset({ offset: 0, animated: true });
@@ -54,24 +69,41 @@ export default function Home({ navigation }: any) {
     }, []);
 
     const getData = async (_page: number) => {
-        request
+        await request
             .get(`/posts/get-posts?limit=5&page=${_page}`)
             .then((result) => {
                 var _postList: IPost[] = []; // Initialize _postList
 
                 result.data.map((post: any) => {
+                    const _images: IImage[] = post.images.map((image: any) => {
+                        const _image: IImage = {
+                            id: image.id,
+                            uri: image.url,
+                            type: 'image',
+                        };
+                        return _image;
+                    });
+
+                    const _videos: IVideo[] = post.videos.map((video: any) => {
+                        const _video: IVideo = {
+                            id: video.id,
+                            uri: video.url,
+                            type: 'video',
+                        };
+                        return _video;
+                    });
                     const _post: IPost = {
                         id: post.id,
                         content: post.caption,
-                        comments: post.comments,
-                        likes: post.likes,
+                        comments: post.commentCount,
+                        likes: post.likeCount,
                         shares: post.shares,
                         createAt: post.createdAt,
                         avartar: post.user.profile.avatar,
                         idUser: post.user.id,
                         userName: post.user.username,
-                        images: post.images,
-                        videos: post.videos,
+                        images: _images,
+                        videos: _videos,
                     };
                     _postList.push(_post);
                 });
@@ -80,7 +112,6 @@ export default function Home({ navigation }: any) {
                     console.log('refresh home');
                     setPostList(_postList);
                 } else {
-                    // setPage(0);
                     const postListAfterConcat = postList?.concat(_postList);
                     setPostList(postListAfterConcat);
                 }
@@ -98,85 +129,124 @@ export default function Home({ navigation }: any) {
 
     const bottemSheet = useRef<BottomSheet>(null);
 
-    const openComment = (index: number, post_id: string, avatarUserOwn: any) => {
+    const openComment = async (index: number, post_id: string, avatarUserOwn: any) => {
         bottemSheet.current?.snapToIndex(index);
+        console.log(post_id);
+
         setAvartarUserOwnPost(avatarUserOwn);
         setPostIdOpen(post_id);
     };
 
     return (
+        
         <GestureHandlerRootView style={{ flex: 1, marginTop: 15 }}>
-            <View
+            <Animated.View
                 style={{
-                    marginHorizontal: 10,
-                    height: height / 15,
-                    borderBottomWidth: 2,
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    borderColor: COLORS.borderColor,
-                    flexDirection: 'row',
+                    transform: [{ translateY: translateY }],
+                    elevation: 4,
+                    zIndex: 100,
                 }}
             >
-                <TouchableOpacity onPress={scrollToTop}>
-                    <Text style={{ fontFamily: FONT.medium, fontSize: FONT_SIZE.large }}>
-                        Social Network
-                    </Text>
-                </TouchableOpacity>
+            
+                <View
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        marginHorizontal: 10,
+                        height: height / 15,
+                        borderBottomWidth: 2,
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        borderColor: COLORS.borderColor,
+                        flexDirection: 'row',
+                        backgroundColor: COLORS.lightWhite,
+                    }}
+                >
+                    <TouchableOpacity onPress={scrollToTop}>
+                        <Text style={{ fontFamily: FONT.medium, fontSize: FONT_SIZE.large }}>
+                            Social Network
+                        </Text>
+                    </TouchableOpacity>
 
-                <View style={{ flexDirection: 'row', gap: 3 }}>
-                    <TouchableOpacity
-                        style={{ padding: 5 }}
-                        onPress={() => {
-                            navigation.navigate('Search');
-                        }}
-                    >
-                        <EvilIcons name="search" size={26} color="black" />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={{ padding: 5 }}
-                        onPress={() => {
-                            navigation.navigate('Inform');
-                        }}
-                    >
-                        <EvilIcons name="bell" size={26} color="black" />
-                    </TouchableOpacity>
+                    <View style={{ flexDirection: 'row', gap: 3 }}>
+                        <TouchableOpacity
+                            style={{ padding: 5 }}
+                            onPress={() => {
+                                navigation.navigate('Search');
+                            }}
+                        >
+                            <EvilIcons name="search" size={26} color="black" />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={{ padding: 5 }}
+                            onPress={() => {
+                                navigation.navigate('Inform');
+                            }}
+                        >
+                            <EvilIcons name="bell" size={26} color="black" />
+                        </TouchableOpacity>
+                    </View>
                 </View>
-            </View>
-
+            </Animated.View>
             <FlatList
                 ref={flatListRef}
+                ListHeaderComponent={() => {
+                    return <View style={{ height: 50 }}></View>;
+                }}
+                onScroll={(e) => {
+                    scrollY.setValue(e.nativeEvent.contentOffset.y);
+                }}
                 data={postList}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(_item, index) => {
+                    // const keyGenerator = () => '_' + Math.random().toString(36).substr(2, 9);
+                    return index.toString();
+                }}
                 horizontal={false}
-                renderItem={({ item, index }) => (
+                renderItem={({ item }: { item: IPost }) => (
                     <View>
                         <UserIcon
                             avatar={{ uri: item.avartar }}
+                            width={30}
+                            height={30}
                             isFollowed={false}
                             userName={item.userName}
-                            isOwner={true}
+                            isOwner={stateUser.id === item.idUser ? true : false}
                             openAccount={() => {
-                                navigation.navigate('Account');
+                                if (stateUser.id === item.idUser) {
+                                    navigation.navigate('Account');
+                                } else {
+                                    navigation.navigate('AccountOther', {
+                                        avatar: item.avartar,
+                                        isFollowed: false,
+                                        isOwner: false,
+                                        userName: item.userName,
+                                        idUser: item.idUser,
+                                    });
+                                }
                             }}
                         />
                         <TouchableOpacity
                             onPress={() =>
                                 navigation.navigate('ShowPost', {
-                                    avatar: UserData[0].avatar,
+                                    avatar: item.avartar,
                                     isFollowed: false,
-                                    userName: UserData[0].name,
+                                    userName: item.userName,
                                     isOwner: true,
-                                    images: PostData[0].images,
-                                    time: PostData[0].time,
-                                    description: PostData[0].description,
-                                    comment: PostData[0].comments.length,
-                                    like: PostData[0].like,
-                                    share: PostData[0].share,
-                                    postId: PostData[0].id,
+                                    images: item.images,
+                                    time: item.createAt,
+                                    description: item.content,
+                                    comment: item.comments,
+                                    like: item.likes,
+                                    share: item.shares,
+                                    postId: item.id,
+                                    videos: item.videos,
                                 })
                             }
                         >
                             <PostContent
+                                videos={item.videos}
                                 navigation={navigation}
                                 images={item.images}
                                 time={item.createAt}
@@ -184,6 +254,9 @@ export default function Home({ navigation }: any) {
                             />
                         </TouchableOpacity>
                         <Interact
+                            isLike={false}
+                            postId={parseInt(item.id)}
+                            userId={parseInt(stateUser.id)}
                             comment={item.comments}
                             like={item.likes}
                             share={item.shares}
@@ -200,9 +273,9 @@ export default function Home({ navigation }: any) {
                             setRefreshControl(true);
                             setPostList([]);
                             setPage(0);
+                            setPostList([]);
+                            await getData(page);
                             setTimeout(async () => {
-                                setPostList([]);
-                                await getData(page);
                                 setRefreshControl(false);
                             }, 2000);
                         }}
@@ -227,7 +300,6 @@ export default function Home({ navigation }: any) {
                 onEndReached={async () => {
                     setIsLoading(true);
                     setPage(page + 1);
-                    console.log(page);
                     await getData(page);
                     setTimeout(async () => {
                         setIsLoading(false);
@@ -238,6 +310,8 @@ export default function Home({ navigation }: any) {
             <View style={{ height: 50 }}></View>
 
             <Comment
+                userId={parseInt(stateUser.id)}
+                postId={postIdOpen}
                 dataCommentsOfPost={listComment || []}
                 title="Bình luận"
                 atSinglePost={false}
@@ -246,4 +320,4 @@ export default function Home({ navigation }: any) {
             />
         </GestureHandlerRootView>
     );
-}
+            }

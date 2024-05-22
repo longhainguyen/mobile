@@ -3,7 +3,16 @@ import BottomSheet, {
     BottomSheetModal,
     BottomSheetView,
 } from '@gorhom/bottom-sheet';
-import React, { forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+    Dispatch,
+    SetStateAction,
+    forwardRef,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 import {
     View,
     Text,
@@ -22,12 +31,17 @@ import { AntDesign } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { decremented, setState } from '../redux/stateComment/stateComment';
 import { RootState, store } from '../redux/Store';
+import { postComment } from '../api/comment.api';
+import UserData from '../dataTemp/UserData';
 
 const { height, width } = Dimensions.get('window');
 
 interface Props {
     title: string;
     avatar: any;
+    userId?: number;
+    postId?: string;
+    comment?: string;
     atSinglePost?: boolean;
     dataCommentsOfPost: ItemCommentProps[];
 }
@@ -138,17 +152,47 @@ const Item = ({
 };
 const Comment = forwardRef<Ref, Props>((props, ref) => {
     const snapPoints = useMemo(() => ['50%'], []);
-    const snapPointsHome = useMemo(() => ['99%'], []);
+    const snapPointsHome = useMemo(() => ['80%'], []);
     const [listComment, setListComment] = useState<ItemCommentProps[]>([]);
+    const [text, onChangeText] = useState('');
+    const [parentId, setParentId] = useState(0);
+    // const [responsePost, setResponsePost] = useState<IRes>();
 
     const inputRef = useRef<TextInput>(null);
 
-    useEffect(() => {
-        // form object to render child
+    const handlePostComment = async () => {
+        const response = await postComment({
+            content: text,
+            parentId: parentId,
+            postId: props.postId || '',
+            userId: props.userId || -1,
+        });
+        console.log(response);
+        setListComment(
+            listComment.concat(
+                configListComment(
+                    [
+                        {
+                            avatar: UserData[0].avatar,
+                            id: response.id + '',
+                            name: response.user.username,
+                            parent_id: 0 + '',
+                            text: response.content,
+                        },
+                    ],
+                    inputRef,
+                ),
+            ),
+        );
+        Keyboard.dismiss();
+        onChangeText('');
+    };
+
+    const configListComment = (_dataCommentsOfPost: ItemCommentProps[], _inputRef: any) => {
         var arr: ItemCommentProps[] = [];
         var arr2: ItemCommentProps[] = [];
         var arr3: ItemCommentProps[] = [];
-        for (let item of props.dataCommentsOfPost) {
+        for (let item of _dataCommentsOfPost) {
             if (item.parent_id === '0') {
                 const newItem: ItemCommentProps = {
                     avatar: item.avatar,
@@ -159,7 +203,7 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
                     text: item.text,
                     name_parent: '',
                     type: 0,
-                    input_answer: inputRef,
+                    input_answer: _inputRef,
                 };
                 arr.push(newItem);
                 arr2 = props.dataCommentsOfPost
@@ -172,7 +216,7 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
                         parent_id: filteredItem.parent_id,
 
                         name_parent: item.name,
-                        input_answer: inputRef,
+                        input_answer: _inputRef,
                         type: 1,
                     }));
                 if (arr2.length) {
@@ -187,7 +231,7 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
                                 parent_id: filteredItem.parent_id,
 
                                 name_parent: item2.name,
-                                input_answer: inputRef,
+                                input_answer: _inputRef,
                                 type: 2,
                             }));
                         if (arr3.length) {
@@ -200,7 +244,67 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
                 }
             }
         }
-        setListComment(arr);
+        return arr;
+    };
+
+    useEffect(() => {
+        // form object to render child
+        // var arr: ItemCommentProps[] = [];
+        // var arr2: ItemCommentProps[] = [];
+        // var arr3: ItemCommentProps[] = [];
+        // for (let item of props.dataCommentsOfPost) {
+        //     if (item.parent_id === '0') {
+        //         const newItem: ItemCommentProps = {
+        //             avatar: item.avatar,
+        //             id: item.id,
+        //             name: item.name,
+        //             parent_id: item.parent_id,
+
+        //             text: item.text,
+        //             name_parent: '',
+        //             type: 0,
+        //             input_answer: inputRef,
+        //         };
+        //         arr.push(newItem);
+        //         arr2 = props.dataCommentsOfPost
+        //             .filter((ele) => ele.parent_id === item.id)
+        //             .map((filteredItem) => ({
+        //                 text: filteredItem.text,
+        //                 avatar: filteredItem.avatar,
+        //                 name: filteredItem.name,
+        //                 id: filteredItem.id,
+        //                 parent_id: filteredItem.parent_id,
+
+        //                 name_parent: item.name,
+        //                 input_answer: inputRef,
+        //                 type: 1,
+        //             }));
+        //         if (arr2.length) {
+        //             for (let item2 of arr2) {
+        //                 arr3 = props.dataCommentsOfPost
+        //                     .filter((ele) => ele.parent_id === item2.id)
+        //                     .map((filteredItem) => ({
+        //                         text: filteredItem.text,
+        //                         avatar: filteredItem.avatar,
+        //                         name: filteredItem.name,
+        //                         id: filteredItem.id,
+        //                         parent_id: filteredItem.parent_id,
+
+        //                         name_parent: item2.name,
+        //                         input_answer: inputRef,
+        //                         type: 2,
+        //                     }));
+        //                 if (arr3.length) {
+        //                     arr.push({ ...item2 });
+        //                     arr = arr.concat(arr3);
+        //                 } else {
+        //                     arr.push({ ...item2 });
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+        setListComment(configListComment(props.dataCommentsOfPost, inputRef));
     }, [props.dataCommentsOfPost]);
 
     const handleSheetChanges = useCallback((index: number) => {
@@ -295,6 +399,8 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
                     ref={inputRef}
                     placeholder="Thêm bình luận..."
                     multiline={true}
+                    value={text}
+                    onChangeText={onChangeText}
                     placeholderTextColor={COLORS.darkText}
                     style={{
                         borderRadius: 30,
@@ -309,6 +415,7 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
                     }}
                 />
                 <TouchableOpacity
+                    onPress={handlePostComment}
                     style={{
                         backgroundColor: COLORS.gray,
                         alignItems: 'center',

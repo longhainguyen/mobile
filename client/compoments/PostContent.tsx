@@ -7,58 +7,101 @@ import {
     ImageSourcePropType,
     Dimensions,
     Image,
+    Button,
 } from 'react-native';
 import { FONT, FONT_SIZE } from '../constants/font';
 import { COLORS } from '../constants';
-import { useState } from 'react';
+import { forwardRef, useEffect, useRef, useState } from 'react';
 import moment from 'moment';
+import { IImage } from '../type/Post.type';
+import { Video, ResizeMode } from 'expo-av';
 
 const { height, width } = Dimensions.get('window');
 const maxLength = 100;
 
 type ItemProps = {
-    source: any;
-    sources: any[];
+    source: IImage;
+    sources: IImage[];
     index: number;
     navigation: any;
 };
 
-const Item = ({ source, index, sources, navigation }: ItemProps) => (
-    <TouchableOpacity
-        onPress={() => navigation.navigate('ShowImage', { index: index, sources: sources })}
-        style={{
-            height: height / 4,
-            width: width / 2,
-            borderRadius: 15,
-            backgroundColor: COLORS.gray,
-            marginRight: 15,
-        }}
-    >
-        <Image
-            style={{
-                borderRadius: 15,
-                resizeMode: 'cover',
-                height: height / 4,
-                width: width / 2,
-            }}
-            source={source}
-        ></Image>
-    </TouchableOpacity>
-);
+type Ref = Video;
+
+const Item = forwardRef<Ref, ItemProps>((props, ref) => {
+    const video = useRef<Video>(null);
+    const [status, setStatus] = useState({});
+
+    return (
+        <View>
+            {props.source.type === 'image' ? (
+                <TouchableOpacity
+                    style={{
+                        height: height / 3,
+                        width: width / 1.5,
+                        borderRadius: 15,
+                        backgroundColor: COLORS.gray,
+                        marginRight: 15,
+                    }}
+                    onPress={() =>
+                        props.navigation.navigate('ShowImage', {
+                            index: props.index,
+                            sources: props.sources,
+                        })
+                    }
+                >
+                    <Image
+                        style={{
+                            borderRadius: 15,
+                            resizeMode: 'cover',
+                            height: height / 3,
+                            width: width / 1.5,
+                        }}
+                        source={props.source}
+                    ></Image>
+                </TouchableOpacity>
+            ) : (
+                <TouchableOpacity>
+                    <View
+                        style={{
+                            height: height / 3,
+                            width: width / 1.5,
+                            borderRadius: 15,
+                            backgroundColor: COLORS.gray,
+                            marginRight: 15,
+                        }}
+                    >
+                        <Video
+                            ref={video}
+                            onPlaybackStatusUpdate={(status) => setStatus(() => status)}
+                            style={{ alignSelf: 'center', width: '100%', height: '100%' }}
+                            source={props.source}
+                            useNativeControls
+                            isLooping
+                            resizeMode={ResizeMode.CONTAIN}
+                            // onPlaybackStatusUpdate={(status) => setStatus(() => status)}
+                        />
+                    </View>
+                </TouchableOpacity>
+            )}
+        </View>
+    );
+});
 
 interface PostContentProp {
     navigation: any;
     time: string;
-    images: ImageSourcePropType[] | null;
+    images: IImage[];
     description: string | null;
+    videos: IImage[];
 }
 
-const PostContent: React.FC<PostContentProp> = ({ navigation, time, images, description }) => {
+const PostContent = forwardRef<Ref, PostContentProp>((props, ref) => {
     const [showFullText, setShowFullText] = useState(false);
     const displayText = showFullText
-        ? description || ''
-        : description
-        ? description.slice(0, maxLength)
+        ? props.description || ''
+        : props.description
+        ? props.description.slice(0, maxLength)
         : '';
     return (
         <View style={{ marginHorizontal: 10, backgroundColor: COLORS.white }}>
@@ -69,26 +112,27 @@ const PostContent: React.FC<PostContentProp> = ({ navigation, time, images, desc
                     color: COLORS.textGrey,
                 }}
             >
-                {moment(time).startOf('minutes').fromNow()}
+                {moment(props.time).startOf('minutes').fromNow()}
             </Text>
-            {images && (
+            {(props.images || props.videos) && (
                 <SafeAreaView>
                     <FlatList
                         horizontal={true}
-                        data={images}
+                        data={props.images.concat(props.videos)}
                         renderItem={({ index, item }) => (
                             <Item
+                                ref={ref}
                                 source={item}
-                                sources={images}
+                                sources={props.images}
                                 index={index}
-                                navigation={navigation}
+                                navigation={props.navigation}
                             />
                         )}
                     />
                 </SafeAreaView>
             )}
 
-            {description && (
+            {props.description && (
                 <View>
                     <Text
                         style={{
@@ -101,7 +145,7 @@ const PostContent: React.FC<PostContentProp> = ({ navigation, time, images, desc
                         {displayText}
                     </Text>
 
-                    {description.length > maxLength && (
+                    {props.description.length > maxLength && (
                         <TouchableOpacity onPress={() => setShowFullText(!showFullText)}>
                             <Text
                                 style={{
@@ -118,6 +162,6 @@ const PostContent: React.FC<PostContentProp> = ({ navigation, time, images, desc
             )}
         </View>
     );
-};
+});
 
 export default PostContent;
