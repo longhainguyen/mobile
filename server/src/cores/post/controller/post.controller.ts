@@ -124,4 +124,14 @@ export class PostController {
     deletePost(@Param('id', ParseIntPipe) id: number, @Body('userId', ParseIntPipe) userId: number) {
         return this.EditPostService.deletePost({ postId: id, userId });
     }
+
+    @Get('search-posts/:id')
+    searchPosts(
+        @Param('id', ParseIntPipe) id: number,
+        @Query('keyword') keyword: string,
+        @Query('limit', ParseIntPipe) limit: number,
+        @Query('page', ParseIntPipe) page: number,
+    ) {
+        return this.GetPostService.getPostsByKeyWord(id, keyword, { limit, page });
+    }
 }

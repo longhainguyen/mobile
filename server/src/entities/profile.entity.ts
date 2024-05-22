@@ -11,10 +11,10 @@ export class ProfileEntity {
     birthday: Date;
     @Column({ default: DEFAULT_AVATAR })
     avatar: string;
-    @Column({ type: 'varchar', nullable: true, default: null })
+    @Column({ type: 'varchar', nullable: true, default: null, select: false })
     avatarPublicId: string;
-    @Column({ type: 'varchar', nullable: true, default: null })
+    @Column({ type: 'varchar', nullable: true, default: null, select: false })
     backgroundPublicId: string;
-    @Column({ select: false, default: DEFAULT_COVER_PHOTO })
+    @Column({ default: DEFAULT_COVER_PHOTO })
     background: string;
 }
