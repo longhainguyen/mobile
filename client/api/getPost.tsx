@@ -1,6 +1,77 @@
 import request from '../config/request';
 import { IImage, IPost, IVideo } from '../type/Post.type';
 
+interface IPostHome {
+    id: number;
+    caption: string;
+    createdAt: string;
+    images: IImage[];
+    videos: IVideo[];
+    user: {
+        id: number;
+        username: string;
+        createdAt: string;
+        profile: {
+            id: number;
+            avatar: string;
+            avatarPublicId: any;
+            backgroundPublicId: any;
+        };
+    };
+    shareds: [];
+    origin: {
+        id: number;
+        caption: string;
+        createAt: string;
+        images: IImage[];
+        videos: IVideo[];
+        user: {
+            id: number;
+            username: string;
+            createdAt: string;
+            profile: {
+                id: number;
+                avatar: string;
+                avatarPublicId: any;
+                backgroundPublicId: any;
+            };
+        };
+        likeCount: number;
+        commentCount: number;
+        isLiked: boolean;
+        isFollowed: boolean;
+    };
+}
+interface IResponseGetPostHome {
+    data: IPostHome[];
+    message?: string;
+    status: number;
+}
+
+const getPostHome = async (limit: number, page: number, idUser: string) => {
+    console.log(idUser);
+
+    var _response: IResponseGetPostHome = {
+        data: [],
+        status: 0,
+        message: '',
+    };
+    await request
+        .get(`/posts/get-posts/1?limit=5&page=0`)
+        .then((response) => {
+            _response.data = response.data;
+            _response.status = response.status;
+        })
+        .catch((e) => {
+            if (e.response) {
+                _response = e.response.data;
+                _response.status = e.response.status;
+            }
+        });
+
+    return _response;
+};
+
 const getDataById = async (_page: number, _limit: number, idUser: string, postList: IPost[]) => {
     try {
         const response = await request.get(
@@ -85,4 +156,4 @@ const likePost = async (data: ILikePost) => {
     return _response;
 };
 
-export { getDataById, likePost };
+export { getDataById, likePost, getPostHome };

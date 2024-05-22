@@ -8,13 +8,13 @@ export interface ItemItemProps {
 export interface IImage {
     uri: string;
     id: string;
-    type: string;
+    type?: string;
 }
 
 export interface IVideo {
     uri: string;
     id: string;
-    type: string;
+    type?: string;
 }
 
 export interface IPost {

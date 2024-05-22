@@ -34,6 +34,7 @@ import { incremented } from '../../redux/stateLoadMore/statePage';
 import { useSelector } from 'react-redux';
 import { Video } from 'expo-av';
 import { postComment } from '../../api/comment.api';
+import { getPostHome } from '../../api/getPost';
 
 const { height, width } = Dimensions.get('window');
 
@@ -61,12 +62,13 @@ export default function Home({ navigation }: any) {
     };
 
     useEffect(() => {
-        getData(0);
+        if (stateUser.id) {
+            getData(0);
+        }
     }, []);
 
     const getData = async (_page: number) => {
-        await request
-            .get(`/posts/get-posts?limit=5&page=${_page}`)
+        await getPostHome(5, _page, stateUser.id)
             .then((result) => {
                 var _postList: IPost[] = []; // Initialize _postList
 
