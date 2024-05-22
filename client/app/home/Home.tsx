@@ -1,4 +1,5 @@
 import {
+    
     View,
     Text,
     SafeAreaView,
@@ -13,6 +14,7 @@ import {
     ActivityIndicator,
     Animated,
 } from 'react-native';
+import { Searchbar } from 'react-native-paper';
 import React, { useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS } from '../../constants';
@@ -32,8 +34,10 @@ import { IImage, IPost, IVideo } from '../../type/Post.type';
 import { RootState, store } from '../../redux/Store';
 import { incremented } from '../../redux/stateLoadMore/statePage';
 import { useSelector } from 'react-redux';
+import SwitchComponent from '../../compoments/SearchBar';
 import { Video } from 'expo-av';
 import { postComment } from '../../api/comment.api';
+import { SearchBar } from '@rneui/themed';
 
 const { height, width } = Dimensions.get('window');
 
@@ -53,7 +57,7 @@ export default function Home({ navigation }: any) {
         inputRange: [0, 55],
         outputRange: [0, -55],
     });
-
+    
     const scrollToTop = () => {
         if (flatListRef.current) {
             flatListRef.current.scrollToOffset({ offset: 0, animated: true });
@@ -134,6 +138,7 @@ export default function Home({ navigation }: any) {
     };
 
     return (
+        
         <GestureHandlerRootView style={{ flex: 1, marginTop: 15 }}>
             <Animated.View
                 style={{
@@ -142,6 +147,7 @@ export default function Home({ navigation }: any) {
                     zIndex: 100,
                 }}
             >
+            
                 <View
                     style={{
                         position: 'absolute',
@@ -193,7 +199,7 @@ export default function Home({ navigation }: any) {
                     scrollY.setValue(e.nativeEvent.contentOffset.y);
                 }}
                 data={postList}
-                keyExtractor={(item, index) => {
+                keyExtractor={(_item, index) => {
                     // const keyGenerator = () => '_' + Math.random().toString(36).substr(2, 9);
                     return index.toString();
                 }}
@@ -314,4 +320,4 @@ export default function Home({ navigation }: any) {
             />
         </GestureHandlerRootView>
     );
-}
+            }
