@@ -28,6 +28,8 @@ import BottomSheet, {
 import { COLORS } from '../../constants';
 import Comment, { ItemCommentProps } from '../../compoments/Comment';
 import _list_comments from '../../dataTemp/CommentData';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/Store';
 
 const { height, width } = Dimensions.get('window');
 
@@ -47,10 +49,12 @@ const ShowPost = ({ route, navigation }: ShowPostProps) => {
         like,
         share,
         time,
+        isLiked,
         userName,
         postId,
         videos,
     } = route.params;
+    const stateUser = useSelector((state: RootState) => state.reducerUser);
 
     const bottemSheet = useRef<BottomSheet>(null);
     console.log(route.params);
@@ -106,6 +110,11 @@ const ShowPost = ({ route, navigation }: ShowPostProps) => {
 
             <View style={{ position: 'absolute', bottom: 0, right: 0, left: 0 }}>
                 <Interact
+                    isFollow={isFollowed}
+                    isLike={isLiked}
+                    postId={postId}
+                    userId={parseInt(stateUser.id)}
+                    atHome={false}
                     borderTopWidth={1}
                     comment={comment}
                     like={like}

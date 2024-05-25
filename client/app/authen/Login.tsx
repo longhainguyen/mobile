@@ -47,7 +47,7 @@ export default function Login({ route, navigation }: Props) {
             password: password,
         });
 
-        if (response.status === 201) {
+        if (response.status === 200) {
             const user: IUser = {
                 id: response.id + '',
                 email: response.email,

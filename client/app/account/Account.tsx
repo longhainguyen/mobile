@@ -30,6 +30,7 @@ import { getDataById } from '../../api/getPost';
 import { IImage, IPost, IVideo } from '../../type/Post.type';
 import { AntDesign } from '@expo/vector-icons';
 import ModalCompoment from '../../compoments/ModalCompoment';
+import ShareView from '../../compoments/home/Share';
 
 const { height, width } = Dimensions.get('window');
 
@@ -43,6 +44,7 @@ export default function Account({ navigation }: any) {
     const [refreshControl, setRefreshControl] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const scrollY = new Animated.Value(0);
+    const bottemSheetShare = useRef<BottomSheet>(null);
     const translateY = scrollY.interpolate({
         inputRange: [0, 45],
         outputRange: [0, -45],
@@ -105,6 +107,15 @@ export default function Account({ navigation }: any) {
         );
     };
 
+    const openShare = async (
+        postId: number,
+        idUser: number,
+        bottemSheetInstance: BottomSheet | null,
+    ) => {
+        setPostIdOpen(postId + '');
+        bottemSheetInstance?.snapToIndex(0);
+    };
+
     return (
         <GestureHandlerRootView style={{ flex: 1, marginTop: 15 }}>
             <View style={{ backgroundColor: COLORS.white }}>
@@ -160,11 +171,21 @@ export default function Account({ navigation }: any) {
                                 avatar={{ uri: item.avartar }}
                                 width={30}
                                 height={30}
-                                isFollowed={false}
+                                isFollowed={item.isFollowed || false}
                                 userName={item.userName}
-                                isOwner={true}
+                                isOwner={stateUser.id === item.idUser ? true : false}
                                 openAccount={() => {
-                                    navigation.navigate('Account');
+                                    if (stateUser.id === item.idUser) {
+                                        navigation.navigate('Account');
+                                    } else {
+                                        navigation.navigate('AccountOther', {
+                                            avatar: item.avartar,
+                                            isFollowed: false,
+                                            isOwner: false,
+                                            userName: item.userName,
+                                            idUser: item.idUser,
+                                        });
+                                    }
                                 }}
                             />
                             <TouchableOpacity
@@ -175,10 +196,11 @@ export default function Account({ navigation }: any) {
                                         userName: item.userName,
                                         isOwner: true,
                                         images: item.images,
-                                        time: item.createAt,
+                                        time: item.createdAt,
                                         description: item.content,
                                         comment: item.comments,
                                         like: item.likes,
+                                        isLiked: item.isLiked,
                                         share: item.shares,
                                         postId: item.id,
                                         videos: item.videos,
@@ -189,11 +211,75 @@ export default function Account({ navigation }: any) {
                                     videos={item.videos}
                                     navigation={navigation}
                                     images={item.images}
-                                    time={item.createAt}
+                                    time={item.createdAt}
                                     description={item.content}
                                 />
                             </TouchableOpacity>
+                            {item.origin && (
+                                <View
+                                    style={{
+                                        padding: 10,
+                                        marginHorizontal: 10,
+                                        marginVertical: 10,
+                                        borderWidth: 2,
+                                        borderColor: COLORS.borderColor,
+                                        borderRadius: 30,
+                                    }}
+                                >
+                                    <UserIcon
+                                        avatar={{ uri: item.origin.user.profile.avatar }}
+                                        width={30}
+                                        height={30}
+                                        isFollowed={item.isFollowed || false}
+                                        userName={item.origin.user.username}
+                                        isOwner={stateUser.id === item.idUser ? true : false}
+                                        openAccount={() => {
+                                            if (stateUser.id === item.idUser) {
+                                                navigation.navigate('Account');
+                                            } else {
+                                                navigation.navigate('AccountOther', {
+                                                    avatar: item.avartar,
+                                                    isFollowed: false,
+                                                    isOwner: false,
+                                                    userName: item.userName,
+                                                    idUser: item.idUser,
+                                                });
+                                            }
+                                        }}
+                                    />
+                                    <TouchableOpacity
+                                        onPress={() =>
+                                            navigation.navigate('ShowPost', {
+                                                avatar: item.origin?.user.profile.avatar,
+                                                isFollowed: item.isFollowed,
+                                                userName: item.origin?.user.username,
+                                                isOwner:
+                                                    item.origin?.user.id + '' === stateUser.id
+                                                        ? true
+                                                        : false,
+                                                images: item.origin?.images,
+                                                time: item.origin?.createdAt,
+                                                description: item.origin?.caption,
+                                                comment: item.comments,
+                                                like: item.likes,
+                                                share: item.shares,
+                                                postId: item.id,
+                                                videos: item.videos,
+                                            })
+                                        }
+                                    >
+                                        <PostContent
+                                            videos={item.origin.videos}
+                                            navigation={navigation}
+                                            images={item.origin.images}
+                                            time={item.origin.createdAt}
+                                            description={item.origin.caption}
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                            )}
                             <Interact
+                                isLike={item.isLiked}
                                 postId={parseInt(item.id)}
                                 userId={parseInt(stateUser.id)}
                                 comment={item.comments}
@@ -201,7 +287,18 @@ export default function Account({ navigation }: any) {
                                 share={item.shares}
                                 avatar={item.avartar}
                                 atHome={true}
-                                // openComment={() => openComment(0, item.id, item.avartar)}
+                                isFollow={item.isFollowed}
+                                openShare={() => {
+                                    openShare(
+                                        parseInt(item.id),
+                                        parseInt(stateUser.id),
+                                        bottemSheetShare.current,
+                                    );
+                                }}
+                                openComment={
+                                    () => {}
+                                    // openComment(0, item.id, item.avartar, bottemSheetComment.current)
+                                }
                             />
                         </View>
                     )}
@@ -258,6 +355,16 @@ export default function Account({ navigation }: any) {
                 ref={bottemSheet}
                 dataCommentsOfPost={listComment || []}
                 avatar={UserData[0].avatar}
+            />
+            <ShareView
+                idUser={stateUser.id}
+                navigation={navigation}
+                originId={parseInt(postIdOpen)}
+                height={30}
+                width={30}
+                userName={stateUser.username}
+                avatar={stateUser.profile.avatar}
+                ref={bottemSheetShare}
             />
         </GestureHandlerRootView>
     );

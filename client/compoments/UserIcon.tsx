@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
     StyleSheet,
     Text,
@@ -11,6 +11,7 @@ import {
 import { COLORS } from '../constants';
 import { FONT, FONT_SIZE } from '../constants/font';
 import { Entypo } from '@expo/vector-icons';
+import BottomSheet from '@gorhom/bottom-sheet';
 
 interface UserProp {
     userName: string;
@@ -19,6 +20,8 @@ interface UserProp {
     isOwner: boolean;
     width?: number;
     height?: number;
+    threeDotsDisplay?: boolean;
+    openOption?: () => void;
     openAccount: () => void;
 }
 
@@ -29,9 +32,10 @@ const UserIcon: React.FC<UserProp> = ({
     avatar,
     isFollowed,
     isOwner,
+    threeDotsDisplay = true,
     openAccount,
+    openOption,
 }) => {
-    const [modalVisible, setModalVisible] = useState(false);
     return (
         <View
             style={{
@@ -80,38 +84,16 @@ const UserIcon: React.FC<UserProp> = ({
                         </Text>
                     </TouchableOpacity>
                 )}
-                <TouchableOpacity
-                    onPress={() => {
-                        setModalVisible(!modalVisible);
-                    }}
-                >
-                    <Entypo
-                        name="dots-three-vertical"
-                        size={24}
-                        color="black"
-                        style={{ marginTop: 3 }}
-                    >
-                        <Modal
-                            animationType="fade"
-                            transparent={true}
-                            visible={modalVisible}
-                            style={{}}
-                            onRequestClose={() => {
-                                setModalVisible(!modalVisible);
-                            }}
-                        >
-                            <View
-                                style={{
-                                    backgroundColor: COLORS.gray,
-                                    padding: 20,
-                                    position: 'absolute',
-                                }}
-                            >
-                                <Text>Hello world</Text>
-                            </View>
-                        </Modal>
-                    </Entypo>
-                </TouchableOpacity>
+                {threeDotsDisplay && (
+                    <TouchableOpacity onPress={openOption}>
+                        <Entypo
+                            name="dots-three-vertical"
+                            size={24}
+                            color="black"
+                            style={{ marginTop: 3 }}
+                        ></Entypo>
+                    </TouchableOpacity>
+                )}
             </View>
         </View>
     );

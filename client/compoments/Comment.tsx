@@ -248,62 +248,6 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
     };
 
     useEffect(() => {
-        // form object to render child
-        // var arr: ItemCommentProps[] = [];
-        // var arr2: ItemCommentProps[] = [];
-        // var arr3: ItemCommentProps[] = [];
-        // for (let item of props.dataCommentsOfPost) {
-        //     if (item.parent_id === '0') {
-        //         const newItem: ItemCommentProps = {
-        //             avatar: item.avatar,
-        //             id: item.id,
-        //             name: item.name,
-        //             parent_id: item.parent_id,
-
-        //             text: item.text,
-        //             name_parent: '',
-        //             type: 0,
-        //             input_answer: inputRef,
-        //         };
-        //         arr.push(newItem);
-        //         arr2 = props.dataCommentsOfPost
-        //             .filter((ele) => ele.parent_id === item.id)
-        //             .map((filteredItem) => ({
-        //                 text: filteredItem.text,
-        //                 avatar: filteredItem.avatar,
-        //                 name: filteredItem.name,
-        //                 id: filteredItem.id,
-        //                 parent_id: filteredItem.parent_id,
-
-        //                 name_parent: item.name,
-        //                 input_answer: inputRef,
-        //                 type: 1,
-        //             }));
-        //         if (arr2.length) {
-        //             for (let item2 of arr2) {
-        //                 arr3 = props.dataCommentsOfPost
-        //                     .filter((ele) => ele.parent_id === item2.id)
-        //                     .map((filteredItem) => ({
-        //                         text: filteredItem.text,
-        //                         avatar: filteredItem.avatar,
-        //                         name: filteredItem.name,
-        //                         id: filteredItem.id,
-        //                         parent_id: filteredItem.parent_id,
-
-        //                         name_parent: item2.name,
-        //                         input_answer: inputRef,
-        //                         type: 2,
-        //                     }));
-        //                 if (arr3.length) {
-        //                     arr.push({ ...item2 });
-        //                     arr = arr.concat(arr3);
-        //                 } else {
-        //                     arr.push({ ...item2 });
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
         setListComment(configListComment(props.dataCommentsOfPost, inputRef));
     }, [props.dataCommentsOfPost]);
 
@@ -435,3 +379,17 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
 });
 
 export default Comment;
+
+const openComment = async (
+    index: number,
+    post_id: string,
+    avatarUserOwn: any,
+    bottemSheetInstance: BottomSheet | null,
+) => {
+    bottemSheetInstance?.snapToIndex(index);
+
+    // setAvartarUserOwnPost(avatarUserOwn);
+    // setPostIdOpen(post_id);
+};
+
+export { openComment };

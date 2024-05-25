@@ -20,6 +20,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { likePost } from '../api/getPost';
+import ShareView from './home/Share';
 
 const { height, width } = Dimensions.get('window');
 
@@ -28,11 +29,13 @@ interface InteractProp {
     like: number;
     postId: number;
     userId: number;
-    isLike?: boolean;
+    isLike: boolean;
+    isFollow: boolean;
     comment: number;
     borderTopWidth?: number;
     avatar: any;
     atHome?: boolean;
+    openShare?: () => void;
     openComment?: () => void;
 }
 
@@ -45,11 +48,12 @@ const Interact: React.FC<InteractProp> = ({
     postId,
     userId,
     isLike,
+    isFollow,
     avatar,
+    openShare,
     atHome = false,
 }) => {
-    const [isKeyboardDidShow, setIsKeyboardDidShow] = useState(false);
-    const [keyboardHeight, setKeyboardHeight] = useState(0);
+    const [openShareView, setOpenShareView] = useState(false);
     const [_isLike, set_Islike] = useState(isLike);
     const [likeCount, setLikeCount] = useState(like);
 
@@ -59,26 +63,16 @@ const Interact: React.FC<InteractProp> = ({
             userId: userId,
         });
         if (response.status === 201) {
-            setLikeCount(likeCount + 1);
+            if (!_isLike) {
+                setLikeCount(likeCount + 1);
+            }
+            if (_isLike) {
+                setLikeCount(likeCount - 1);
+            }
+
             set_Islike(!_isLike);
         }
     };
-
-    // useEffect(() => {
-    //     const showSubscription = Keyboard.addListener('keyboardDidShow', (event) => {
-    //         setKeyboardHeight(event.endCoordinates.height);
-    //         setIsKeyboardDidShow(true);
-    //     });
-    //     const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
-    //         setKeyboardHeight(0);
-    //         setIsKeyboardDidShow(false);
-    //     });
-
-    //     return () => {
-    //         showSubscription.remove();
-    //         hideSubscription.remove();
-    //     };
-    // }, []);
 
     const handleSharePost = (postId: number) => {
         console.log(postId);
@@ -105,9 +99,7 @@ const Interact: React.FC<InteractProp> = ({
                     justifyContent: 'center',
                     alignItems: 'center',
                 }}
-                onPress={() => {
-                    handleSharePost(postId);
-                }}
+                onPress={openShare}
             >
                 <AntDesign
                     name="sharealt"
@@ -125,7 +117,7 @@ const Interact: React.FC<InteractProp> = ({
                         fontSize: FONT_SIZE.small,
                     }}
                 >
-                    {share}
+                    {share.length}
                 </Text>
             </TouchableOpacity>
             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
@@ -158,7 +150,7 @@ const Interact: React.FC<InteractProp> = ({
                             fontSize: FONT_SIZE.small,
                         }}
                     >
-                        {likeCount}
+                        {likeCount + ''}
                     </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -186,7 +178,7 @@ const Interact: React.FC<InteractProp> = ({
                             fontSize: FONT_SIZE.small,
                         }}
                     >
-                        {comment}
+                        {comment + ''}
                     </Text>
                 </TouchableOpacity>
             </View>
