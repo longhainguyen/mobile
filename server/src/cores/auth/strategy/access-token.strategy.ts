@@ -13,6 +13,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     async validate(token: any) {
+        console.log('token', token);
         // Validate token here
         return { id: token.id, username: token.username };
     }

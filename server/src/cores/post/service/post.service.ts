@@ -4,6 +4,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CloudinaryService } from '@shares/modules/cloudinary/cloudinary.service';
 import { Repository } from 'typeorm';
+import { UploadApiErrorResponse, UploadApiResponse } from 'cloudinary';
 
 @Injectable()
 export class PostService {
@@ -19,12 +20,11 @@ export class PostService {
         const user = await this.UserReposity.findOneBy({ id });
         if (!user) throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
         const newPost = this.PostReposity.create({ caption, user });
-        // console.log('imgaes', JSON.stringify(images));
         if (images) {
             const imageEntities = await Promise.all(
                 images.map(async (image) => {
                     const response = await this.CloudinaryService.uploadImageFile(image);
-                    if (!response) {
+                    if (!response?.public_id) {
                         throw new HttpException('Upload image failed', HttpStatus.BAD_REQUEST);
                     }
                     const newImage = this.ImageReposity.create({
@@ -40,7 +40,7 @@ export class PostService {
             const videoEntities = await Promise.all(
                 videos.map(async (video) => {
                     const response = await this.CloudinaryService.uploadVideoFile(video);
-                    if (!response) {
+                    if (!response?.public_id) {
                         throw new HttpException('Upload video failed', HttpStatus.BAD_REQUEST);
                     }
                     const newVideo = this.ImageReposity.create({
