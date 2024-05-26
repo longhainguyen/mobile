@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from 'react-native';
 
 type SearchBarComponentProps = {};
 
-const SwitchComponent: React.FunctionComponent<SearchBarComponentProps> = () => {
+const searchBar: React.FunctionComponent<SearchBarComponentProps> = () => {
 const [search, setSearch] = useState("");
 
 const updateSearch = (search: React.SetStateAction<string>) => {
@@ -28,4 +28,4 @@ view: {
 },
 });
 
-export default SwitchComponent;
+export default searchBar;
