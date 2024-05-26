@@ -338,10 +338,12 @@ export default function Account({ navigation }: any) {
                     }
                     onEndReached={async () => {
                         setIsLoading(true);
-                        setPage(page + 1);
+
                         console.log(page, 'at account');
 
-                        await getData(5, page, stateUser.id);
+                        await getData(5, page, stateUser.id).then(() => {
+                            setPage(page + 1);
+                        });
                         setTimeout(async () => {
                             setIsLoading(false);
                         }, 2000);

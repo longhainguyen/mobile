@@ -1,5 +1,6 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 
 const baseURL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -14,6 +15,11 @@ request.interceptors.request.use(
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;
         }
+        // else {
+        //     // Điều hướng đến trang login nếu không có accessToken
+        //     const navigation = useNavigation();
+        //     navigation.navigate('Login');
+        // }
         return config;
     },
     (error) => {

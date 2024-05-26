@@ -151,10 +151,16 @@ const AccountOther = ({ route, navigation }: AccountOtherProps) => {
                 }
                 onEndReached={async () => {
                     setIsLoading(true);
-                    setPage(page + 1);
+
                     console.log(page, 'at account');
 
-                    await getData(5, page, idUser);
+                    await getData(5, page, idUser)
+                        .then(() => {
+                            setPage(page + 1);
+                        })
+                        .catch(() => {
+                            console.log('Hết post rồi');
+                        });
                     setTimeout(async () => {
                         setIsLoading(false);
                     }, 2000);

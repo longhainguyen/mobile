@@ -69,8 +69,12 @@ export default function Home({ navigation }: any) {
     };
 
     useEffect(() => {
-        if (stateUser.id) {
-            getData(0);
+        try {
+            if (stateUser.id) {
+                getData(0);
+            }
+        } catch (error) {
+            console.log(error);
         }
     }, []);
 
@@ -109,7 +113,7 @@ export default function Home({ navigation }: any) {
                 }
             })
             .catch((e) => {
-                console.log(e);
+                navigation.navigate('Login');
             });
     };
 
@@ -394,8 +398,11 @@ export default function Home({ navigation }: any) {
                 }
                 onEndReached={async () => {
                     setIsLoading(true);
-                    setPage(page + 1);
-                    await getData(page);
+                    console.log(page, 'at home');
+
+                    await getData(page).then(() => {
+                        setPage(page + 1);
+                    });
                     setTimeout(async () => {
                         setIsLoading(false);
                     }, 2000);
