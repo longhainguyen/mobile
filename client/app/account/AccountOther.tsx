@@ -32,7 +32,7 @@ type AccountOtherProps = {
 const { height, width } = Dimensions.get('window');
 
 const AccountOther = ({ route, navigation }: AccountOtherProps) => {
-    const { avatar, isFollowed, isOwner, userName, idUser } = route.params;
+    const { avatar, isFollowed, isOwner, userName, idUser, cover } = route.params;
     const scrollY = new Animated.Value(0);
     const translateY = scrollY.interpolate({
         inputRange: [0, 45],
@@ -106,9 +106,10 @@ const AccountOther = ({ route, navigation }: AccountOtherProps) => {
                 >
                     <View style={{ height: height / 13 }}></View>
                     <InfoAccount
+                        isFollow={isFollowed}
                         isOwn={false}
                         avatar={{ uri: avatar }}
-                        cover={UserData[1].background}
+                        cover={{ uri: cover }}
                         name={userName}
                     />
                 </View>
@@ -182,10 +183,11 @@ const AccountOther = ({ route, navigation }: AccountOtherProps) => {
                                 } else {
                                     navigation.navigate('AccountOther', {
                                         avatar: item.avartar,
-                                        isFollowed: false,
+                                        isFollowed: item.isFollowed,
                                         isOwner: false,
                                         userName: item.userName,
                                         idUser: item.idUser,
+                                        cover: item.background,
                                     });
                                 }
                             }}

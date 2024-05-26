@@ -42,32 +42,40 @@ export default function Login({ route, navigation }: Props) {
     const [showPass, setShowPass] = useState(false);
 
     const handleLogin = async () => {
-        const response = await loginApi({
-            email: email,
-            password: password,
-        });
+        try {
+            const response = await loginApi({
+                email: email,
+                password: password,
+            });
 
-        if (response.status === 200) {
+            console.log(response.data);
+
             const user: IUser = {
-                id: response.id + '',
-                email: response.email,
-                username: response.username,
+                id: response.data.user.id + '',
+                email: response.data.user.email,
+                username: response.data.user.username,
                 isLoggedIn: true,
                 profile: {
-                    avatar: response.profile.avatar,
-                    background: UserData[0].background,
+                    avatar: response.data.user.profile.avatar,
+                    background: response.data.user.profile.avatar,
                 },
             };
-            console.log(user, 'at clientappauthenLogin.tsx');
+
+            console.log(user);
+
+            // console.log(user, 'at clientappauthenLogin.tsx');
             store.dispatch(setStateUser(user));
+            // console.log(response.data);
 
             await AsyncStorage.removeItem('User');
             await AsyncStorage.setItem('User', JSON.stringify(user));
+            await AsyncStorage.setItem('refreshToken', response.data.refreshToken);
+            await AsyncStorage.setItem('accessToken', response.data.accessToken);
             navigation.navigate('BottomTab');
-        } else {
+        } catch (error) {
             createTwoButtonAlert({
                 title: 'Đăng nhập',
-                content: response.message || 'Kết nối server thất bại',
+                content: 'Đăng nhập thất bại',
             });
         }
     };

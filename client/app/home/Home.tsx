@@ -13,7 +13,6 @@ import {
     ActivityIndicator,
     Animated,
 } from 'react-native';
-import { Searchbar } from 'react-native-paper';
 import React, { useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS } from '../../constants';
@@ -33,13 +32,11 @@ import { IFile, IImage, IPost, IVideo } from '../../type/Post.type';
 import { RootState, store } from '../../redux/Store';
 import { incremented } from '../../redux/stateLoadMore/statePage';
 import { useSelector } from 'react-redux';
-import SwitchComponent from '../../compoments/SearchBar';
 import { Video } from 'expo-av';
 import { postComment } from '../../api/comment.api';
 import { IPostHome, getPostHome } from '../../api/getPost';
 import ShareView from '../../compoments/home/Share';
 import Option from '../../compoments/home/Option';
-import { SearchBar } from '@rneui/themed';
 
 const { height, width } = Dimensions.get('window');
 
@@ -89,7 +86,7 @@ export default function Home({ navigation }: any) {
                         comments: post.commentCount,
                         likes: post.likeCount,
                         shares: post.shareds,
-
+                        background: post.user.profile.background,
                         avartar: post.user.profile.avatar,
                         idUser: post.user.id + '',
                         userName: post.user.username,
@@ -212,7 +209,7 @@ export default function Home({ navigation }: any) {
                     scrollY.setValue(e.nativeEvent.contentOffset.y);
                 }}
                 data={postList}
-                keyExtractor={(_item, index) => {
+                keyExtractor={(item, index) => {
                     // const keyGenerator = () => '_' + Math.random().toString(36).substr(2, 9);
                     return index.toString();
                 }}
@@ -236,10 +233,11 @@ export default function Home({ navigation }: any) {
                                 } else {
                                     navigation.navigate('AccountOther', {
                                         avatar: item.avartar,
-                                        isFollowed: false,
+                                        isFollowed: item.isFollowed,
                                         isOwner: false,
                                         userName: item.userName,
                                         idUser: item.idUser,
+                                        cover: item.background,
                                     });
                                 }
                             }}
@@ -297,7 +295,8 @@ export default function Home({ navigation }: any) {
                                         } else {
                                             navigation.navigate('AccountOther', {
                                                 avatar: item.avartar,
-                                                isFollowed: false,
+                                                cover: item.background,
+                                                isFollowed: item.isFollowed,
                                                 isOwner: false,
                                                 userName: item.userName,
                                                 idUser: item.idUser,

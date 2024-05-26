@@ -5,62 +5,42 @@ interface ILogin {
     password: string;
 }
 
-interface IFollow {
+interface IPost {
+    id: number;
+    caption: string;
+    createdAt: string;
+}
+
+interface IFollower {
     id: number;
     username: string;
     createdAt: string;
 }
 
 interface IResponseLogin {
-    id: number;
-    username: string;
-    email: string;
-    profile: {
+    user: {
         id: number;
-        avatar: string;
+        username: string;
+        email: string;
+        profile: {
+            id: number;
+            avatar: string;
+            background: string;
+        };
+        post: IPost[];
+        followers: IFollower[];
+        followings: [];
     };
-
-    posts: [];
-    flolowers: IFollow[];
-    followings: IFollow[];
-    message?: string;
-    status: number;
+    refreshToken: string;
+    accessToken: string;
 }
 
 const loginApi = async (data: ILogin) => {
-    var _response: IResponseLogin = {
-        email: '',
-        flolowers: [],
-        followings: [],
-        id: -1,
-        posts: [],
-        profile: {
-            avatar: '',
-            id: -1,
+    return await request.post<IResponseLogin>('/auth/login', data, {
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
         },
-        username: '',
-        status: 0,
-        message: '',
-    };
-
-    await request
-        .post<IResponseLogin>('/auth/login', data, {
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-        })
-        .then((response) => {
-            _response = response.data;
-            _response.status = response.status;
-        })
-        .catch((e) => {
-            if (e.response) {
-                _response = e.response.data;
-                _response.status = e.response.status;
-            }
-        });
-
-    return _response;
+    });
 };
 
 interface IRegister {

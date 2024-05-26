@@ -136,6 +136,7 @@ export default function Account({ navigation }: any) {
                         }}
                     >
                         <InfoAccount
+                            isFollow={false}
                             isOwn={true}
                             avatar={{ uri: stateUser.profile.avatar }}
                             cover={{ uri: stateUser.profile.background }}

@@ -14,6 +14,7 @@ export interface IPostHome {
         profile: {
             id: number;
             avatar: string;
+            background: string;
             avatarPublicId: any;
             backgroundPublicId: any;
         };
@@ -56,7 +57,12 @@ const getPostHome = async (idUser: string, limit: number, page: number) => {
         message: '',
     };
     await request
-        .get(`/posts/get-posts/${idUser}?limit=${limit}&page=${page}`)
+        .get(`/posts/get-posts`, {
+            params: {
+                limit: limit,
+                page: page,
+            },
+        })
         .then((response) => {
             _response.data = response.data;
             _response.status = response.status;
@@ -107,6 +113,7 @@ const getDataById = async (_page: number, _limit: number, idUser: string, postLi
                 videos: post.videos,
                 createdAt: post.createdAt,
                 origin: post.origin,
+                background: post.user.profile.background,
             });
         });
 

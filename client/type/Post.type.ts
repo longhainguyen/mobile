@@ -26,6 +26,7 @@ export interface IPost {
     id: string;
     idUser: string;
     userName: string;
+    background: string;
     avartar: string;
     shares: string[];
     likes: number;

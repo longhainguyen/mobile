@@ -12,7 +12,7 @@ interface InfoAccountProps {
     age?: string;
     birthday?: string;
     isOwn: boolean;
-    isFollow?: boolean;
+    isFollow: boolean;
 }
 
 const InfoAccount: React.FC<InfoAccountProps> = ({
@@ -22,7 +22,7 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
     cover,
     name,
     isOwn,
-    isFollow = false,
+    isFollow,
 }) => {
     return (
         <View
@@ -51,7 +51,7 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
                 >
                     <Image
                         style={{ alignSelf: 'flex-end', height: 200, width: '100%' }}
-                        source={UserData[0].background}
+                        source={cover}
                     />
                     {isOwn && (
                         <View
