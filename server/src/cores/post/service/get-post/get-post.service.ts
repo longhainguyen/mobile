@@ -14,9 +14,10 @@ export class GetPostService {
     ) {}
 
     async getPosts(
-        id: number,
+        userId: number,
         { limit = SearchDefault.LIMIT, page = SearchDefault.PAGE }: IGetPost,
         isByUserId: boolean = false,
+        id?: number,
     ) {
         const user = await this.UserReposity.findOneBy({ id });
         if (!user) throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
@@ -45,9 +46,9 @@ export class GetPostService {
 
         const filterPosts = await Promise.all(
             posts.map(async (post) => {
-                const likeUser = await this.LikeReposity.findOne({ where: { userId: id, post: { id: post.id } } });
+                const likeUser = await this.LikeReposity.findOne({ where: { userId, post: { id: post.id } } });
                 const followUser = await this.UserReposity.findOne({
-                    where: { id: id, followings: { id: post.user.id } },
+                    where: { id: userId, followings: { id: post.user.id } },
                 });
 
                 const filterPost = {
