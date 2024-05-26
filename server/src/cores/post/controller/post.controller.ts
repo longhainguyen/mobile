@@ -27,10 +27,10 @@ import { EditPostService } from '../service/edit-post/edit-post.service';
 import { InteractPostService } from '../service/interact-post/interact-post.service';
 import { AuthGuard } from '@cores/auth/guard/auth.guard';
 import { JwtAuthGuard } from '@cores/auth/guard/jwt.guard';
-import { Request } from 'express';
+import { Request } from '@customs/express.type';
 
 @Controller('posts')
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class PostController {
     constructor(
         private readonly PostService: PostService,
@@ -60,24 +60,23 @@ export class PostController {
         return { ...newPost, videos: newPost?.videos || [], images: newPost?.images || [] };
     }
 
-    @Get('get-posts/:id')
+    @Get('get-posts')
     getPosts(
+        @Req() req: Request,
+        @Query('limit', ParseIntPipe) limit: number,
+        @Query('page', ParseIntPipe) page: number,
+    ) {
+        return this.GetPostService.getPosts(req?.user.id, { limit, page });
+    }
+
+    @Get('get-posts-by-id/:id')
+    getPostByUserId(
         @Req() req: Request,
         @Param('id', ParseIntPipe) id: number,
         @Query('limit', ParseIntPipe) limit: number,
         @Query('page', ParseIntPipe) page: number,
     ) {
-        // console.log(req?.user);
-        return this.GetPostService.getPosts(id, { limit, page });
-    }
-
-    @Get('get-posts-by-id/:id')
-    getPostByUserId(
-        @Param('id', ParseIntPipe) id: number,
-        @Query('limit', ParseIntPipe) limit: number,
-        @Query('page', ParseIntPipe) page: number,
-    ) {
-        return this.GetPostService.getPosts(id, { limit, page }, true);
+        return this.GetPostService.getPosts(req?.user.id, { limit, page }, true, id);
     }
 
     @Patch('update-caption-post/:id')

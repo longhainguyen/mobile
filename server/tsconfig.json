@@ -26,7 +26,8 @@
             "@utils/*": ["src/utils/*"],
             "@configs/*": ["src/configs/*"],
             "@constants/*": ["src/constants/*"],
-            "@shares/*": ["src/share/*"]
+            "@shares/*": ["src/share/*"],
+            "@customs/*": ["src/types/*"]
         }
     }
 }

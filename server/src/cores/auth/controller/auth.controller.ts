@@ -11,7 +11,7 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     async login(@Body() data: LoginDto) {
         const user = await this.AuthService.login({ ...data });
-        delete user.password;
+        delete user.user.password;
         return { ...user };
     }
 

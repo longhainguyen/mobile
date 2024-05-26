@@ -31,7 +31,13 @@ export class AuthService {
         }
         const payload = { id: user.id, username: user.username };
         console.log(await this.jwtService.signAsync(payload));
-        return user;
+        return {
+            user: user,
+            accessToken: await this.jwtService.signAsync(payload),
+            refreshToken: await this.jwtService.signAsync(payload, {
+                secret: process.env.JWT_REFRESH_SECRET,
+            }),
+        };
     }
 
     async register(userInfor: IUserInfor) {
