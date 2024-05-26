@@ -18,6 +18,7 @@ import { store } from '../redux/Store';
 import { setStateUser } from '../redux/stateUser/stateUser';
 import Search from '../app/search/Search';
 import Inform from '../app/inform/Inform';
+import EditPost from '../app/post/EditPost';
 
 const theme = {
     ...DefaultTheme,
@@ -38,6 +39,7 @@ export type RootStackParamList = {
     AccountOther: undefined;
     Search: undefined;
     Inform: undefined;
+    EditPost: undefined;
 };
 
 const NotLoggInNav = () => {
@@ -63,6 +65,7 @@ const NotLoggInNav = () => {
             <RootStack.Screen name="AccountOther" component={AccountOther} />
             <RootStack.Screen name="Search" component={Search} />
             <RootStack.Screen name="Inform" component={Inform} />
+            <RootStack.Screen name="EditPost" component={EditPost} />
         </RootStack.Navigator>
     );
 };
@@ -90,6 +93,7 @@ const LoggedInNav = () => {
             <RootStack.Screen name="AccountOther" component={AccountOther} />
             <RootStack.Screen name="Search" component={Search} />
             <RootStack.Screen name="Inform" component={Inform} />
+            <RootStack.Screen name="EditPost" component={EditPost} />
         </RootStack.Navigator>
     );
 };

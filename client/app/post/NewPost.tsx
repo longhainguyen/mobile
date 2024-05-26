@@ -135,7 +135,7 @@ export default function Post({ navigation }: any) {
                 };
                 listImageUri.push(image);
             });
-            setListItem(listImageUri);
+            setListItem(listItem.concat(listImageUri));
         }
     };
 

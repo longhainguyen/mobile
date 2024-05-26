@@ -17,7 +17,6 @@ import { COLORS } from '../../constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import UserData from '../../dataTemp/UserData';
 import UserIcon from '../../compoments/UserIcon';
-import PostData from '../../dataTemp/PostData';
 import PostContent from '../../compoments/PostContent';
 import Interact from '../../compoments/Interact';
 import InfoAccount from '../../compoments/InfoAccount';
@@ -25,19 +24,17 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import Comment, { ItemCommentProps } from '../../compoments/Comment';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import _list_comments from '../../dataTemp/CommentData';
-import { IUser } from '../../type/User.type';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
 import { getDataById } from '../../api/getPost';
 import { IImage, IPost, IVideo } from '../../type/Post.type';
 import { AntDesign } from '@expo/vector-icons';
-import { useScrollToTop } from '@react-navigation/native';
 import ModalCompoment from '../../compoments/ModalCompoment';
+import ShareView from '../../compoments/home/Share';
 
 const { height, width } = Dimensions.get('window');
 
 export default function Account({ navigation }: any) {
-    const [user, setUser] = useState<IUser>();
     const [listComment, setListComment] = useState<ItemCommentProps[]>();
     const [postIdOpen, setPostIdOpen] = useState('');
     const stateUser = useSelector((state: RootState) => state.reducerUser);
@@ -47,24 +44,33 @@ export default function Account({ navigation }: any) {
     const [refreshControl, setRefreshControl] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const scrollY = new Animated.Value(0);
+    const bottemSheetShare = useRef<BottomSheet>(null);
     const translateY = scrollY.interpolate({
         inputRange: [0, 45],
         outputRange: [0, -45],
     });
     const [modalVisible, setModalVisible] = useState(false);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // const postList: IPost[] = (await getDataById(0, 5, stateUser.id)) || [];
-                setPostList(await getDataById(0, 5, stateUser.id, postList || []));
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
+    const fetchData = async () => {
+        try {
+            // const postList: IPost[] = (await getDataById(0, 5, stateUser.id)) || [];
+            setPostList(await getDataById(0, 5, stateUser.id, postList || []));
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
 
-        fetchData();
+    useEffect(() => {
+        if (stateUser) {
+            fetchData();
+        }
     }, [stateUser]);
+
+    useEffect(() => {
+        if (stateUser) {
+            fetchData();
+        }
+    }, []);
 
     const getData = async (_limit: number, _page: number, idUser: string) => {
         // const postList: IPost[] = (await getDataById(_page, _limit, idUser)) || [];
@@ -91,22 +97,6 @@ export default function Account({ navigation }: any) {
         navigation.navigate('Login');
     };
 
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const userString = await AsyncStorage.getItem('User');
-                if (userString) {
-                    const user = JSON.parse(userString);
-                    setUser(user);
-                }
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
-        };
-
-        fetchUserData();
-    }, [stateUser]);
-
     const renderSeparator = (index: any) => {
         return (
             <View
@@ -115,6 +105,15 @@ export default function Account({ navigation }: any) {
                 }}
             />
         );
+    };
+
+    const openShare = async (
+        postId: number,
+        idUser: number,
+        bottemSheetInstance: BottomSheet | null,
+    ) => {
+        setPostIdOpen(postId + '');
+        bottemSheetInstance?.snapToIndex(0);
     };
 
     return (
@@ -172,11 +171,21 @@ export default function Account({ navigation }: any) {
                                 avatar={{ uri: item.avartar }}
                                 width={30}
                                 height={30}
-                                isFollowed={false}
+                                isFollowed={item.isFollowed || false}
                                 userName={item.userName}
-                                isOwner={true}
+                                isOwner={stateUser.id === item.idUser ? true : false}
                                 openAccount={() => {
-                                    navigation.navigate('Account');
+                                    if (stateUser.id === item.idUser) {
+                                        navigation.navigate('Account');
+                                    } else {
+                                        navigation.navigate('AccountOther', {
+                                            avatar: item.avartar,
+                                            isFollowed: false,
+                                            isOwner: false,
+                                            userName: item.userName,
+                                            idUser: item.idUser,
+                                        });
+                                    }
                                 }}
                             />
                             <TouchableOpacity
@@ -187,10 +196,11 @@ export default function Account({ navigation }: any) {
                                         userName: item.userName,
                                         isOwner: true,
                                         images: item.images,
-                                        time: item.createAt,
+                                        time: item.createdAt,
                                         description: item.content,
                                         comment: item.comments,
                                         like: item.likes,
+                                        isLiked: item.isLiked,
                                         share: item.shares,
                                         postId: item.id,
                                         videos: item.videos,
@@ -201,11 +211,75 @@ export default function Account({ navigation }: any) {
                                     videos={item.videos}
                                     navigation={navigation}
                                     images={item.images}
-                                    time={item.createAt}
+                                    time={item.createdAt}
                                     description={item.content}
                                 />
                             </TouchableOpacity>
+                            {item.origin && (
+                                <View
+                                    style={{
+                                        padding: 10,
+                                        marginHorizontal: 10,
+                                        marginVertical: 10,
+                                        borderWidth: 2,
+                                        borderColor: COLORS.borderColor,
+                                        borderRadius: 30,
+                                    }}
+                                >
+                                    <UserIcon
+                                        avatar={{ uri: item.origin.user.profile.avatar }}
+                                        width={30}
+                                        height={30}
+                                        isFollowed={item.isFollowed || false}
+                                        userName={item.origin.user.username}
+                                        isOwner={stateUser.id === item.idUser ? true : false}
+                                        openAccount={() => {
+                                            if (stateUser.id === item.idUser) {
+                                                navigation.navigate('Account');
+                                            } else {
+                                                navigation.navigate('AccountOther', {
+                                                    avatar: item.avartar,
+                                                    isFollowed: false,
+                                                    isOwner: false,
+                                                    userName: item.userName,
+                                                    idUser: item.idUser,
+                                                });
+                                            }
+                                        }}
+                                    />
+                                    <TouchableOpacity
+                                        onPress={() =>
+                                            navigation.navigate('ShowPost', {
+                                                avatar: item.origin?.user.profile.avatar,
+                                                isFollowed: item.isFollowed,
+                                                userName: item.origin?.user.username,
+                                                isOwner:
+                                                    item.origin?.user.id + '' === stateUser.id
+                                                        ? true
+                                                        : false,
+                                                images: item.origin?.images,
+                                                time: item.origin?.createdAt,
+                                                description: item.origin?.caption,
+                                                comment: item.comments,
+                                                like: item.likes,
+                                                share: item.shares,
+                                                postId: item.id,
+                                                videos: item.videos,
+                                            })
+                                        }
+                                    >
+                                        <PostContent
+                                            videos={item.origin.videos}
+                                            navigation={navigation}
+                                            images={item.origin.images}
+                                            time={item.origin.createdAt}
+                                            description={item.origin.caption}
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                            )}
                             <Interact
+                                isLike={item.isLiked}
                                 postId={parseInt(item.id)}
                                 userId={parseInt(stateUser.id)}
                                 comment={item.comments}
@@ -213,7 +287,18 @@ export default function Account({ navigation }: any) {
                                 share={item.shares}
                                 avatar={item.avartar}
                                 atHome={true}
-                                // openComment={() => openComment(0, item.id, item.avartar)}
+                                isFollow={item.isFollowed}
+                                openShare={() => {
+                                    openShare(
+                                        parseInt(item.id),
+                                        parseInt(stateUser.id),
+                                        bottemSheetShare.current,
+                                    );
+                                }}
+                                openComment={
+                                    () => {}
+                                    // openComment(0, item.id, item.avartar, bottemSheetComment.current)
+                                }
                             />
                         </View>
                     )}
@@ -270,6 +355,16 @@ export default function Account({ navigation }: any) {
                 ref={bottemSheet}
                 dataCommentsOfPost={listComment || []}
                 avatar={UserData[0].avatar}
+            />
+            <ShareView
+                idUser={stateUser.id}
+                navigation={navigation}
+                originId={parseInt(postIdOpen)}
+                height={30}
+                width={30}
+                userName={stateUser.username}
+                avatar={stateUser.profile.avatar}
+                ref={bottemSheetShare}
             />
         </GestureHandlerRootView>
     );

@@ -1,5 +1,4 @@
 import {
-    
     View,
     Text,
     SafeAreaView,
@@ -30,13 +29,16 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import _list_comments from '../../dataTemp/CommentData';
 import { EvilIcons } from '@expo/vector-icons';
 import request from '../../config/request';
-import { IImage, IPost, IVideo } from '../../type/Post.type';
+import { IFile, IImage, IPost, IVideo } from '../../type/Post.type';
 import { RootState, store } from '../../redux/Store';
 import { incremented } from '../../redux/stateLoadMore/statePage';
 import { useSelector } from 'react-redux';
 import SwitchComponent from '../../compoments/SearchBar';
 import { Video } from 'expo-av';
 import { postComment } from '../../api/comment.api';
+import { IPostHome, getPostHome } from '../../api/getPost';
+import ShareView from '../../compoments/home/Share';
+import Option from '../../compoments/home/Option';
 import { SearchBar } from '@rneui/themed';
 
 const { height, width } = Dimensions.get('window');
@@ -44,6 +46,7 @@ const { height, width } = Dimensions.get('window');
 export default function Home({ navigation }: any) {
     const [listComment, setListComment] = useState<ItemCommentProps[]>();
     const [postIdOpen, setPostIdOpen] = useState('');
+    const [idUserOfPost, setIdUserOfPost] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [refreshControl, setRefreshControl] = useState(false);
     const [postList, setPostList] = useState<IPost[]>();
@@ -51,13 +54,17 @@ export default function Home({ navigation }: any) {
     const [page, setPage] = useState(0);
     const flatListRef = useRef<FlatList>(null);
     const stateUser = useSelector((state: RootState) => state.reducerUser);
+    const bottemSheetComment = useRef<BottomSheet>(null);
+    const bottemSheetShare = useRef<BottomSheet>(null);
+    const bottemSheetOption = useRef<BottomSheet>(null);
     const scrollY = new Animated.Value(0);
     const diffClamp = Animated.diffClamp(scrollY, 0, 55);
     const translateY = diffClamp.interpolate({
         inputRange: [0, 55],
         outputRange: [0, -55],
     });
-    
+    const [postOpen, setPostOpen] = useState<IPost>();
+
     const scrollToTop = () => {
         if (flatListRef.current) {
             flatListRef.current.scrollToOffset({ offset: 0, animated: true });
@@ -65,45 +72,33 @@ export default function Home({ navigation }: any) {
     };
 
     useEffect(() => {
-        getData(0);
+        if (stateUser.id) {
+            getData(0);
+        }
     }, []);
 
     const getData = async (_page: number) => {
-        await request
-            .get(`/posts/get-posts?limit=5&page=${_page}`)
+        await getPostHome(stateUser.id, 5, _page)
             .then((result) => {
                 var _postList: IPost[] = []; // Initialize _postList
 
-                result.data.map((post: any) => {
-                    const _images: IImage[] = post.images.map((image: any) => {
-                        const _image: IImage = {
-                            id: image.id,
-                            uri: image.url,
-                            type: 'image',
-                        };
-                        return _image;
-                    });
-
-                    const _videos: IVideo[] = post.videos.map((video: any) => {
-                        const _video: IVideo = {
-                            id: video.id,
-                            uri: video.url,
-                            type: 'video',
-                        };
-                        return _video;
-                    });
+                result.data.map((post: IPostHome) => {
                     const _post: IPost = {
-                        id: post.id,
+                        id: post.id + '',
                         content: post.caption,
                         comments: post.commentCount,
                         likes: post.likeCount,
-                        shares: post.shares,
-                        createAt: post.createdAt,
+                        shares: post.shareds,
+
                         avartar: post.user.profile.avatar,
-                        idUser: post.user.id,
+                        idUser: post.user.id + '',
                         userName: post.user.username,
-                        images: _images,
-                        videos: _videos,
+                        images: post.images,
+                        videos: post.videos,
+                        isFollowed: post.isFollowed,
+                        isLiked: post.isLiked,
+                        createdAt: post.createdAt,
+                        origin: post.origin,
                     };
                     _postList.push(_post);
                 });
@@ -127,18 +122,37 @@ export default function Home({ navigation }: any) {
         setListComment(arr);
     }, [postIdOpen]);
 
-    const bottemSheet = useRef<BottomSheet>(null);
-
-    const openComment = async (index: number, post_id: string, avatarUserOwn: any) => {
-        bottemSheet.current?.snapToIndex(index);
-        console.log(post_id);
-
+    const openComment = async (
+        index: number,
+        post_id: string,
+        avatarUserOwn: any,
+        bottemSheetInstance: BottomSheet | null,
+    ) => {
+        bottemSheetInstance?.snapToIndex(index);
         setAvartarUserOwnPost(avatarUserOwn);
         setPostIdOpen(post_id);
     };
 
+    const openShare = async (
+        postId: number,
+        idUser: number,
+        bottemSheetInstance: BottomSheet | null,
+    ) => {
+        setPostIdOpen(postId + '');
+        bottemSheetInstance?.snapToIndex(0);
+    };
+
+    const handleOpenOption = async (
+        idUser: string,
+        post: IPost,
+        bottemSheetInstance: BottomSheet | null,
+    ) => {
+        setIdUserOfPost(idUser);
+        setPostOpen(post);
+        bottemSheetInstance?.snapToIndex(0);
+    };
+
     return (
-        
         <GestureHandlerRootView style={{ flex: 1, marginTop: 15 }}>
             <Animated.View
                 style={{
@@ -147,7 +161,6 @@ export default function Home({ navigation }: any) {
                     zIndex: 100,
                 }}
             >
-            
                 <View
                     style={{
                         position: 'absolute',
@@ -207,10 +220,14 @@ export default function Home({ navigation }: any) {
                 renderItem={({ item }: { item: IPost }) => (
                     <View>
                         <UserIcon
+                            idUserOfPost={item.idUser}
+                            openOption={() => {
+                                handleOpenOption(item.idUser, item, bottemSheetOption.current);
+                            }}
                             avatar={{ uri: item.avartar }}
                             width={30}
                             height={30}
-                            isFollowed={false}
+                            isFollowed={item.isFollowed || false}
                             userName={item.userName}
                             isOwner={stateUser.id === item.idUser ? true : false}
                             openAccount={() => {
@@ -235,10 +252,11 @@ export default function Home({ navigation }: any) {
                                     userName: item.userName,
                                     isOwner: true,
                                     images: item.images,
-                                    time: item.createAt,
+                                    time: item.createdAt,
                                     description: item.content,
                                     comment: item.comments,
                                     like: item.likes,
+                                    isLiked: item.isLiked,
                                     share: item.shares,
                                     postId: item.id,
                                     videos: item.videos,
@@ -249,12 +267,77 @@ export default function Home({ navigation }: any) {
                                 videos={item.videos}
                                 navigation={navigation}
                                 images={item.images}
-                                time={item.createAt}
+                                time={item.createdAt}
                                 description={item.content}
                             />
                         </TouchableOpacity>
+                        {item.origin && (
+                            <View
+                                style={{
+                                    padding: 10,
+                                    marginHorizontal: 10,
+                                    marginVertical: 10,
+                                    borderWidth: 2,
+                                    borderColor: COLORS.borderColor,
+                                    borderRadius: 30,
+                                }}
+                            >
+                                <UserIcon
+                                    idUserOfPost={item.idUser}
+                                    avatar={{ uri: item.origin.user.profile.avatar }}
+                                    width={30}
+                                    height={30}
+                                    threeDotsDisplay={false}
+                                    isFollowed={item.isFollowed || false}
+                                    userName={item.origin.user.username}
+                                    isOwner={stateUser.id === item.idUser ? true : false}
+                                    openAccount={() => {
+                                        if (stateUser.id === item.idUser) {
+                                            navigation.navigate('Account');
+                                        } else {
+                                            navigation.navigate('AccountOther', {
+                                                avatar: item.avartar,
+                                                isFollowed: false,
+                                                isOwner: false,
+                                                userName: item.userName,
+                                                idUser: item.idUser,
+                                            });
+                                        }
+                                    }}
+                                />
+                                <TouchableOpacity
+                                    onPress={() =>
+                                        navigation.navigate('ShowPost', {
+                                            avatar: item.origin?.user.profile.avatar,
+                                            isFollowed: item.isFollowed,
+                                            userName: item.origin?.user.username,
+                                            isOwner:
+                                                item.origin?.user.id + '' === stateUser.id
+                                                    ? true
+                                                    : false,
+                                            images: item.origin?.images,
+                                            time: item.origin?.createdAt,
+                                            description: item.origin?.caption,
+                                            comment: item.comments,
+                                            like: item.likes,
+                                            share: item.shares,
+                                            postId: item.id,
+                                            videos: item.videos,
+                                        })
+                                    }
+                                >
+                                    <PostContent
+                                        videos={item.origin.videos}
+                                        navigation={navigation}
+                                        images={item.origin.images}
+                                        time={item.origin.createdAt}
+                                        description={item.origin.caption}
+                                    />
+                                </TouchableOpacity>
+                            </View>
+                        )}
                         <Interact
-                            isLike={false}
+                            isLike={item.isLiked}
                             postId={parseInt(item.id)}
                             userId={parseInt(stateUser.id)}
                             comment={item.comments}
@@ -262,7 +345,17 @@ export default function Home({ navigation }: any) {
                             share={item.shares}
                             avatar={item.avartar}
                             atHome={true}
-                            openComment={() => openComment(0, item.id, item.avartar)}
+                            isFollow={item.isFollowed}
+                            openShare={() => {
+                                openShare(
+                                    parseInt(item.id),
+                                    parseInt(stateUser.id),
+                                    bottemSheetShare.current,
+                                );
+                            }}
+                            openComment={() =>
+                                openComment(0, item.id, item.avartar, bottemSheetComment.current)
+                            }
                         />
                     </View>
                 )}
@@ -270,11 +363,14 @@ export default function Home({ navigation }: any) {
                     <RefreshControl
                         refreshing={refreshControl}
                         onRefresh={async () => {
-                            setRefreshControl(true);
-                            setPostList([]);
-                            setPage(0);
-                            setPostList([]);
-                            await getData(page);
+                            if (stateUser.id) {
+                                setRefreshControl(true);
+                                setPostList([]);
+                                setPage(0);
+                                setPostList([]);
+                                await getData(page);
+                            }
+
                             setTimeout(async () => {
                                 setRefreshControl(false);
                             }, 2000);
@@ -315,9 +411,26 @@ export default function Home({ navigation }: any) {
                 dataCommentsOfPost={listComment || []}
                 title="Bình luận"
                 atSinglePost={false}
-                ref={bottemSheet}
+                ref={bottemSheetComment}
                 avatar={{ uri: avartarUserOwnPost }}
+            />
+            <ShareView
+                idUser={stateUser.id}
+                navigation={navigation}
+                originId={parseInt(postIdOpen)}
+                height={30}
+                width={30}
+                userName={stateUser.username}
+                avatar={stateUser.profile.avatar}
+                ref={bottemSheetShare}
+            />
+            <Option
+                navigation={navigation}
+                idUserOfPost={idUserOfPost}
+                idUser={stateUser.id}
+                ref={bottemSheetOption}
+                post={postOpen}
             />
         </GestureHandlerRootView>
     );
-            }
+}
