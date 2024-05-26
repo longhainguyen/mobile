@@ -217,6 +217,7 @@ export default function Home({ navigation }: any) {
                 renderItem={({ item }: { item: IPost }) => (
                     <View>
                         <UserIcon
+                            idUserOfPost={item.idUser}
                             openOption={() => {
                                 handleOpenOption(item.idUser, item, bottemSheetOption.current);
                             }}
@@ -279,6 +280,7 @@ export default function Home({ navigation }: any) {
                                 }}
                             >
                                 <UserIcon
+                                    idUserOfPost={item.idUser}
                                     avatar={{ uri: item.origin.user.profile.avatar }}
                                     width={30}
                                     height={30}

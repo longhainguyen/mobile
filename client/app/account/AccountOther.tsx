@@ -173,7 +173,7 @@ const AccountOther = ({ route, navigation }: AccountOtherProps) => {
                             avatar={{ uri: item.avartar }}
                             width={30}
                             height={30}
-                            isFollowed={item.isFollowed || false}
+                            isFollowed={item.isFollowed}
                             userName={item.userName}
                             isOwner={stateUser.id === item.idUser ? true : false}
                             openAccount={() => {
