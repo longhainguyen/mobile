@@ -2,7 +2,7 @@ import React, { memo, useState } from 'react';
 import { Dimensions, Modal, View, Text, ImageSourcePropType } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import { RouteProp, NavigationProp } from '@react-navigation/native';
-import { IImage } from '../type/Post.type';
+import { IFile, IImage } from '../type/Post.type';
 
 type ShowImageProps = {
     route: any;
@@ -18,15 +18,16 @@ const ShowImage = ({ route, navigation }: ShowImageProps) => {
         navigation.goBack();
     };
 
-    const images = sources.map((source: IImage) => {
+    const images = sources.map((source: IFile) => {
         const image = {
-            url: source.uri,
+            url: source.url,
             props: {
                 // headers: ...
             },
         };
         return image;
     });
+
     return (
         <Modal
             visible={true}

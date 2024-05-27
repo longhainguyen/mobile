@@ -106,6 +106,8 @@ const AccountOther = ({ route, navigation }: AccountOtherProps) => {
                 >
                     <View style={{ height: height / 13 }}></View>
                     <InfoAccount
+                        navigation={navigation}
+                        idUser={idUser}
                         isFollow={isFollowed}
                         isOwn={false}
                         avatar={{ uri: avatar }}
@@ -240,7 +242,7 @@ const AccountOther = ({ route, navigation }: AccountOtherProps) => {
                                     avatar={{ uri: item.origin.user.profile.avatar }}
                                     width={30}
                                     height={30}
-                                    isFollowed={item.isFollowed || false}
+                                    // isFollowed={item.isFollowed || false}
                                     userName={item.origin.user.username}
                                     isOwner={stateUser.id === item.idUser ? true : false}
                                     openAccount={() => {

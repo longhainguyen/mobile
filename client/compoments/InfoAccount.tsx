@@ -4,6 +4,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import React from 'react';
 import { FONT, FONT_SIZE } from '../constants/font';
 import UserData from '../dataTemp/UserData';
+import { updateUser } from '../api/user.api';
 
 interface InfoAccountProps {
     avatar: any;
@@ -13,6 +14,8 @@ interface InfoAccountProps {
     birthday?: string;
     isOwn: boolean;
     isFollow: boolean;
+    idUser: string;
+    navigation?: any;
 }
 
 const InfoAccount: React.FC<InfoAccountProps> = ({
@@ -22,8 +25,14 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
     cover,
     name,
     isOwn,
+    idUser,
     isFollow,
+    navigation,
 }) => {
+    const hanleUpdateAccount = async () => {
+        navigation.navigate('UpdateAccount');
+    };
+
     return (
         <View
             style={{
@@ -160,6 +169,7 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
                             borderColor: COLORS.black,
                             padding: 5,
                         }}
+                        onPress={hanleUpdateAccount}
                     >
                         <Text
                             style={{

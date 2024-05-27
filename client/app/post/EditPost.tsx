@@ -20,17 +20,21 @@ import UserIcon from '../../compoments/UserIcon';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
 import PostContent from '../../compoments/PostContent';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../navigation';
 
-type RootStackParamList = {
-    EditPost: { post: IPost };
-};
+// type RootStackParamList = {
+//     EditPost: { post: IPost };
+// };
 
-type EditPostRouteProp = RouteProp<RootStackParamList, 'EditPost'>;
+// type EditPostRouteProp = RouteProp<RootStackParamList, 'EditPost'>;
 
-type EditPostProps = {
-    route: EditPostRouteProp;
-    navigation: any;
-};
+type EditPostProps = NativeStackScreenProps<RootStackParamList, 'EditPost'>;
+
+// type EditPostProps = {
+//     route: any;
+//     navigation: any;
+// };
 
 export default function EditPost({ route, navigation }: EditPostProps) {
     const [content, setContent] = useState('');
@@ -142,7 +146,7 @@ export default function EditPost({ route, navigation }: EditPostProps) {
             )}
 
             <ScrollView>
-                {route.params.post.origin && (
+                {route.params && route.params.post.origin && (
                     <View
                         style={{
                             padding: 10,
@@ -162,22 +166,25 @@ export default function EditPost({ route, navigation }: EditPostProps) {
                             userName={route.params.post.origin.user.username}
                             isOwner={stateUser.id === route.params.post.idUser ? true : false}
                             openAccount={() => {
-                                if (stateUser.id === route.params.post.idUser) {
-                                    navigation.navigate('Account');
-                                } else {
-                                    navigation.navigate('AccountOther', {
-                                        avatar: route.params.post.avartar,
-                                        isFollowed: false,
-                                        isOwner: false,
-                                        userName: route.params.post.userName,
-                                        idUser: route.params.post.idUser,
-                                    });
+                                if (route.params) {
+                                    if (stateUser.id === route.params.post.idUser) {
+                                        route.params.navigation.navigate('Account');
+                                    } else {
+                                        route.params.navigation.navigate('AccountOther', {
+                                            avatar: route.params.post.avartar,
+                                            isFollowed: false,
+                                            isOwner: false,
+                                            userName: route.params.post.userName,
+                                            idUser: route.params.post.idUser,
+                                        });
+                                    }
                                 }
                             }}
                         />
                         <TouchableOpacity
                             onPress={() =>
-                                navigation.navigate('ShowPost', {
+                                route.params &&
+                                route.params.navigation.navigate('ShowPost', {
                                     avatar: route.params.post.origin?.user.profile.avatar,
                                     isFollowed: route.params.post.isFollowed,
                                     userName: route.params.post.origin?.user.username,

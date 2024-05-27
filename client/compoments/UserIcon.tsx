@@ -20,7 +20,7 @@ import createTwoButtonAlert from './AlertComponent';
 interface UserProp {
     userName: string;
     avatar: any;
-    isFollowed: boolean;
+    isFollowed?: boolean;
     isOwner: boolean;
     width?: number;
     height?: number;
@@ -101,7 +101,7 @@ const UserIcon: React.FC<UserProp> = ({
                 </Text>
             </TouchableOpacity>
             <View style={{ flexDirection: 'row' }}>
-                {!isOwner && (
+                {isFollowed !== undefined && !isOwner && (
                     <TouchableOpacity
                         style={{
                             borderColor: COLORS.borderColor,

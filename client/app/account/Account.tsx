@@ -136,6 +136,8 @@ export default function Account({ navigation }: any) {
                         }}
                     >
                         <InfoAccount
+                            navigation={navigation}
+                            idUser={stateUser.id}
                             isFollow={false}
                             isOwn={true}
                             avatar={{ uri: stateUser.profile.avatar }}
@@ -231,7 +233,7 @@ export default function Account({ navigation }: any) {
                                         avatar={{ uri: item.origin.user.profile.avatar }}
                                         width={30}
                                         height={30}
-                                        isFollowed={item.isFollowed || false}
+                                        // isFollowed={item.isFollowed || false}
                                         userName={item.origin.user.username}
                                         isOwner={stateUser.id === item.idUser ? true : false}
                                         openAccount={() => {
@@ -341,9 +343,14 @@ export default function Account({ navigation }: any) {
 
                         console.log(page, 'at account');
 
-                        await getData(5, page, stateUser.id).then(() => {
-                            setPage(page + 1);
-                        });
+                        if (isLoading) {
+                            await getData(5, page, stateUser.id).then(() => {
+                                if (postList && postList?.length > 0) {
+                                    setPage(page + 1);
+                                }
+                            });
+                        }
+
                         setTimeout(async () => {
                             setIsLoading(false);
                         }, 2000);

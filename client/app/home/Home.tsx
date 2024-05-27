@@ -290,7 +290,6 @@ export default function Home({ navigation }: any) {
                                     width={30}
                                     height={30}
                                     threeDotsDisplay={false}
-                                    isFollowed={item.isFollowed || false}
                                     userName={item.origin.user.username}
                                     isOwner={stateUser.id === item.idUser ? true : false}
                                     openAccount={() => {
