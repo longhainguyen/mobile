@@ -41,7 +41,7 @@ const COLORS = {
 
     background: '#fff',
 
-    black:'#000000'
+
 };
 
 const SIZES = {
