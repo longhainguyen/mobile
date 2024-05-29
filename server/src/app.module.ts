@@ -8,6 +8,7 @@ import { UserModule } from '@cores/user/module/user.module';
 import { PostModule } from '@cores/post/module/post.module';
 import { typeormConfig } from '@configs/typeorm.config';
 import { ConfigModule } from '@nestjs/config';
+import { GatewayModule } from '@cores/gateway/module/gateway.module';
 
 @Module({
     imports: [
@@ -19,6 +20,7 @@ import { ConfigModule } from '@nestjs/config';
             isGlobal: true,
             cache: true,
         }),
+        GatewayModule,
     ],
     controllers: [AppController],
     providers: [AppService],
