@@ -1,9 +1,9 @@
 import { SearchDefault } from '@constants/enums/default.enum';
-import { LikeEntity, PostEntity, UserEntity } from '@entities/index';
+import { CommentEntity, LikeEntity, PostEntity, UserEntity } from '@entities/index';
 import { IGetPost } from '@interfaces/post.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, Like, Repository } from 'typeorm';
+import { FindManyOptions, In, Like, Repository } from 'typeorm';
 
 @Injectable()
 export class GetPostService {
@@ -11,6 +11,7 @@ export class GetPostService {
         @InjectRepository(UserEntity) private UserReposity: Repository<UserEntity>,
         @InjectRepository(PostEntity) private PostReposity: Repository<PostEntity>,
         @InjectRepository(LikeEntity) private LikeReposity: Repository<LikeEntity>,
+        @InjectRepository(CommentEntity) private CommentReposity: Repository<CommentEntity>,
     ) {}
 
     async getPosts(
@@ -118,5 +119,19 @@ export class GetPostService {
         );
 
         return filterPosts;
+    }
+
+    async getComments(postId: number, { limit = SearchDefault.LIMIT, page = SearchDefault.PAGE }: IGetPost) {
+        const post = await this.PostReposity.findOneBy({ id: postId });
+        if (!post) throw new HttpException('Post not found', HttpStatus.BAD_REQUEST);
+        const comments = await this.CommentReposity.find({
+            select: ['id', 'content', 'createdAt'],
+            where: { post: { id: postId } },
+            relations: ['user.profile', 'childrens.user.profile'],
+            order: { createdAt: 'DESC' },
+            skip: limit * page,
+            take: limit,
+        });
+        return comments;
     }
 }

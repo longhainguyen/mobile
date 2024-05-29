@@ -26,7 +26,7 @@ export class UserEntity {
     @Column({ select: false })
     password: string;
 
-    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', select: false })
     createdAt: Date;
 
     @OneToOne(() => ProfileEntity)
