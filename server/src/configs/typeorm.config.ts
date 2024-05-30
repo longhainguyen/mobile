@@ -1,12 +1,15 @@
-import { ImageEntity } from '@entities/image.entity';
-import { PostEntity } from '@entities/post.entity';
-import { ProfileEntity } from '@entities/profile.entity';
-import { UserEntity } from '@entities/user.entity';
-import { VideoEntity } from '@entities/video.entity';
 import { TypeOrmModuleAsyncOptions, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { CommentEntity } from '@entities/comment.entity';
-import { LikeEntity } from '@entities/like.entity';
+import { ConfigService } from '@nestjs/config';
+import {
+    CommentEntity,
+    ImageEntity,
+    LikeEntity,
+    NotificationEntity,
+    PostEntity,
+    ProfileEntity,
+    UserEntity,
+    VideoEntity,
+} from '@entities/index';
 
 export default class TypeOrmConfig {
     static getOrmConfig(configService: ConfigService): TypeOrmModuleOptions {
@@ -17,7 +20,16 @@ export default class TypeOrmConfig {
             username: configService.get('DB_USERNAME'),
             password: configService.get('DB_PASSWORD'),
             database: configService.get('DB_NAME'),
-            entities: [UserEntity, ProfileEntity, PostEntity, ImageEntity, VideoEntity, LikeEntity, CommentEntity],
+            entities: [
+                UserEntity,
+                ProfileEntity,
+                PostEntity,
+                ImageEntity,
+                VideoEntity,
+                LikeEntity,
+                CommentEntity,
+                NotificationEntity,
+            ],
             synchronize: true,
         };
     }

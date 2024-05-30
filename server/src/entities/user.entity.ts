@@ -11,6 +11,7 @@ import {
 import { ProfileEntity } from './profile.entity';
 import { PostEntity } from './post.entity';
 import { CommentEntity } from './comment.entity';
+import { NotificationEntity } from './notification.entity';
 
 @Entity({ name: 'users' })
 export class UserEntity {
@@ -35,6 +36,7 @@ export class UserEntity {
 
     @OneToMany(() => PostEntity, (post) => post.user)
     posts: PostEntity[];
+
     @ManyToMany(() => UserEntity, (user) => user.followings)
     @JoinTable()
     followers: UserEntity[];
@@ -44,4 +46,7 @@ export class UserEntity {
 
     @OneToMany(() => CommentEntity, (comment) => comment.user)
     comments: CommentEntity[];
+
+    @OneToMany(() => NotificationEntity, (notification) => notification.user)
+    notifications: NotificationEntity[];
 }

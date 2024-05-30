@@ -1,5 +1,9 @@
 export interface IOnlineUser {
-    id: string;
+    id: number;
     username: string;
     socketId: string;
+}
+
+export interface ILikeData {
+    notificationId: number;
 }

@@ -5,4 +5,14 @@ import { ImageEntity } from './image.entity';
 import { VideoEntity } from './video.entity';
 import { LikeEntity } from './like.entity';
 import { CommentEntity } from './comment.entity';
-export { UserEntity, ProfileEntity, PostEntity, ImageEntity, VideoEntity, LikeEntity, CommentEntity };
+import { NotificationEntity } from './notification.entity';
+export {
+    UserEntity,
+    ProfileEntity,
+    PostEntity,
+    ImageEntity,
+    VideoEntity,
+    LikeEntity,
+    CommentEntity,
+    NotificationEntity,
+};
