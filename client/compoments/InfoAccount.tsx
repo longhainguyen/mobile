@@ -5,6 +5,7 @@ import React from 'react';
 import { FONT, FONT_SIZE } from '../constants/font';
 import UserData from '../dataTemp/UserData';
 import { updateUser } from '../api/user.api';
+import { IUser } from '../type/User.type';
 
 interface InfoAccountProps {
     avatar: any;
@@ -16,6 +17,9 @@ interface InfoAccountProps {
     isFollow: boolean;
     idUser: string;
     navigation?: any;
+    user?: IUser;
+    openOptionAvatar?: () => void;
+    openOptionBg?: () => void;
 }
 
 const InfoAccount: React.FC<InfoAccountProps> = ({
@@ -28,9 +32,18 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
     idUser,
     isFollow,
     navigation,
+    user,
+    openOptionAvatar,
+    openOptionBg,
 }) => {
     const hanleUpdateAccount = async () => {
-        navigation.navigate('UpdateAccount');
+        if (user) {
+            navigation.navigate('UpdateAccount', {
+                user: user,
+            });
+        } else {
+            console.log('No user');
+        }
     };
 
     return (
@@ -49,6 +62,7 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
                 }}
             >
                 <TouchableOpacity
+                    onPress={openOptionBg}
                     activeOpacity={0.6}
                     style={{
                         width: '100%',
@@ -88,7 +102,7 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
                         alignItems: 'center',
                     }}
                 >
-                    <TouchableOpacity activeOpacity={0.6}>
+                    <TouchableOpacity onPress={openOptionAvatar} activeOpacity={0.6}>
                         <Image
                             style={{
                                 width: 150,

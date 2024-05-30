@@ -396,15 +396,17 @@ export default function Home({ navigation }: any) {
                     ) : null
                 }
                 onEndReached={async () => {
-                    setIsLoading(true);
-                    console.log(page, 'at home');
+                    if (postList) {
+                        setIsLoading(true);
+                        console.log(page, 'at home');
 
-                    await getData(page).then(() => {
-                        setPage(page + 1);
-                    });
-                    setTimeout(async () => {
-                        setIsLoading(false);
-                    }, 2000);
+                        await getData(page).then(() => {
+                            setPage(page + 1);
+                        });
+                        setTimeout(async () => {
+                            setIsLoading(false);
+                        }, 2000);
+                    }
                 }}
                 onEndReachedThreshold={0.1}
             />

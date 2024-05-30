@@ -1,6 +1,10 @@
 import React, { useCallback, useRef, useMemo, forwardRef, useState } from 'react';
 import { StyleSheet, View, Text, Button, Keyboard, Image, TextInput } from 'react-native';
-import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
+import BottomSheet, {
+    BottomSheetBackdrop,
+    BottomSheetView,
+    TouchableWithoutFeedback,
+} from '@gorhom/bottom-sheet';
 import { COLORS } from '../../constants';
 import { store } from '../../redux/Store';
 import { setState } from '../../redux/stateComment/stateComment';
@@ -75,42 +79,50 @@ const ShareView = forwardRef<Ref, Props>((props, ref) => {
             backgroundStyle={{ backgroundColor: COLORS.lightWhite }}
             onChange={handleSheetChanges}
         >
-            <BottomSheetView>
-                <UserIcon
-                    avatar={{ uri: props.avatar }}
-                    isFollowed={false}
-                    height={35}
-                    width={35}
-                    isOwner={true}
-                    openAccount={() => {
-                        console.log('dick press');
-                    }}
-                    threeDotsDisplay={false}
-                    userName={props.userName}
-                />
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+                <BottomSheetView>
+                    <UserIcon
+                        avatar={{ uri: props.avatar }}
+                        isFollowed={false}
+                        height={35}
+                        width={35}
+                        isOwner={true}
+                        openAccount={() => {
+                            console.log('dick press');
+                        }}
+                        threeDotsDisplay={false}
+                        userName={props.userName}
+                    />
 
-                <TextInput
-                    multiline
-                    textAlignVertical="top"
-                    onChangeText={onChangeText}
-                    placeholder="Hãy viết gì đó 🔥"
-                    style={{ height: 40, margin: 12, borderWidth: 1, padding: 10, minHeight: 100 }}
-                />
-                <View
-                    style={{
-                        flexDirection: 'row',
-                        justifyContent: 'flex-end',
-                        marginHorizontal: 10,
-                    }}
-                >
-                    <Button
-                        title="Share"
-                        onPress={() => {
-                            handleSharePost();
+                    <TextInput
+                        multiline
+                        textAlignVertical="top"
+                        onChangeText={onChangeText}
+                        placeholder="Hãy viết gì đó 🔥"
+                        style={{
+                            height: 40,
+                            margin: 12,
+                            borderWidth: 1,
+                            padding: 10,
+                            minHeight: 100,
                         }}
                     />
-                </View>
-            </BottomSheetView>
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            justifyContent: 'flex-end',
+                            marginHorizontal: 10,
+                        }}
+                    >
+                        <Button
+                            title="Share"
+                            onPress={() => {
+                                handleSharePost();
+                            }}
+                        />
+                    </View>
+                </BottomSheetView>
+            </TouchableWithoutFeedback>
         </BottomSheet>
     );
 });

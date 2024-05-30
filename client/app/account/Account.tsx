@@ -31,10 +31,13 @@ import { IImage, IPost, IVideo } from '../../type/Post.type';
 import { AntDesign } from '@expo/vector-icons';
 import ModalCompoment from '../../compoments/ModalCompoment';
 import ShareView from '../../compoments/home/Share';
+import Option from '../../compoments/home/Option';
+import { IUser } from '../../type/User.type';
 
 const { height, width } = Dimensions.get('window');
 
 export default function Account({ navigation }: any) {
+    const [idUserOfPost, setIdUserOfPost] = useState('');
     const [listComment, setListComment] = useState<ItemCommentProps[]>();
     const [postIdOpen, setPostIdOpen] = useState('');
     const stateUser = useSelector((state: RootState) => state.reducerUser);
@@ -45,6 +48,12 @@ export default function Account({ navigation }: any) {
     const [isLoading, setIsLoading] = useState(false);
     const scrollY = new Animated.Value(0);
     const bottemSheetShare = useRef<BottomSheet>(null);
+    const bottemSheetOption = useRef<BottomSheet>(null);
+    const bottemSheetOptionImage = useRef<BottomSheet>(null);
+    const [postOpen, setPostOpen] = useState<IPost>();
+    const [user, setUser] = useState<IUser>();
+    const [avartarOrBg, setAvartarOrBg] = useState('');
+
     const translateY = scrollY.interpolate({
         inputRange: [0, 45],
         outputRange: [0, -45],
@@ -116,6 +125,44 @@ export default function Account({ navigation }: any) {
         bottemSheetInstance?.snapToIndex(0);
     };
 
+    const handleOpenOption = async (
+        idUser: string,
+        post: IPost,
+        bottemSheetInstance: BottomSheet | null,
+    ) => {
+        setIdUserOfPost(idUser);
+        setPostOpen(post);
+        bottemSheetInstance?.snapToIndex(0);
+    };
+
+    const handleOpenOptionAvatar = async (bottemSheetInstance: BottomSheet | null) => {
+        setAvartarOrBg('avatar');
+        setUser({
+            email: stateUser.email,
+            id: stateUser.id,
+            username: stateUser.username,
+            profile: {
+                avatar: stateUser.profile.avatar,
+                background: stateUser.profile.background,
+            },
+        });
+        bottemSheetInstance?.snapToIndex(0);
+    };
+
+    const handleOpenOptionBg = async (bottemSheetInstance: BottomSheet | null) => {
+        setAvartarOrBg('bg');
+        setUser({
+            email: stateUser.email,
+            id: stateUser.id,
+            username: stateUser.username,
+            profile: {
+                avatar: stateUser.profile.avatar,
+                background: stateUser.profile.background,
+            },
+        });
+        bottemSheetInstance?.snapToIndex(0);
+    };
+
     return (
         <GestureHandlerRootView style={{ flex: 1, marginTop: 15 }}>
             <View style={{ backgroundColor: COLORS.white }}>
@@ -136,10 +183,25 @@ export default function Account({ navigation }: any) {
                         }}
                     >
                         <InfoAccount
+                            openOptionAvatar={() => {
+                                handleOpenOptionAvatar(bottemSheetOptionImage.current);
+                            }}
+                            openOptionBg={() => {
+                                handleOpenOptionBg(bottemSheetOptionImage.current);
+                            }}
                             navigation={navigation}
                             idUser={stateUser.id}
                             isFollow={false}
                             isOwn={true}
+                            user={{
+                                email: stateUser.email,
+                                id: stateUser.id,
+                                username: stateUser.username,
+                                profile: {
+                                    avatar: stateUser.profile.avatar,
+                                    background: stateUser.profile.background,
+                                },
+                            }}
                             avatar={{ uri: stateUser.profile.avatar }}
                             cover={{ uri: stateUser.profile.background }}
                             name={stateUser.username}
@@ -171,6 +233,9 @@ export default function Account({ navigation }: any) {
                     renderItem={({ item }: { item: IPost }) => (
                         <View>
                             <UserIcon
+                                openOption={() => {
+                                    handleOpenOption(item.idUser, item, bottemSheetOption.current);
+                                }}
                                 avatar={{ uri: item.avartar }}
                                 width={30}
                                 height={30}
@@ -375,6 +440,23 @@ export default function Account({ navigation }: any) {
                 userName={stateUser.username}
                 avatar={stateUser.profile.avatar}
                 ref={bottemSheetShare}
+            />
+            <Option
+                navigation={navigation}
+                idUserOfPost={idUserOfPost}
+                idUser={stateUser.id}
+                ref={bottemSheetOption}
+                post={postOpen}
+            />
+            <Option
+                isShowImage={true}
+                navigation={navigation}
+                idUserOfPost={user?.id}
+                idUser={stateUser.id}
+                ref={bottemSheetOptionImage}
+                user={user}
+                image={avartarOrBg}
+                // post={postOpen}
             />
         </GestureHandlerRootView>
     );

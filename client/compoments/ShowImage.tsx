@@ -18,15 +18,19 @@ const ShowImage = ({ route, navigation }: ShowImageProps) => {
         navigation.goBack();
     };
 
-    const images = sources.map((source: IFile) => {
-        const image = {
-            url: source.url,
-            props: {
-                // headers: ...
-            },
-        };
-        return image;
-    });
+    console.log(sources);
+
+    const images =
+        sources &&
+        sources.map((source: IFile) => {
+            const image = {
+                url: source.url,
+                props: {
+                    // headers: ...
+                },
+            };
+            return image;
+        });
 
     return (
         <Modal
