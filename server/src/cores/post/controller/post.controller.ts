@@ -124,13 +124,22 @@ export class PostController {
         return this.EditPostService.deletePost({ postId: id, userId });
     }
 
-    @Get('search-posts/:id')
+    @Get('search-posts')
     searchPosts(
-        @Param('id', ParseIntPipe) id: number,
+        @Req() req: Request,
         @Query('keyword') keyword: string,
         @Query('limit', ParseIntPipe) limit: number,
         @Query('page', ParseIntPipe) page: number,
     ) {
-        return this.GetPostService.getPostsByKeyWord(id, keyword, { limit, page });
+        return this.GetPostService.getPostsByKeyWord(req?.user.id, keyword, { limit, page });
+    }
+
+    @Get('get-comments/:id')
+    getComments(
+        @Param('id', ParseIntPipe) id: number,
+        @Query('limit', ParseIntPipe) limit: number,
+        @Query('page', ParseIntPipe) page: number,
+    ) {
+        return this.GetPostService.getComments(id, { limit, page });
     }
 }

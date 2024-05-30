@@ -1,5 +1,5 @@
 import { CommentType } from '@constants/enums/comment.enum';
-import { CommentEntity, LikeEntity, PostEntity, UserEntity } from '@entities/index';
+import { CommentEntity, LikeEntity, NotificationEntity, PostEntity, UserEntity } from '@entities/index';
 import { ICommentPost, ILikePost, ISharePost } from '@interfaces/post.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,6 +12,7 @@ export class InteractPostService {
         @InjectRepository(PostEntity) private PostReposity: Repository<PostEntity>,
         @InjectRepository(CommentEntity) private CommentReposity: Repository<CommentEntity>,
         @InjectRepository(LikeEntity) private LikeReposity: Repository<LikeEntity>,
+        @InjectRepository(NotificationEntity) private NotificationReposity: Repository<NotificationEntity>,
     ) {}
 
     async commentPost({ content, userId, parentId, postId }: ICommentPost) {
@@ -37,13 +38,25 @@ export class InteractPostService {
             where: { userId, post: { id: postId } },
         });
         if (!like) {
-            const post = await this.PostReposity.findOneBy({ id: postId });
+            const post = await this.PostReposity.findOne({
+                select: ['id'],
+                relations: ['user'],
+                where: { id: postId },
+            });
             if (!post) throw new HttpException('Post not found', HttpStatus.BAD_REQUEST);
             const newLike = this.LikeReposity.create({ userId, post });
             await this.LikeReposity.save(newLike);
-            return;
+            const newNotify = this.NotificationReposity.create({
+                type: 'like',
+                ownerId: post.user.id,
+                postId: post.id,
+                user,
+                likeId: newLike.id,
+            });
+            return this.NotificationReposity.save(newNotify);
         }
         await this.LikeReposity.delete({ id: like.id });
+        await this.NotificationReposity.delete({ likeId: like.id, user: { id: userId } });
         return;
     }
 
