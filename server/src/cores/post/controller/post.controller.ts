@@ -89,6 +89,11 @@ export class PostController {
         return this.EditPostService.updateCaptionPost(id, data.caption, data.userId);
     }
 
+    @Patch('update-comment-mode/:postId')
+    updateCommentMode(@Param('postId', ParseIntPipe) postId: number, @Req() req: Request) {
+        return this.EditPostService.updateCommentMode({ postId, userId: req.user.id });
+    }
+
     @Post('like-post/:id')
     likePost(@Param('id', ParseIntPipe) id: number, @Body('userId', ParseIntPipe) userId: number) {
         return this.InteractPostService.likePost({ userId, postId: id });

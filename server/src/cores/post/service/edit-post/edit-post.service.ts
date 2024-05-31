@@ -27,6 +27,13 @@ export class EditPostService {
         return this.CommentReposity.save(comment);
     }
 
+    async updateCommentMode({ userId, postId }) {
+        const post = await this.PostReposity.findOne({ where: { id: postId, user: { id: userId } } });
+        if (!post) throw new HttpException('Post not found', HttpStatus.BAD_REQUEST);
+        post.isPublic = !post.isPublic;
+        return this.PostReposity.save(post);
+    }
+
     async deleteCommentPost({ commentId, postId, userId, isParent }: IDeleteCommentPost) {
         const comment = await (isParent
             ? this.CommentReposity.findOneBy({
