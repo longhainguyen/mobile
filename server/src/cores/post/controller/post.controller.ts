@@ -69,6 +69,11 @@ export class PostController {
         return this.GetPostService.getPosts(req?.user.id, { limit, page });
     }
 
+    @Get('get-posts/:postId')
+    getPostById(@Req() req: Request, @Param('postId', ParseIntPipe) postId: number) {
+        return this.GetPostService.getSinglePost(req.user.id, postId);
+    }
+
     @Get('get-posts-by-id/:id')
     getPostByUserId(
         @Req() req: Request,
