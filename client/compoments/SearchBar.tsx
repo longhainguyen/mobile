@@ -1,14 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { SearchBar } from '@rneui/themed';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TextInput } from 'react-native';
 import { COLORS } from '../constants';
 import { searchPost, searchUser } from '../api/search.api';
+import { FONT, FONT_SIZE } from '../constants/font';
+import { AntDesign } from '@expo/vector-icons';
+import { TouchableOpacity } from 'react-native';
 
-type SearchBarComponentProps = {};
+type SearchBarComponentProps = {
+    route: any;
+    navigation: any;
+};
 
-const searchBar: React.FunctionComponent<SearchBarComponentProps> = () => {
+const searchBar = ({ route, navigation }: SearchBarComponentProps) => {
     const [search, setSearch] = useState('');
     const [results, setResults] = useState([]);
+    const [value, setValue] = useState('');
 
     const updateSearch = (search: string) => {
         setSearch(search);
@@ -40,7 +47,6 @@ const searchBar: React.FunctionComponent<SearchBarComponentProps> = () => {
     useEffect(() => {
         const timer = setTimeout(async () => {
             if (search.length !== 0) {
-                // await searchUsers();
                 await searchPosts();
             } else if (search.length === 0) {
                 setResults([]);
@@ -48,16 +54,34 @@ const searchBar: React.FunctionComponent<SearchBarComponentProps> = () => {
         }, 500);
 
         return () => clearTimeout(timer);
-        // searchUsers();
     }, [search]);
 
     return (
-        <View style={styles.view}>
-            <SearchBar
-                lightTheme
-                placeholder="Type Here..."
-                onChangeText={updateSearch}
-                value={search}
+        <View
+            style={[
+                styles.view,
+                { flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' },
+            ]}
+        >
+            <TouchableOpacity
+                onPress={() => {
+                    navigation.goBack();
+                }}
+            >
+                <AntDesign name="arrowleft" size={24} color="black" />
+            </TouchableOpacity>
+
+            <TextInput
+                placeholderTextColor={COLORS.darkText}
+                placeholder="Tìm kiếm tại đây"
+                style={{
+                    flex: 1,
+                    height: 40,
+                    margin: 12,
+                    borderWidth: 1,
+                    padding: 10,
+                    borderRadius: 20,
+                }}
             />
         </View>
     );

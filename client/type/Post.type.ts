@@ -40,7 +40,7 @@ export interface IPost {
     origin?: IOrigin;
 }
 
-interface IOrigin {
+export interface IOrigin {
     id: number;
     caption: string;
     createdAt: string;

@@ -1,4 +1,5 @@
 import request from '../config/request';
+import { IResultSearch } from '../type/ResultSearch.type';
 
 interface IRequestSearchUser {
     keyword: string;
@@ -19,8 +20,8 @@ const searchUser = async (data: IRequestSearchUser, limit?: number, page?: numbe
     });
 };
 
-const searchPost = async (idUser: string, keyword?: string, limit?: number, page?: number) => {
-    return await request.get(`/posts/search-posts/${idUser}`, {
+const searchPost = async (keyword?: string, limit?: number, page?: number) => {
+    return await request.get<IResultSearch>(`/posts/search-posts/`, {
         params: {
             keyword: keyword,
             limit: limit,
