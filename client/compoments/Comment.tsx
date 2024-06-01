@@ -31,8 +31,10 @@ import { AntDesign } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { decremented, setState } from '../redux/stateComment/stateComment';
 import { RootState, store } from '../redux/Store';
-import { postComment } from '../api/comment.api';
+import { getComment, postComment } from '../api/comment.api';
 import UserData from '../dataTemp/UserData';
+import { IComment } from '../type/Comment.type';
+import moment from 'moment';
 
 const { height, width } = Dimensions.get('window');
 
@@ -40,43 +42,60 @@ interface Props {
     title: string;
     avatar: any;
     userId?: number;
-    postId?: string;
+    postId: string;
     comment?: string;
     atSinglePost?: boolean;
-    dataCommentsOfPost: ItemCommentProps[];
+    lengthComment: number;
 }
 
 type Ref = BottomSheet;
 
-export interface ItemCommentProps {
-    id: string;
-    parent_id: string;
-    text: string;
-    avatar: any;
-    name: string;
-    type?: number;
-    name_parent?: string;
+export interface ItemCommentProps extends IComment {
     input_answer?: React.RefObject<TextInput>;
 }
 
 const Item = ({
+    childrens,
+    content,
+    createdAt,
     id,
-    parent_id,
-    text,
-    avatar,
-    name,
-    type,
-    name_parent,
+    user,
     input_answer,
-}: ItemCommentProps) => {
+    setParentId,
+    setPlaceholderInComment,
+    scrollToIndex,
+}: ItemCommentProps & { setParentId: (index: number) => void } & {
+    setPlaceholderInComment: (text: string) => void;
+} & { scrollToIndex: (index: number) => void }) => {
+    const [display, setDisplay] = useState(false);
+    const flatListRef = useRef<FlatList>(null);
+
+    const handleAnswer = () => {
+        if (input_answer?.current) {
+            input_answer?.current?.focus();
+            setParentId(id);
+            // scrollToIndex(id);
+            setPlaceholderInComment('Trả lời ' + user.username);
+        }
+    };
+
+    const scrollToIndexInChildren = (id: number, listComment: ItemCommentProps[]) => {
+        if (listComment) {
+            const index = listComment.findIndex((comment) => comment.id === id);
+            if (index !== -1) {
+                flatListRef.current?.scrollToIndex({ index, animated: true });
+            }
+        }
+    };
+
     return (
         <View
             style={{
                 flexDirection: 'row',
                 alignItems: 'flex-start',
                 paddingBottom: 10,
-                marginLeft: type === 0 ? 10 : 40,
-                marginTop: type === 0 ? 10 : 2,
+                marginLeft: 10,
+                marginTop: 10,
             }}
         >
             <Image
@@ -87,7 +106,7 @@ const Item = ({
                     borderWidth: 2,
                     borderColor: COLORS.background,
                 }}
-                source={avatar}
+                source={{ uri: user.profile.avatar }}
             />
 
             <View
@@ -99,27 +118,8 @@ const Item = ({
             >
                 <View style={{ flexDirection: 'row' }}>
                     <Text style={{ fontFamily: FONT.bold, fontSize: FONT_SIZE.small }}>
-                        {name}{' '}
+                        {user.username}{' '}
                     </Text>
-                    {type === 2 && (
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                            }}
-                        >
-                            <AntDesign
-                                name="caretright"
-                                size={13}
-                                color="black"
-                                style={{ marginBottom: 1 }}
-                            />
-                            <Text style={{ fontFamily: FONT.bold, fontSize: FONT_SIZE.small }}>
-                                {' ' + name_parent}{' '}
-                            </Text>
-                        </View>
-                    )}
                 </View>
 
                 <View
@@ -135,30 +135,96 @@ const Item = ({
                             fontSize: FONT_SIZE.small,
                         }}
                     >
-                        {text}
+                        {content}
                     </Text>
                 </View>
+                <View style={{ flexDirection: 'row', gap: 15 }}>
+                    <View>
+                        <Text style={{ color: COLORS.gray }}>
+                            {moment(createdAt).startOf('minutes').fromNow()}
+                        </Text>
+                    </View>
+                    <TouchableOpacity
+                        onPress={() => {
+                            handleAnswer();
+                        }}
+                    >
+                        <Text style={{ color: COLORS.gray }}>Trả lời</Text>
+                    </TouchableOpacity>
+                </View>
 
-                <TouchableOpacity
-                    onPress={() => {
-                        input_answer?.current?.focus();
-                    }}
-                >
-                    <Text style={{ color: COLORS.gray }}>Trả lời</Text>
-                </TouchableOpacity>
+                {childrens && childrens.length > 0 && (
+                    <>
+                        {display === true ? (
+                            <FlatList
+                                ref={flatListRef}
+                                data={childrens}
+                                renderItem={({ item }: { item: ItemCommentProps }) => (
+                                    <Item
+                                        scrollToIndex={() => {
+                                            // console.log(item.id);
+                                            scrollToIndexInChildren(item.id, childrens);
+                                            // scrollToIndex(item.id);
+                                        }}
+                                        setPlaceholderInComment={setPlaceholderInComment}
+                                        childrens={item.childrens}
+                                        content={item.content}
+                                        createdAt={item.createdAt}
+                                        id={item.id}
+                                        user={item.user}
+                                        input_answer={input_answer}
+                                        setParentId={setParentId}
+                                    />
+                                )}
+                            ></FlatList>
+                        ) : (
+                            <TouchableOpacity
+                                style={{}}
+                                onPress={() => {
+                                    setDisplay(true);
+                                }}
+                            >
+                                <Text
+                                    style={{
+                                        fontFamily: FONT.bold,
+                                        fontSize: FONT_SIZE.small,
+                                        color: COLORS.darkText,
+                                    }}
+                                >
+                                    Xem thêm {childrens.length} câu trả lời ...
+                                </Text>
+                            </TouchableOpacity>
+                        )}
+                    </>
+                )}
             </View>
         </View>
     );
 };
 const Comment = forwardRef<Ref, Props>((props, ref) => {
+    const stateUser = useSelector((state: RootState) => state.reducerUser);
     const snapPoints = useMemo(() => ['50%'], []);
     const snapPointsHome = useMemo(() => ['80%'], []);
-    const [listComment, setListComment] = useState<ItemCommentProps[]>([]);
+    const [listComment, setListComment] = useState<IComment[]>([]);
     const [text, onChangeText] = useState('');
     const [parentId, setParentId] = useState(0);
-    // const [responsePost, setResponsePost] = useState<IRes>();
-
+    const stateComment = useSelector((state: RootState) => state.reducer.index);
+    const flatListRef = useRef<FlatList>(null);
     const inputRef = useRef<TextInput>(null);
+    const [placeholderInComment, setPlaceholderInComment] = useState('Thêm bình luận...');
+
+    const handleGetComment = async () => {
+        try {
+            const resposne = await getComment(props.postId, 10, 0);
+            setListComment(resposne.data);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    useEffect(() => {
+        handleGetComment();
+    }, [stateComment]);
 
     const handlePostComment = async () => {
         const response = await postComment({
@@ -168,88 +234,26 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
             userId: props.userId || -1,
         });
         console.log(response);
-        setListComment(
-            listComment.concat(
-                configListComment(
-                    [
-                        {
-                            avatar: UserData[0].avatar,
-                            id: response.id + '',
-                            name: response.user.username,
-                            parent_id: 0 + '',
-                            text: response.content,
-                        },
-                    ],
-                    inputRef,
-                ),
-            ),
-        );
+        const newComment: IComment = {
+            childrens: [],
+            content: response.content,
+            createdAt: response.createdAt,
+            id: response.id,
+            user: stateUser,
+        };
+        if (parentId === 0) {
+            setListComment([newComment].concat(listComment));
+        } else {
+            listComment.map((comment) => {
+                if (comment.id === parentId) {
+                    comment.childrens.push(newComment);
+                }
+            });
+        }
+
         Keyboard.dismiss();
         onChangeText('');
     };
-
-    const configListComment = (_dataCommentsOfPost: ItemCommentProps[], _inputRef: any) => {
-        var arr: ItemCommentProps[] = [];
-        var arr2: ItemCommentProps[] = [];
-        var arr3: ItemCommentProps[] = [];
-        for (let item of _dataCommentsOfPost) {
-            if (item.parent_id === '0') {
-                const newItem: ItemCommentProps = {
-                    avatar: item.avatar,
-                    id: item.id,
-                    name: item.name,
-                    parent_id: item.parent_id,
-
-                    text: item.text,
-                    name_parent: '',
-                    type: 0,
-                    input_answer: _inputRef,
-                };
-                arr.push(newItem);
-                arr2 = props.dataCommentsOfPost
-                    .filter((ele) => ele.parent_id === item.id)
-                    .map((filteredItem) => ({
-                        text: filteredItem.text,
-                        avatar: filteredItem.avatar,
-                        name: filteredItem.name,
-                        id: filteredItem.id,
-                        parent_id: filteredItem.parent_id,
-
-                        name_parent: item.name,
-                        input_answer: _inputRef,
-                        type: 1,
-                    }));
-                if (arr2.length) {
-                    for (let item2 of arr2) {
-                        arr3 = props.dataCommentsOfPost
-                            .filter((ele) => ele.parent_id === item2.id)
-                            .map((filteredItem) => ({
-                                text: filteredItem.text,
-                                avatar: filteredItem.avatar,
-                                name: filteredItem.name,
-                                id: filteredItem.id,
-                                parent_id: filteredItem.parent_id,
-
-                                name_parent: item2.name,
-                                input_answer: _inputRef,
-                                type: 2,
-                            }));
-                        if (arr3.length) {
-                            arr.push({ ...item2 });
-                            arr = arr.concat(arr3);
-                        } else {
-                            arr.push({ ...item2 });
-                        }
-                    }
-                }
-            }
-        }
-        return arr;
-    };
-
-    useEffect(() => {
-        setListComment(configListComment(props.dataCommentsOfPost, inputRef));
-    }, [props.dataCommentsOfPost]);
 
     const handleSheetChanges = useCallback((index: number) => {
         if (index == -1) {
@@ -264,6 +268,13 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
         ),
         [],
     );
+
+    const scrollToIndex = (id: number) => {
+        const index = listComment.findIndex((comment) => comment.id === id);
+        if (index !== -1) {
+            flatListRef.current?.scrollToIndex({ index, animated: true });
+        }
+    };
 
     return (
         <BottomSheet
@@ -291,25 +302,27 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
                     backgroundColor: COLORS.white,
                 }}
             >
-                Comments {listComment.length}
+                Comments {props.lengthComment}
             </Text>
 
             <FlatList
+                ref={flatListRef}
                 style={{ marginTop: 30, marginBottom: 70 }}
                 data={listComment}
-                renderItem={({ item }) => (
+                renderItem={({ item }: { item: IComment }) => (
                     <Item
-                        text={item.text}
-                        name={item.name}
-                        avatar={item.avatar}
-                        type={item.type}
+                        scrollToIndex={scrollToIndex}
+                        setPlaceholderInComment={setPlaceholderInComment}
+                        setParentId={setParentId}
+                        childrens={item.childrens}
+                        content={item.content}
+                        createdAt={item.createdAt}
                         id={item.id}
-                        parent_id={item.parent_id}
-                        name_parent={item.name_parent}
+                        user={item.user}
                         input_answer={inputRef}
                     />
                 )}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item, index) => index.toString()}
             ></FlatList>
 
             <BottomSheetView
@@ -341,7 +354,7 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
 
                 <TextInput
                     ref={inputRef}
-                    placeholder="Thêm bình luận..."
+                    placeholder={placeholderInComment}
                     multiline={true}
                     value={text}
                     onChangeText={onChangeText}

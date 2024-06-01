@@ -1,4 +1,5 @@
 import request from '../config/request';
+import { IComment } from '../type/Comment.type';
 
 interface IPostComment {
     postId: string;
@@ -67,4 +68,13 @@ const postComment = async (data: IPostComment) => {
     return _resopnse;
 };
 
-export { postComment };
+const getComment = async (idPost: string, limit?: number, page?: number) => {
+    return await request.get<IComment[]>(`/posts/get-comments/${idPost}`, {
+        params: {
+            limit,
+            page,
+        },
+    });
+};
+
+export { postComment, getComment };

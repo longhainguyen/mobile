@@ -41,12 +41,12 @@ import Option from '../../compoments/home/Option';
 const { height, width } = Dimensions.get('window');
 
 export default function Home({ navigation }: any) {
-    const [listComment, setListComment] = useState<ItemCommentProps[]>();
     const [postIdOpen, setPostIdOpen] = useState('');
     const [idUserOfPost, setIdUserOfPost] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [refreshControl, setRefreshControl] = useState(false);
     const [postList, setPostList] = useState<IPost[]>();
+    const [lengthComment, setLengthComment] = useState(0);
     const [avartarUserOwnPost, setAvartarUserOwnPost] = useState();
     const [page, setPage] = useState(0);
     const flatListRef = useRef<FlatList>(null);
@@ -117,18 +117,15 @@ export default function Home({ navigation }: any) {
             });
     };
 
-    useEffect(() => {
-        var arr: ItemCommentProps[] = [];
-        arr = _list_comments.filter((ele) => ele.post_id === postIdOpen);
-        setListComment(arr);
-    }, [postIdOpen]);
-
     const openComment = async (
         index: number,
         post_id: string,
         avatarUserOwn: any,
+
         bottemSheetInstance: BottomSheet | null,
+        lengthComment: number,
     ) => {
+        setLengthComment(lengthComment);
         bottemSheetInstance?.snapToIndex(index);
         setAvartarUserOwnPost(avatarUserOwn);
         setPostIdOpen(post_id);
@@ -356,7 +353,13 @@ export default function Home({ navigation }: any) {
                                 );
                             }}
                             openComment={() =>
-                                openComment(0, item.id, item.avartar, bottemSheetComment.current)
+                                openComment(
+                                    0,
+                                    item.id,
+                                    stateUser.profile.avatar,
+                                    bottemSheetComment.current,
+                                    item.comments,
+                                )
                             }
                         />
                     </View>
@@ -415,7 +418,7 @@ export default function Home({ navigation }: any) {
             <Comment
                 userId={parseInt(stateUser.id)}
                 postId={postIdOpen}
-                dataCommentsOfPost={listComment || []}
+                lengthComment={lengthComment}
                 title="Bình luận"
                 atSinglePost={false}
                 ref={bottemSheetComment}
