@@ -38,3 +38,9 @@ export interface IDeletePost {
     userId: number;
     postId: number;
 }
+
+export interface ICanSeePost {
+    userId: number;
+    postId: number;
+    visibleUsers: number[];
+}

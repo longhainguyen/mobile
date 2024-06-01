@@ -4,6 +4,7 @@ import {
     Delete,
     Get,
     Param,
+    ParseArrayPipe,
     ParseIntPipe,
     Patch,
     Post,
@@ -151,5 +152,20 @@ export class PostController {
         @Query('page', ParseIntPipe) page: number,
     ) {
         return this.GetPostService.getComments(id, { limit, page });
+    }
+
+    @Patch('update-comment-right/:postId')
+    updateWhoCanCommentPost(
+        @Param('postId', ParseIntPipe) postId: number,
+        @Body(
+            'visibleUsers',
+            new ParseArrayPipe({
+                items: Number,
+            }),
+        )
+        visibleUsers: number[],
+        @Req() req: Request,
+    ) {
+        return this.EditPostService.updateWhoCanCommentPost({ postId, userId: req.user.id, visibleUsers });
     }
 }
