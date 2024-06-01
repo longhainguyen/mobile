@@ -69,6 +69,11 @@ export class PostController {
         return this.GetPostService.getPosts(req?.user.id, { limit, page });
     }
 
+    @Get('get-posts/:postId')
+    getPostById(@Req() req: Request, @Param('postId', ParseIntPipe) postId: number) {
+        return this.GetPostService.getSinglePost(req.user.id, postId);
+    }
+
     @Get('get-posts-by-id/:id')
     getPostByUserId(
         @Req() req: Request,
@@ -82,6 +87,11 @@ export class PostController {
     @Patch('update-caption-post/:id')
     updateCaptionPost(@Param('id', ParseIntPipe) id: number, @Body(new ValidationPipe()) data: UpdateCaptionDto) {
         return this.EditPostService.updateCaptionPost(id, data.caption, data.userId);
+    }
+
+    @Patch('update-comment-mode/:postId')
+    updateCommentMode(@Param('postId', ParseIntPipe) postId: number, @Req() req: Request) {
+        return this.EditPostService.updateCommentMode({ postId, userId: req.user.id });
     }
 
     @Post('like-post/:id')

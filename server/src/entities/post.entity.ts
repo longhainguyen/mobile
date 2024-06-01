@@ -1,4 +1,13 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, RelationCount } from 'typeorm';
+import {
+    Column,
+    Entity,
+    JoinTable,
+    ManyToMany,
+    ManyToOne,
+    OneToMany,
+    PrimaryGeneratedColumn,
+    RelationCount,
+} from 'typeorm';
 import { UserEntity } from './user.entity';
 import { ImageEntity } from './image.entity';
 import { VideoEntity } from './video.entity';
@@ -11,6 +20,9 @@ export class PostEntity {
 
     @Column({ type: 'text' })
     caption: string;
+
+    @Column({ type: 'boolean', default: true })
+    isPublic: boolean;
 
     @OneToMany(() => ImageEntity, (image) => image.post)
     images: ImageEntity[];
@@ -35,4 +47,12 @@ export class PostEntity {
 
     @ManyToOne(() => UserEntity, (user) => user.posts)
     user: UserEntity;
+
+    @ManyToMany(() => UserEntity)
+    @JoinTable({
+        name: 'public_post_for_users',
+        joinColumn: { name: 'postId', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'userId', referencedColumnName: 'id' },
+    })
+    publicUsers: UserEntity[];
 }

@@ -14,38 +14,32 @@ export class GetPostService {
         @InjectRepository(CommentEntity) private CommentReposity: Repository<CommentEntity>,
     ) {}
 
-    async getPosts(
-        userId: number,
-        { limit = SearchDefault.LIMIT, page = SearchDefault.PAGE }: IGetPost,
-        isByUserId: boolean = false,
-        id?: number,
-    ) {
-        const user = await this.UserReposity.findOneBy({ id });
-        if (!user) throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
-        const postOptions: FindManyOptions<PostEntity> = {
-            select: ['id', 'caption', 'createdAt'],
-            relations: [
-                'images',
-                'videos',
-                'likes',
-                'comments',
-                'comments.childrens',
-                'user.profile',
-                'shareds',
-                'origin',
-                'origin.images',
-                'origin.videos',
-                'origin.user',
-                'origin.user.profile',
-            ],
-            order: { createdAt: 'DESC' },
-            skip: limit * page,
-            take: limit,
-        };
-        if (isByUserId) postOptions.where = { user: { id } };
-        const posts = await this.PostReposity.find(postOptions);
+    public basePostOptions: FindManyOptions<PostEntity> = {
+        select: ['id', 'caption', 'isPublic', 'createdAt'],
+        relations: [
+            'images',
+            'videos',
+            'likes',
+            'comments',
+            'comments.childrens',
+            'user.profile',
+            'shareds',
+            'origin',
+            'origin.images',
+            'origin.videos',
+            'origin.user',
+            'origin.user.profile',
+            'publicUsers',
+        ],
+    };
 
-        const filterPosts = await Promise.all(
+    public baseUserOptions: FindManyOptions<UserEntity> = {
+        select: ['id', 'username'],
+        relations: ['profile'],
+    };
+
+    async filterPosts(posts: PostEntity[], userId: number) {
+        return Promise.all(
             posts.map(async (post) => {
                 const likeUser = await this.LikeReposity.findOne({ where: { userId, post: { id: post.id } } });
                 const followUser = await this.UserReposity.findOne({
@@ -65,8 +59,36 @@ export class GetPostService {
                 return filterPost;
             }),
         );
+    }
 
-        return filterPosts;
+    async getPosts(
+        userId: number,
+        { limit = SearchDefault.LIMIT, page = SearchDefault.PAGE }: IGetPost,
+        isByUserId: boolean = false,
+        id?: number,
+    ) {
+        const user = await this.UserReposity.findOneBy({ id });
+        if (!user) throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+        const postOptions: FindManyOptions<PostEntity> = {
+            ...this.basePostOptions,
+            order: { createdAt: 'DESC' },
+            skip: limit * page,
+            take: limit,
+        };
+        if (isByUserId) postOptions.where = { user: { id } };
+        const posts = await this.PostReposity.find(postOptions);
+
+        return this.filterPosts(posts, userId);
+    }
+
+    async getSinglePost(userId: number, postId: number) {
+        const post = await this.PostReposity.findOne({
+            ...this.basePostOptions,
+            where: { id: postId },
+        });
+        if (!post) throw new HttpException('Post not found', HttpStatus.BAD_REQUEST);
+        const filterPost = await this.filterPosts([{ ...post }], userId);
+        return filterPost[0] || {};
     }
 
     async getPostsByKeyWord(
@@ -74,51 +96,24 @@ export class GetPostService {
         keyword: string,
         { limit = SearchDefault.LIMIT, page = SearchDefault.PAGE }: IGetPost,
     ) {
+        const userOptions: FindManyOptions<UserEntity> = {
+            ...this.baseUserOptions,
+            order: { username: 'ASC' },
+            skip: limit * page,
+            take: limit,
+            where: { username: Like(`%${keyword}%`) },
+        };
         const postOptions: FindManyOptions<PostEntity> = {
-            select: ['id', 'caption', 'createdAt'],
-            relations: [
-                'images',
-                'videos',
-                'likes',
-                'comments',
-                'comments.childrens',
-                'user.profile',
-                'shareds',
-                'origin',
-                'origin.images',
-                'origin.videos',
-                'origin.user',
-                'origin.user.profile',
-            ],
+            ...this.basePostOptions,
             order: { createdAt: 'DESC' },
             skip: limit * page,
             take: limit,
             where: { caption: Like(`%${keyword}%`) },
         };
         const posts = await this.PostReposity.find(postOptions);
-
-        const filterPosts = await Promise.all(
-            posts.map(async (post) => {
-                const likeUser = await this.LikeReposity.findOne({ where: { userId: id, post: { id: post.id } } });
-                const followUser = await this.UserReposity.findOne({
-                    where: { id: id, followings: { id: post.user.id } },
-                });
-
-                const filterPost = {
-                    ...post,
-                    likeCount: post.likes.length,
-                    commentCount:
-                        post.comments.length + post.comments.reduce((acc, cur) => acc + cur.childrens.length, 0),
-                    isLiked: !!likeUser,
-                    isFollowed: !!followUser,
-                };
-                delete filterPost.comments;
-                delete filterPost.likes;
-                return filterPost;
-            }),
-        );
-
-        return filterPosts;
+        const users = await this.UserReposity.find(userOptions);
+        const filterPosts = await this.filterPosts(posts, id);
+        return { users, posts: filterPosts };
     }
 
     async getComments(postId: number, { limit = SearchDefault.LIMIT, page = SearchDefault.PAGE }: IGetPost) {
