@@ -218,6 +218,7 @@ export default function Home({ navigation }: any) {
                 renderItem={({ item }: { item: IPost }) => (
                     <View>
                         <UserIcon
+                            id={item.idUser}
                             idUserOfPost={item.idUser}
                             openOption={() => {
                                 handleOpenOption(item.idUser, item, bottemSheetOption.current);
@@ -249,7 +250,7 @@ export default function Home({ navigation }: any) {
                                     avatar: item.avartar,
                                     isFollowed: false,
                                     userName: item.userName,
-                                    isOwner: true,
+                                    isOwner: item.idUser === stateUser.id ? true : false,
                                     images: item.images,
                                     time: item.createdAt,
                                     description: item.content,
@@ -258,6 +259,7 @@ export default function Home({ navigation }: any) {
                                     isLiked: item.isLiked,
                                     share: item.shares,
                                     postId: item.id,
+
                                     videos: item.videos,
                                 })
                             }
@@ -282,24 +284,27 @@ export default function Home({ navigation }: any) {
                                 }}
                             >
                                 <UserIcon
+                                    id={item.origin.user.id + ''}
                                     idUserOfPost={item.idUser}
                                     avatar={{ uri: item.origin.user.profile.avatar }}
                                     width={30}
                                     height={30}
                                     threeDotsDisplay={false}
                                     userName={item.origin.user.username}
-                                    isOwner={stateUser.id === item.idUser ? true : false}
+                                    isOwner={
+                                        stateUser.id === item.origin?.user.id + '' ? true : false
+                                    }
                                     openAccount={() => {
-                                        if (stateUser.id === item.idUser) {
+                                        if (stateUser.id === item.origin?.user.id + '') {
                                             navigation.navigate('Account');
                                         } else {
                                             navigation.navigate('AccountOther', {
                                                 avatar: item.avartar,
                                                 cover: item.background,
-                                                isFollowed: item.isFollowed,
+                                                isFollowed: false,
                                                 isOwner: false,
-                                                userName: item.userName,
-                                                idUser: item.idUser,
+                                                userName: item.origin?.user.username,
+                                                idUser: item.origin?.user.id + '',
                                             });
                                         }
                                     }}

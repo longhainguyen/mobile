@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     StyleSheet,
     Text,
@@ -18,6 +18,7 @@ import { RootState } from '../redux/Store';
 import createTwoButtonAlert from './AlertComponent';
 
 interface UserProp {
+    id: string;
     userName: string;
     avatar: any;
     isFollowed?: boolean;
@@ -39,6 +40,7 @@ const UserIcon: React.FC<UserProp> = ({
     isOwner,
     threeDotsDisplay = true,
     idUserOfPost,
+    id,
     openAccount,
     openOption,
 }) => {
@@ -68,6 +70,9 @@ const UserIcon: React.FC<UserProp> = ({
             }
         }
     };
+    useEffect(() => {
+        setStateFollow(isFollowed);
+    }, [isFollowed]);
     return (
         <View
             style={{

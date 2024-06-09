@@ -10,12 +10,11 @@ const searchUser = async (data: IRequestSearchUser, limit?: number, page?: numbe
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        data: {
-            keyword: data.keyword,
-        },
+
         params: {
             limit: limit,
             page: page,
+            keyword: data.keyword,
         },
     });
 };

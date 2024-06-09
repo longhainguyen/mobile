@@ -157,4 +157,8 @@ const likePost = async (data: ILikePost) => {
     return _response;
 };
 
-export { getDataById, likePost, getPostHome };
+const getSinglePost = async (idPost: string) => {
+    return await request.get(`/posts/get-posts/${idPost}`);
+};
+
+export { getDataById, likePost, getPostHome, getSinglePost };

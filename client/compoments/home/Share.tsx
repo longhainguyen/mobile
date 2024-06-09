@@ -82,6 +82,7 @@ const ShareView = forwardRef<Ref, Props>((props, ref) => {
             <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
                 <BottomSheetView>
                     <UserIcon
+                        id={props.idUser}
                         avatar={{ uri: props.avatar }}
                         isFollowed={false}
                         height={35}

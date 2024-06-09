@@ -179,6 +179,7 @@ const AccountOther = ({ route, navigation }: AccountOtherProps) => {
                 renderItem={({ item }: { item: IPost }) => (
                     <View>
                         <UserIcon
+                            id={item.idUser}
                             avatar={{ uri: item.avartar }}
                             width={30}
                             height={30}
@@ -239,6 +240,7 @@ const AccountOther = ({ route, navigation }: AccountOtherProps) => {
                                 }}
                             >
                                 <UserIcon
+                                    id={item.origin.user.id + ''}
                                     avatar={{ uri: item.origin.user.profile.avatar }}
                                     width={30}
                                     height={30}

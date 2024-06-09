@@ -21,11 +21,12 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { likePost } from '../api/getPost';
 import ShareView from './home/Share';
+import { IShared } from '../type/ResultSearch.type';
 
 const { height, width } = Dimensions.get('window');
 
 interface InteractProp {
-    share: string[];
+    share: IShared[];
     like: number;
     postId: number;
     userId: number;
@@ -77,6 +78,10 @@ const Interact: React.FC<InteractProp> = ({
     const handleSharePost = (postId: number) => {
         console.log(postId);
     };
+
+    useEffect(() => {
+        setLikeCount(like);
+    }, [like]);
 
     return (
         <View

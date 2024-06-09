@@ -1,3 +1,5 @@
+import { IShared } from './ResultSearch.type';
+
 export interface ItemItemProps {
     uri: string;
     id: string;
@@ -28,7 +30,7 @@ export interface IPost {
     userName: string;
     background: string;
     avartar: string;
-    shares: string[];
+    shares: IShared[];
     likes: number;
     comments: number;
     content: string;

@@ -8,18 +8,27 @@ import {
     FlatList,
     TouchableWithoutFeedback,
     Keyboard,
+    Pressable,
 } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import _list_comments from '../../dataTemp/CommentData';
 import { AntDesign } from '@expo/vector-icons';
 import { COLORS } from '../../constants';
 import { searchPost } from '../../api/search.api';
-import { IResultSearch } from '../../type/ResultSearch.type';
-import { TabView, SceneMap } from 'react-native-tab-view';
-import Users from '../../compoments/common/User';
-import Posts from '../../compoments/common/Post';
+import { IPostOfSearch, IResultSearch } from '../../type/ResultSearch.type';
+import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import Users from '../../compoments/search/User';
+import Posts from '../../compoments/search/Post';
 import UserIcon from '../../compoments/UserIcon';
 import { IUser } from '../../type/User.type';
+import { FONT, FONT_SIZE } from '../../constants/font';
+import { IPostHome } from '../../api/getPost';
+import PostIcon from '../../compoments/search/PostIcon';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/Store';
+import { IHistorySearchItem } from '../../type/historySearch.type';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import HistorySearch from '../../compoments/search/HistorySearch';
 
 const { height, width } = Dimensions.get('window');
 
@@ -43,15 +52,17 @@ export default function Search({ navigation, route }: SearchProps) {
     const [results, setResults] = useState<IResultSearch>();
     const layout = useWindowDimensions();
     const [display, setDisplay] = useState(false);
+    const stateUser = useSelector((state: RootState) => state.reducerUser);
+    const [historySearch, setHistorySearch] = useState<IHistorySearchItem>();
 
     const [index, setIndex] = useState(0);
 
     const renderScene = ({ route, jumpTo }: RenderSceneProps) => {
         switch (route.key) {
             case 'users':
-                return <Users jumpTo={jumpTo} dataUser={results?.users} />;
+                return <Users keyword={search} jumpTo={jumpTo} dataUser={results?.users} />;
             case 'posts':
-                return <Posts navigation={navigation} jumpTo={jumpTo} />;
+                return <Posts keyWord={search} navigation={navigation} jumpTo={jumpTo} />;
         }
     };
 
@@ -66,7 +77,7 @@ export default function Search({ navigation, route }: SearchProps) {
 
     const searchPosts = async () => {
         try {
-            const results = await searchPost(search, 5, 0);
+            const results = await searchPost(search.trim(), 5, 0);
             setResults(results.data);
         } catch (error) {
             console.log(error);
@@ -88,8 +99,32 @@ export default function Search({ navigation, route }: SearchProps) {
         return () => clearTimeout(timer);
     }, [search]);
 
-    const handleSubmitSearch = () => {
+    const handleSubmitSearch = async () => {
         setDisplay(true);
+        if (search.length > 0) {
+            const historyItem: IHistorySearchItem = {
+                type: 'text',
+                content: search,
+            };
+
+            // handleSaveHistorySearch(historyItem);
+        }
+    };
+
+    const handleSaveHistorySearch = async (historyItem: IHistorySearchItem) => {
+        const listHistorySearchString = await AsyncStorage.getItem('HistorySearch');
+
+        if (listHistorySearchString) {
+            const listHistorySearch = JSON.parse(listHistorySearchString);
+            console.log(listHistorySearch);
+
+            await AsyncStorage.setItem(
+                'HistorySearch',
+                JSON.stringify(listHistorySearch.push(historyItem)),
+            );
+        } else {
+            await AsyncStorage.setItem('HistorySearch', JSON.stringify([historyItem]));
+        }
     };
 
     return (
@@ -132,12 +167,33 @@ export default function Search({ navigation, route }: SearchProps) {
                         }}
                     />
                 </View>
+                {/* <View>{display === false && search.length === 0 && <HistorySearch />}</View> */}
                 {display === true ? (
                     <TabView
                         navigationState={{ index, routes }}
                         renderScene={renderScene}
                         onIndexChange={setIndex}
                         initialLayout={{ width: layout.width }}
+                        renderTabBar={(props) => (
+                            <TabBar
+                                {...props}
+                                indicatorStyle={{ backgroundColor: COLORS.gray }}
+                                renderLabel={({ route, focused, color }) => (
+                                    <Text
+                                        style={{
+                                            color: 'black',
+                                            fontFamily: FONT.regular,
+                                            fontSize: FONT_SIZE.small,
+                                        }}
+                                    >
+                                        {route.title}
+                                    </Text>
+                                )}
+                                style={{
+                                    backgroundColor: 'white',
+                                }}
+                            />
+                        )}
                     />
                 ) : (
                     <View>
@@ -145,22 +201,76 @@ export default function Search({ navigation, route }: SearchProps) {
                             data={results?.users}
                             renderItem={({ item }: { item: IUser }) => {
                                 return (
-                                    <View
+                                    <Pressable
+                                        onPress={async () => {
+                                            const historyItem: IHistorySearchItem = {
+                                                type: 'user',
+                                                user: item,
+                                            };
+                                            // handleSaveHistorySearch(historyItem);
+                                        }}
                                         style={{
                                             paddingBottom: 10,
                                             marginHorizontal: 10,
                                         }}
                                     >
                                         <UserIcon
+                                            openAccount={() => {
+                                                if (stateUser.id === item.id + '') {
+                                                    navigation.navigate('Account');
+                                                } else {
+                                                    navigation.navigate('AccountOther', {
+                                                        avatar: item.profile.avatar,
+                                                        cover: item.profile.background,
+                                                        isFollowed: false,
+                                                        isOwner: false,
+                                                        userName: item.username,
+                                                        idUser: item.id,
+                                                    });
+                                                }
+                                            }}
+                                            id={item.id}
                                             avatar={{ uri: item.profile.avatar }}
                                             height={50}
                                             width={50}
                                             isOwner={false}
-                                            openAccount={() => {}}
                                             userName={item.username}
                                             threeDotsDisplay={false}
                                         />
-                                    </View>
+                                    </Pressable>
+                                );
+                            }}
+                        />
+                        <FlatList
+                            data={results?.posts}
+                            renderItem={({ item }: { item: IPostOfSearch }) => {
+                                return (
+                                    <TouchableOpacity
+                                        onPress={async () => {
+                                            const historyItem: IHistorySearchItem = {
+                                                type: 'post',
+                                                post: item,
+                                            };
+                                            // handleSaveHistorySearch(historyItem);
+                                            navigation.navigate('ShowPost', {
+                                                isOwner:
+                                                    item.user.id === stateUser.id ? true : false,
+                                                postId: item.id,
+                                            });
+                                        }}
+                                        style={{
+                                            paddingBottom: 10,
+                                            marginHorizontal: 10,
+                                        }}
+                                    >
+                                        <PostIcon
+                                            idUserOwn={item.user.id}
+                                            navigation={navigation}
+                                            id={item.id + ''}
+                                            avatar={item.user.profile.avatar}
+                                            caption={item.caption}
+                                        />
+                                    </TouchableOpacity>
                                 );
                             }}
                         />

@@ -86,12 +86,6 @@ export default function Account({ navigation }: any) {
         setPostList(await getDataById(_page, _limit, idUser, postList || []));
     };
 
-    useEffect(() => {
-        var arr: ItemCommentProps[] = [];
-        arr = _list_comments.filter((ele) => ele.post_id === postIdOpen);
-        setListComment(arr);
-    }, [postIdOpen]);
-
     const bottemSheet = useRef<BottomSheet>(null);
 
     const logout = async () => {
@@ -233,6 +227,7 @@ export default function Account({ navigation }: any) {
                     renderItem={({ item }: { item: IPost }) => (
                         <View>
                             <UserIcon
+                                id={item.idUser}
                                 openOption={() => {
                                     handleOpenOption(item.idUser, item, bottemSheetOption.current);
                                 }}
@@ -295,6 +290,7 @@ export default function Account({ navigation }: any) {
                                     }}
                                 >
                                     <UserIcon
+                                        id={item.origin.user.id + ''}
                                         avatar={{ uri: item.origin.user.profile.avatar }}
                                         width={30}
                                         height={30}
@@ -424,13 +420,13 @@ export default function Account({ navigation }: any) {
                 />
             </View>
 
-            <Comment
+            {/* <Comment
                 title="Bình luận"
                 atSinglePost={false}
                 ref={bottemSheet}
-                dataCommentsOfPost={listComment || []}
+              
                 avatar={UserData[0].avatar}
-            />
+            /> */}
             <ShareView
                 idUser={stateUser.id}
                 navigation={navigation}

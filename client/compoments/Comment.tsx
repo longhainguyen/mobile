@@ -213,6 +213,13 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
     const inputRef = useRef<TextInput>(null);
     const [placeholderInComment, setPlaceholderInComment] = useState('Thêm bình luận...');
 
+    const clearState = () => {
+        setListComment([]);
+        onChangeText('');
+        setParentId(0);
+        setPlaceholderInComment('Thêm bình luận...');
+    };
+
     const handleGetComment = async () => {
         try {
             const resposne = await getComment(props.postId, 10, 0);
@@ -257,6 +264,7 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
 
     const handleSheetChanges = useCallback((index: number) => {
         if (index == -1) {
+            clearState();
             Keyboard.dismiss();
         }
         store.dispatch(setState(index));

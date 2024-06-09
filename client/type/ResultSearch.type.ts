@@ -8,14 +8,21 @@ export interface IPostOfSearch {
     createdAt: string;
     images: IFile[];
     videos: IFile[];
-    users: IUser;
-    shares: [];
+    user: IUser;
+    shareds: IShared[];
     origin: IOrigin;
     publicUsers: [];
     likeCount: number;
     commentCount: number;
     isLiked: boolean;
     isFollowed: boolean;
+}
+
+export interface IShared {
+    id: number;
+    caption: string;
+    isPublic: boolean;
+    createdAt: string;
 }
 
 export interface IResultSearch {
