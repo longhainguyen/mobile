@@ -5,14 +5,19 @@ import { searchPost } from '../../api/search.api';
 import { IUser } from '../../type/User.type';
 import UserIcon from '../UserIcon';
 import NoResultsScreen from './NoResultsScreen';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/Store';
 
 interface UsersProp {
     jumpTo: any;
     dataUser?: IUser[];
     keyword: string;
+    navigation: any;
 }
 
-export default function Users({ keyword, jumpTo, dataUser }: UsersProp) {
+export default function Users({ keyword, jumpTo, dataUser, navigation }: UsersProp) {
+    const stateUser = useSelector((state: RootState) => state.reducerUser);
+
     return (
         <View>
             {dataUser ? (
@@ -29,12 +34,25 @@ export default function Users({ keyword, jumpTo, dataUser }: UsersProp) {
                                         }}
                                     >
                                         <UserIcon
+                                            openAccount={() => {
+                                                if (stateUser.id === item.id + '') {
+                                                    navigation.navigate('Account');
+                                                } else {
+                                                    navigation.navigate('AccountOther', {
+                                                        avatar: item.profile.avatar,
+                                                        cover: item.profile.background,
+                                                        isFollowed: false,
+                                                        isOwner: false,
+                                                        userName: item.username,
+                                                        idUser: item.id,
+                                                    });
+                                                }
+                                            }}
                                             id={item.id}
                                             avatar={{ uri: item.profile.avatar }}
                                             height={50}
                                             width={50}
                                             isOwner={false}
-                                            openAccount={() => {}}
                                             userName={item.username}
                                             threeDotsDisplay={false}
                                         />

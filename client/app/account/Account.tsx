@@ -53,6 +53,9 @@ export default function Account({ navigation }: any) {
     const [postOpen, setPostOpen] = useState<IPost>();
     const [user, setUser] = useState<IUser>();
     const [avartarOrBg, setAvartarOrBg] = useState('');
+    const [lengthComment, setLengthComment] = useState(0);
+    const [avartarUserOwnPost, setAvartarUserOwnPost] = useState();
+    const bottemSheetComment = useRef<BottomSheet>(null);
 
     const translateY = scrollY.interpolate({
         inputRange: [0, 45],
@@ -127,6 +130,20 @@ export default function Account({ navigation }: any) {
         setIdUserOfPost(idUser);
         setPostOpen(post);
         bottemSheetInstance?.snapToIndex(0);
+    };
+
+    const openComment = async (
+        index: number,
+        post_id: string,
+        avatarUserOwn: any,
+
+        bottemSheetInstance: BottomSheet | null,
+        lengthComment: number,
+    ) => {
+        setLengthComment(lengthComment);
+        bottemSheetInstance?.snapToIndex(index);
+        setAvartarUserOwnPost(avatarUserOwn);
+        setPostIdOpen(post_id);
     };
 
     const handleOpenOptionAvatar = async (bottemSheetInstance: BottomSheet | null) => {
@@ -294,6 +311,7 @@ export default function Account({ navigation }: any) {
                                         avatar={{ uri: item.origin.user.profile.avatar }}
                                         width={30}
                                         height={30}
+                                        threeDotsDisplay={false}
                                         // isFollowed={item.isFollowed || false}
                                         userName={item.origin.user.username}
                                         isOwner={stateUser.id === item.idUser ? true : false}
@@ -359,9 +377,14 @@ export default function Account({ navigation }: any) {
                                         bottemSheetShare.current,
                                     );
                                 }}
-                                openComment={
-                                    () => {}
-                                    // openComment(0, item.id, item.avartar, bottemSheetComment.current)
+                                openComment={() =>
+                                    openComment(
+                                        0,
+                                        item.id,
+                                        stateUser.profile.avatar,
+                                        bottemSheetComment.current,
+                                        item.comments,
+                                    )
                                 }
                             />
                         </View>
@@ -420,13 +443,15 @@ export default function Account({ navigation }: any) {
                 />
             </View>
 
-            {/* <Comment
+            <Comment
+                userId={parseInt(stateUser.id)}
+                postId={postIdOpen}
+                lengthComment={lengthComment}
                 title="Bình luận"
                 atSinglePost={false}
-                ref={bottemSheet}
-              
-                avatar={UserData[0].avatar}
-            /> */}
+                ref={bottemSheetComment}
+                avatar={{ uri: avartarUserOwnPost }}
+            />
             <ShareView
                 idUser={stateUser.id}
                 navigation={navigation}

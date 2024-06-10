@@ -23,7 +23,7 @@ import PostData from '../../dataTemp/PostData';
 import PostContent from '../../compoments/PostContent';
 import Interact from '../../compoments/Interact';
 import BottomSheet, { BottomSheetModal } from '@gorhom/bottom-sheet';
-import Comment, { ItemCommentProps } from '../../compoments/Comment';
+import Comment from '../../compoments/Comment';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import _list_comments from '../../dataTemp/CommentData';
 import { EvilIcons } from '@expo/vector-icons';
@@ -259,7 +259,6 @@ export default function Home({ navigation }: any) {
                                     isLiked: item.isLiked,
                                     share: item.shares,
                                     postId: item.id,
-
                                     videos: item.videos,
                                 })
                             }

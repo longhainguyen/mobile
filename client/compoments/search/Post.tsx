@@ -5,6 +5,7 @@ import {
     TouchableOpacity,
     RefreshControl,
     ActivityIndicator,
+    Pressable,
 } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import { IPost } from '../../type/Post.type';
@@ -14,10 +15,14 @@ import { RootState } from '../../redux/Store';
 import PostContent from '../PostContent';
 import { COLORS } from '../../constants';
 import Interact from '../Interact';
-import { IPostHome, getPostHome } from '../../api/getPost';
 import { searchPost } from '../../api/search.api';
 import { IPostOfSearch } from '../../type/ResultSearch.type';
 import NoResultsScreen from './NoResultsScreen';
+import BottomSheet from '@gorhom/bottom-sheet';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import Comment from '../../compoments/Comment';
+import ShareView from '../../compoments/home/Share';
+import Option from '../../compoments/home/Option';
 
 interface PostsProp {
     navigation: any;
@@ -29,9 +34,17 @@ export default function Posts({ keyWord, navigation, jumpTo }: PostsProp) {
     const flatListRef = useRef<FlatList>(null);
     const [postList, setPostList] = useState<IPost[]>();
     const stateUser = useSelector((state: RootState) => state.reducerUser);
-    const [refreshControl, setRefreshControl] = useState(false);
-    const [page, setPage] = useState(0);
+    // const [refreshControl, setRefreshControl] = useState(false);
+    // const [page, setPage] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
+    const [lengthComment, setLengthComment] = useState(0);
+    const [avartarUserOwnPost, setAvartarUserOwnPost] = useState();
+    const [postOpen, setPostOpen] = useState<IPost>();
+    const bottemSheetComment = useRef<BottomSheet>(null);
+    const bottemSheetShare = useRef<BottomSheet>(null);
+    const bottemSheetOption = useRef<BottomSheet>(null);
+    const [postIdOpen, setPostIdOpen] = useState('');
+    const [idUserOfPost, setIdUserOfPost] = useState('');
 
     useEffect(() => {
         if (keyWord) {
@@ -74,47 +87,41 @@ export default function Posts({ keyWord, navigation, jumpTo }: PostsProp) {
         }
     };
 
-    // const getData = async (_page: number) => {
-    //     await getPostHome(stateUser.id, 5, _page)
-    //         .then((result) => {
-    //             var _postList: IPost[] = []; // Initialize _postList
+    const openComment = async (
+        index: number,
+        post_id: string,
+        avatarUserOwn: any,
 
-    //             result.data.map((post: IPostHome) => {
-    //                 const _post: IPost = {
-    //                     id: post.id + '',
-    //                     content: post.caption,
-    //                     comments: post.commentCount,
-    //                     likes: post.likeCount,
-    //                     shares: post.shareds,
-    //                     background: post.user.profile.background,
-    //                     avartar: post.user.profile.avatar,
-    //                     idUser: post.user.id + '',
-    //                     userName: post.user.username,
-    //                     images: post.images,
-    //                     videos: post.videos,
-    //                     isFollowed: post.isFollowed,
-    //                     isLiked: post.isLiked,
-    //                     createdAt: post.createdAt,
-    //                     origin: post.origin,
-    //                 };
-    //                 _postList.push(_post);
-    //             });
-    //             if (_page === 0) {
-    //                 setPostList([]);
-    //                 console.log('refresh home');
-    //                 setPostList(_postList);
-    //             } else {
-    //                 const postListAfterConcat = postList?.concat(_postList);
-    //                 setPostList(postListAfterConcat);
-    //             }
-    //         })
-    //         .catch((e) => {
-    //             navigation.navigate('Login');
-    //         });
-    // };
+        bottemSheetInstance: BottomSheet | null,
+        lengthComment: number,
+    ) => {
+        setLengthComment(lengthComment);
+        bottemSheetInstance?.snapToIndex(index);
+        setAvartarUserOwnPost(avatarUserOwn);
+        setPostIdOpen(post_id);
+    };
+
+    const openShare = async (
+        postId: number,
+        idUser: number,
+        bottemSheetInstance: BottomSheet | null,
+    ) => {
+        setPostIdOpen(postId + '');
+        bottemSheetInstance?.snapToIndex(0);
+    };
+
+    const handleOpenOption = async (
+        idUser: string,
+        post: IPost,
+        bottemSheetInstance: BottomSheet | null,
+    ) => {
+        setIdUserOfPost(idUser);
+        setPostOpen(post);
+        bottemSheetInstance?.snapToIndex(0);
+    };
 
     return (
-        <View style={{ flex: 1 }}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
             {postList && postList?.length > 0 ? (
                 <FlatList
                     ref={flatListRef}
@@ -127,12 +134,12 @@ export default function Posts({ keyWord, navigation, jumpTo }: PostsProp) {
                     }}
                     horizontal={false}
                     renderItem={({ item }: { item: IPost }) => (
-                        <View>
+                        <Pressable>
                             <UserIcon
                                 id={item.idUser}
                                 idUserOfPost={item.idUser}
                                 openOption={() => {
-                                    // handleOpenOption(item.idUser, item, bottemSheetOption.current);
+                                    handleOpenOption(item.idUser, item, bottemSheetOption.current);
                                 }}
                                 avatar={{ uri: item.avartar }}
                                 width={30}
@@ -142,37 +149,37 @@ export default function Posts({ keyWord, navigation, jumpTo }: PostsProp) {
                                 isOwner={stateUser.id === item.idUser ? true : false}
                                 openAccount={() => {
                                     if (stateUser.id === item.idUser) {
-                                        // navigation.navigate('Account');
+                                        navigation.navigate('Account');
                                     } else {
-                                        // navigation.navigate('AccountOther', {
-                                        //     avatar: item.avartar,
-                                        //     isFollowed: item.isFollowed,
-                                        //     isOwner: false,
-                                        //     userName: item.userName,
-                                        //     idUser: item.idUser,
-                                        //     cover: item.background,
-                                        // });
+                                        navigation.navigate('AccountOther', {
+                                            avatar: item.avartar,
+                                            isFollowed: item.isFollowed,
+                                            isOwner: false,
+                                            userName: item.userName,
+                                            idUser: item.idUser,
+                                            cover: item.background,
+                                        });
                                     }
                                 }}
                             />
                             <TouchableOpacity
-                            // onPress={() =>
-                            //     // navigation.navigate('ShowPost', {
-                            //     //     avatar: item.avartar,
-                            //     //     isFollowed: false,
-                            //     //     userName: item.userName,
-                            //     //     isOwner: true,
-                            //     //     images: item.images,
-                            //     //     time: item.createdAt,
-                            //     //     description: item.content,
-                            //     //     comment: item.comments,
-                            //     //     like: item.likes,
-                            //     //     isLiked: item.isLiked,
-                            //     //     share: item.shares,
-                            //     //     postId: item.id,
-                            //     //     videos: item.videos,
-                            //     // })
-                            // }
+                                onPress={() =>
+                                    navigation.navigate('ShowPost', {
+                                        avatar: item.avartar,
+                                        isFollowed: false,
+                                        userName: item.userName,
+                                        isOwner: item.idUser === stateUser.id ? true : false,
+                                        images: item.images,
+                                        time: item.createdAt,
+                                        description: item.content,
+                                        comment: item.comments,
+                                        like: item.likes,
+                                        isLiked: item.isLiked,
+                                        share: item.shares,
+                                        postId: item.id,
+                                        videos: item.videos,
+                                    })
+                                }
                             >
                                 <PostContent
                                     videos={item.videos}
@@ -194,7 +201,7 @@ export default function Posts({ keyWord, navigation, jumpTo }: PostsProp) {
                                     }}
                                 >
                                     <UserIcon
-                                        id={item.idUser}
+                                        id={item.origin.user.id + ''}
                                         idUserOfPost={item.idUser}
                                         avatar={{ uri: item.origin.user.profile.avatar }}
                                         width={30}
@@ -203,7 +210,7 @@ export default function Posts({ keyWord, navigation, jumpTo }: PostsProp) {
                                         userName={item.origin.user.username}
                                         isOwner={stateUser.id === item.idUser ? true : false}
                                         openAccount={() => {
-                                            if (stateUser.id === item.idUser) {
+                                            if (stateUser.id === item.origin?.user.id + '') {
                                                 navigation.navigate('Account');
                                             } else {
                                                 navigation.navigate('AccountOther', {
@@ -258,24 +265,24 @@ export default function Posts({ keyWord, navigation, jumpTo }: PostsProp) {
                                 avatar={item.avartar}
                                 atHome={true}
                                 isFollow={item.isFollowed}
-                                // openShare={() => {
-                                //     openShare(
-                                //         parseInt(item.id),
-                                //         parseInt(stateUser.id),
-                                //         bottemSheetShare.current,
-                                //     );
-                                // }}
-                                // openComment={() =>
-                                //     openComment(
-                                //         0,
-                                //         item.id,
-                                //         stateUser.profile.avatar,
-                                //         bottemSheetComment.current,
-                                //         item.comments,
-                                //     )
-                                // }
+                                openShare={() => {
+                                    openShare(
+                                        parseInt(item.id),
+                                        parseInt(stateUser.id),
+                                        bottemSheetShare.current,
+                                    );
+                                }}
+                                openComment={() =>
+                                    openComment(
+                                        0,
+                                        item.id,
+                                        stateUser.profile.avatar,
+                                        bottemSheetComment.current,
+                                        item.comments,
+                                    )
+                                }
                             />
-                        </View>
+                        </Pressable>
                     )}
                     // refreshControl={
                     //     <RefreshControl
@@ -329,6 +336,32 @@ export default function Posts({ keyWord, navigation, jumpTo }: PostsProp) {
             ) : (
                 <NoResultsScreen />
             )}
-        </View>
+            <Comment
+                userId={parseInt(stateUser.id)}
+                postId={postIdOpen}
+                lengthComment={lengthComment}
+                title="Bình luận"
+                atSinglePost={false}
+                ref={bottemSheetComment}
+                avatar={{ uri: avartarUserOwnPost }}
+            />
+            <ShareView
+                idUser={stateUser.id}
+                navigation={navigation}
+                originId={parseInt(postIdOpen)}
+                height={30}
+                width={30}
+                userName={stateUser.username}
+                avatar={stateUser.profile.avatar}
+                ref={bottemSheetShare}
+            />
+            <Option
+                navigation={navigation}
+                idUserOfPost={idUserOfPost}
+                idUser={stateUser.id}
+                ref={bottemSheetOption}
+                post={postOpen}
+            />
+        </GestureHandlerRootView>
     );
 }

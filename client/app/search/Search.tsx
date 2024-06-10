@@ -60,7 +60,14 @@ export default function Search({ navigation, route }: SearchProps) {
     const renderScene = ({ route, jumpTo }: RenderSceneProps) => {
         switch (route.key) {
             case 'users':
-                return <Users keyword={search} jumpTo={jumpTo} dataUser={results?.users} />;
+                return (
+                    <Users
+                        keyword={search}
+                        jumpTo={jumpTo}
+                        dataUser={results?.users}
+                        navigation={navigation}
+                    />
+                );
             case 'posts':
                 return <Posts keyWord={search} navigation={navigation} jumpTo={jumpTo} />;
         }
@@ -201,14 +208,14 @@ export default function Search({ navigation, route }: SearchProps) {
                             data={results?.users}
                             renderItem={({ item }: { item: IUser }) => {
                                 return (
-                                    <Pressable
-                                        onPress={async () => {
-                                            const historyItem: IHistorySearchItem = {
-                                                type: 'user',
-                                                user: item,
-                                            };
-                                            // handleSaveHistorySearch(historyItem);
-                                        }}
+                                    <View
+                                        // onPress={async () => {
+                                        //     const historyItem: IHistorySearchItem = {
+                                        //         type: 'user',
+                                        //         user: item,
+                                        //     };
+                                        //     // handleSaveHistorySearch(historyItem);
+                                        // }}
                                         style={{
                                             paddingBottom: 10,
                                             marginHorizontal: 10,
@@ -237,7 +244,7 @@ export default function Search({ navigation, route }: SearchProps) {
                                             userName={item.username}
                                             threeDotsDisplay={false}
                                         />
-                                    </Pressable>
+                                    </View>
                                 );
                             }}
                         />
@@ -245,19 +252,19 @@ export default function Search({ navigation, route }: SearchProps) {
                             data={results?.posts}
                             renderItem={({ item }: { item: IPostOfSearch }) => {
                                 return (
-                                    <TouchableOpacity
-                                        onPress={async () => {
-                                            const historyItem: IHistorySearchItem = {
-                                                type: 'post',
-                                                post: item,
-                                            };
-                                            // handleSaveHistorySearch(historyItem);
-                                            navigation.navigate('ShowPost', {
-                                                isOwner:
-                                                    item.user.id === stateUser.id ? true : false,
-                                                postId: item.id,
-                                            });
-                                        }}
+                                    <View
+                                        // onPress={async () => {
+                                        //     const historyItem: IHistorySearchItem = {
+                                        //         type: 'post',
+                                        //         post: item,
+                                        //     };
+                                        //     // handleSaveHistorySearch(historyItem);
+                                        //     navigation.navigate('ShowPost', {
+                                        //         isOwner:
+                                        //             item.user.id === stateUser.id ? true : false,
+                                        //         postId: item.id,
+                                        //     });
+                                        // }}
                                         style={{
                                             paddingBottom: 10,
                                             marginHorizontal: 10,
@@ -270,7 +277,7 @@ export default function Search({ navigation, route }: SearchProps) {
                                             avatar={item.user.profile.avatar}
                                             caption={item.caption}
                                         />
-                                    </TouchableOpacity>
+                                    </View>
                                 );
                             }}
                         />

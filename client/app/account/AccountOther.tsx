@@ -23,6 +23,9 @@ import Interact from '../../compoments/Interact';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
 import BottomSheet from '@gorhom/bottom-sheet';
+import Comment from '../../compoments/Comment';
+import ShareView from '../../compoments/home/Share';
+import Option from '../../compoments/home/Option';
 
 type AccountOtherProps = {
     route: any;
@@ -46,6 +49,12 @@ const AccountOther = ({ route, navigation }: AccountOtherProps) => {
     const [refreshControl, setRefreshControl] = useState(false);
     const [page, setPage] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
+    const [lengthComment, setLengthComment] = useState(0);
+    const [avartarUserOwnPost, setAvartarUserOwnPost] = useState();
+    const bottemSheetComment = useRef<BottomSheet>(null);
+    const bottemSheetOption = useRef<BottomSheet>(null);
+    const [idUserOfPost, setIdUserOfPost] = useState('');
+    const [postOpen, setPostOpen] = useState<IPost>();
 
     const getData = async (_limit: number, _page: number, idUser: string) => {
         // const postList: IPost[] = (await getDataById(_page, _limit, idUser)) || [];
@@ -81,6 +90,30 @@ const AccountOther = ({ route, navigation }: AccountOtherProps) => {
         bottemSheetInstance: BottomSheet | null,
     ) => {
         setPostIdOpen(postId + '');
+        bottemSheetInstance?.snapToIndex(0);
+    };
+
+    const openComment = async (
+        index: number,
+        post_id: string,
+        avatarUserOwn: any,
+
+        bottemSheetInstance: BottomSheet | null,
+        lengthComment: number,
+    ) => {
+        setLengthComment(lengthComment);
+        bottemSheetInstance?.snapToIndex(index);
+        setAvartarUserOwnPost(avatarUserOwn);
+        setPostIdOpen(post_id);
+    };
+
+    const handleOpenOption = async (
+        idUser: string,
+        post: IPost,
+        bottemSheetInstance: BottomSheet | null,
+    ) => {
+        setIdUserOfPost(idUser);
+        setPostOpen(post);
         bottemSheetInstance?.snapToIndex(0);
     };
 
@@ -183,7 +216,7 @@ const AccountOther = ({ route, navigation }: AccountOtherProps) => {
                             avatar={{ uri: item.avartar }}
                             width={30}
                             height={30}
-                            isFollowed={item.isFollowed}
+                            // isFollowed={item.isFollowed}
                             userName={item.userName}
                             isOwner={stateUser.id === item.idUser ? true : false}
                             openAccount={() => {
@@ -199,6 +232,9 @@ const AccountOther = ({ route, navigation }: AccountOtherProps) => {
                                         cover: item.background,
                                     });
                                 }
+                            }}
+                            openOption={() => {
+                                handleOpenOption(item.idUser, item, bottemSheetOption.current);
                             }}
                         />
                         <TouchableOpacity
@@ -244,6 +280,7 @@ const AccountOther = ({ route, navigation }: AccountOtherProps) => {
                                     avatar={{ uri: item.origin.user.profile.avatar }}
                                     width={30}
                                     height={30}
+                                    threeDotsDisplay={false}
                                     // isFollowed={item.isFollowed || false}
                                     userName={item.origin.user.username}
                                     isOwner={stateUser.id === item.idUser ? true : false}
@@ -309,14 +346,45 @@ const AccountOther = ({ route, navigation }: AccountOtherProps) => {
                                     bottemSheetShare.current,
                                 );
                             }}
-                            openComment={
-                                () => {}
-                                // openComment(0, item.id, item.avartar, bottemSheetComment.current)
+                            openComment={() =>
+                                openComment(
+                                    0,
+                                    item.id,
+                                    stateUser.profile.avatar,
+                                    bottemSheetComment.current,
+                                    item.comments,
+                                )
                             }
                         />
                     </View>
                 )}
             ></FlatList>
+            <Comment
+                userId={parseInt(stateUser.id)}
+                postId={postIdOpen}
+                lengthComment={lengthComment}
+                title="Bình luận"
+                atSinglePost={false}
+                ref={bottemSheetComment}
+                avatar={{ uri: avartarUserOwnPost }}
+            />
+            <ShareView
+                idUser={stateUser.id}
+                navigation={navigation}
+                originId={parseInt(postIdOpen)}
+                height={30}
+                width={30}
+                userName={stateUser.username}
+                avatar={stateUser.profile.avatar}
+                ref={bottemSheetShare}
+            />
+            <Option
+                navigation={navigation}
+                idUserOfPost={idUserOfPost}
+                idUser={stateUser.id}
+                ref={bottemSheetOption}
+                post={postOpen}
+            />
         </GestureHandlerRootView>
     );
 };

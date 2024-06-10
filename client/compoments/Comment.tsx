@@ -23,6 +23,7 @@ import {
     SafeAreaView,
     Dimensions,
     KeyboardAvoidingView,
+    Pressable,
 } from 'react-native';
 import { COLORS } from '../constants';
 import { FONT, FONT_SIZE } from '../constants/font';
@@ -34,6 +35,7 @@ import { RootState, store } from '../redux/Store';
 import { getComment, postComment } from '../api/comment.api';
 import UserData from '../dataTemp/UserData';
 import { IComment } from '../type/Comment.type';
+import { MaterialIcons } from '@expo/vector-icons';
 import moment from 'moment';
 
 const { height, width } = Dimensions.get('window');
@@ -75,7 +77,7 @@ const Item = ({
             input_answer?.current?.focus();
             setParentId(id);
             // scrollToIndex(id);
-            setPlaceholderInComment('Trả lời ' + user.username);
+            setPlaceholderInComment(user.username);
         }
     };
 
@@ -211,13 +213,14 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
     const stateComment = useSelector((state: RootState) => state.reducer.index);
     const flatListRef = useRef<FlatList>(null);
     const inputRef = useRef<TextInput>(null);
-    const [placeholderInComment, setPlaceholderInComment] = useState('Thêm bình luận...');
+    const [answerTo, setAnswerTo] = useState('');
+    const [placeholderInComment, setPlaceholderInComment] = useState('');
 
     const clearState = () => {
         setListComment([]);
         onChangeText('');
         setParentId(0);
-        setPlaceholderInComment('Thêm bình luận...');
+        setPlaceholderInComment('');
     };
 
     const handleGetComment = async () => {
@@ -318,17 +321,19 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
                 style={{ marginTop: 30, marginBottom: 70 }}
                 data={listComment}
                 renderItem={({ item }: { item: IComment }) => (
-                    <Item
-                        scrollToIndex={scrollToIndex}
-                        setPlaceholderInComment={setPlaceholderInComment}
-                        setParentId={setParentId}
-                        childrens={item.childrens}
-                        content={item.content}
-                        createdAt={item.createdAt}
-                        id={item.id}
-                        user={item.user}
-                        input_answer={inputRef}
-                    />
+                    <Pressable>
+                        <Item
+                            scrollToIndex={scrollToIndex}
+                            setPlaceholderInComment={setPlaceholderInComment}
+                            setParentId={setParentId}
+                            childrens={item.childrens}
+                            content={item.content}
+                            createdAt={item.createdAt}
+                            id={item.id}
+                            user={item.user}
+                            input_answer={inputRef}
+                        />
+                    </Pressable>
                 )}
                 keyExtractor={(item, index) => index.toString()}
             ></FlatList>
@@ -345,55 +350,83 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
                     borderWidth: 1,
                     justifyContent: 'center',
                     alignItems: 'center',
+                    paddingTop: placeholderInComment.length > 0 ? 25 : 0,
                 }}
             >
-                <Image
-                    source={props.avatar}
-                    style={{
-                        borderRadius: 50,
-                        height: 50,
-                        width: 50,
-                        borderWidth: 2,
-                        borderColor: COLORS.background,
-                        marginBottom: 10,
-                        marginLeft: 10,
-                    }}
-                />
+                {placeholderInComment.length > 0 && (
+                    <TouchableOpacity
+                        style={{
+                            position: 'absolute',
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            gap: 4,
+                            top: 0,
+                            left: width / 6,
+                        }}
+                        onPress={() => {
+                            setPlaceholderInComment('');
+                            onChangeText('');
+                            setParentId(0);
+                        }}
+                    >
+                        <Text style={{ fontFamily: FONT.regular, fontSize: FONT_SIZE.small }}>
+                            Trả lời {placeholderInComment}
+                        </Text>
+                        <MaterialIcons name="cancel" size={24} color="black" />
+                    </TouchableOpacity>
+                )}
 
-                <TextInput
-                    ref={inputRef}
-                    placeholder={placeholderInComment}
-                    multiline={true}
-                    value={text}
-                    onChangeText={onChangeText}
-                    placeholderTextColor={COLORS.darkText}
-                    style={{
-                        borderRadius: 30,
-                        fontSize: FONT_SIZE.small,
-                        lineHeight: 20,
-                        padding: 8,
-                        flex: 1,
-                        backgroundColor: 'rgba(151, 151, 151, 0.25)',
-                        fontFamily: FONT.regular,
-                        marginBottom: 10,
-                        marginRight: 10,
-                    }}
-                />
-                <TouchableOpacity
-                    onPress={handlePostComment}
-                    style={{
-                        backgroundColor: COLORS.gray,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        marginRight: 5,
-                        marginBottom: 10,
-                        borderRadius: 50,
-                        width: 35,
-                        height: 35,
-                    }}
-                >
-                    <AntDesign name="arrowup" size={24} color="black" />
-                </TouchableOpacity>
+                <>
+                    <Image
+                        source={props.avatar}
+                        style={{
+                            borderRadius: 50,
+                            height: 50,
+                            width: 50,
+                            borderWidth: 2,
+                            borderColor: COLORS.background,
+                            marginBottom: 10,
+                            marginLeft: 10,
+                        }}
+                    />
+
+                    <TextInput
+                        ref={inputRef}
+                        placeholder="Thêm bình luận..."
+                        multiline={true}
+                        value={text}
+                        onChangeText={onChangeText}
+                        placeholderTextColor={COLORS.darkText}
+                        style={{
+                            borderRadius: 30,
+                            fontSize: FONT_SIZE.small,
+                            lineHeight: 20,
+                            padding: 8,
+                            flex: 1,
+                            backgroundColor: 'rgba(151, 151, 151, 0.25)',
+                            fontFamily: FONT.regular,
+                            marginBottom: 10,
+                            marginRight: 10,
+                        }}
+                    ></TextInput>
+
+                    <TouchableOpacity
+                        onPress={handlePostComment}
+                        style={{
+                            backgroundColor: COLORS.gray,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginRight: 5,
+                            marginBottom: 10,
+                            borderRadius: 50,
+                            width: 35,
+                            height: 35,
+                        }}
+                    >
+                        <AntDesign name="arrowup" size={24} color="black" />
+                    </TouchableOpacity>
+                </>
             </BottomSheetView>
         </BottomSheet>
     );
