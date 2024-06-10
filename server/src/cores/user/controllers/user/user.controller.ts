@@ -22,10 +22,10 @@ import {
 @Controller('users')
 export class UserController {
     constructor(private UserService: UserService) {}
-    @Get('find-user')
+    @Get(':userId')
     @HttpCode(HttpStatus.OK)
-    getUsers() {
-        return this.UserService.getUsers();
+    getUsers(@Param('userId', ParseIntPipe) userId: number) {
+        return this.UserService.getUserById(userId);
     }
 
     @Get('find-by-name')

@@ -15,6 +15,18 @@ export interface ICommentPost {
     parentId: number;
 }
 
+export interface IUpdatePost {
+    userId: number;
+    postId: number;
+    caption: string;
+    images?: Express.Multer.File[];
+    videos?: Express.Multer.File[];
+    deleted: {
+        images?: number[];
+        videos?: number[];
+    };
+}
+
 export interface IUpdateCommentPost {
     userId: number;
     postId: number;

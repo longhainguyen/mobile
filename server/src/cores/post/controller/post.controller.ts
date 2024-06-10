@@ -9,6 +9,7 @@ import {
     Patch,
     Post,
     Query,
+    RawBodyRequest,
     Req,
     UploadedFiles,
     UseGuards,
@@ -29,6 +30,9 @@ import { InteractPostService } from '../service/interact-post/interact-post.serv
 import { AuthGuard } from '@cores/auth/guard/auth.guard';
 import { JwtAuthGuard } from '@cores/auth/guard/jwt.guard';
 import { Request } from '@customs/express.type';
+import { UpdatePostDto } from '../dto/update-posts.dto';
+import { IUpdatePost } from '@interfaces/post.interface';
+import { PostParseJsonPipe } from '@pipes/update-post.pipe';
 
 @Controller('posts')
 @UseGuards(JwtAuthGuard)
@@ -83,6 +87,35 @@ export class PostController {
         @Query('page', ParseIntPipe) page: number,
     ) {
         return this.GetPostService.getPosts(req?.user.id, { limit, page }, true, id);
+    }
+
+    @Patch('update-post/:postId')
+    @UseInterceptors(
+        FileFieldsInterceptor([
+            { name: 'images', maxCount: 2 },
+            { name: 'videos', maxCount: 2 },
+        ]),
+    )
+    async updatePost(
+        @Req() req: Request,
+        @Param('postId', ParseIntPipe) postId: number,
+        @Body(new ValidationPipe()) data: UpdatePostDto,
+        @Body('deleted', PostParseJsonPipe) deleted: { images?: number[]; videos?: number[] },
+        @UploadedFiles() files: { images: Express.Multer.File[]; videos: Express.Multer.File[] },
+    ) {
+        const updatePost: IUpdatePost = {
+            postId,
+            userId: req.user.id,
+            caption: data.caption,
+            deleted,
+        };
+        if (files?.images) {
+            updatePost.images = files.images;
+        }
+        if (files?.videos) {
+            updatePost.videos = files.videos;
+        }
+        return this.EditPostService.updatePost(updatePost);
     }
 
     @Patch('update-caption-post/:id')

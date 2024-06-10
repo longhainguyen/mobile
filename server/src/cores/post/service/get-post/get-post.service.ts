@@ -3,7 +3,7 @@ import { CommentEntity, LikeEntity, PostEntity, UserEntity } from '@entities/ind
 import { IGetPost } from '@interfaces/post.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, In, Like, Repository } from 'typeorm';
+import { FindManyOptions, Like, Repository } from 'typeorm';
 
 @Injectable()
 export class GetPostService {
