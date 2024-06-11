@@ -3,6 +3,9 @@ import { COLORS } from '../constants';
 import { MaterialIcons } from '@expo/vector-icons';
 import React from 'react';
 import { FONT, FONT_SIZE } from '../constants/font';
+import UserData from '../dataTemp/UserData';
+import { updateUser } from '../api/user.api';
+import { IUser } from '../type/User.type';
 
 interface InfoAccountProps {
     avatar: any;
@@ -11,7 +14,12 @@ interface InfoAccountProps {
     age?: string;
     birthday?: string;
     isOwn: boolean;
-    isFollow?: boolean;
+    isFollow: boolean;
+    idUser: string;
+    navigation?: any;
+    user?: IUser;
+    openOptionAvatar?: () => void;
+    openOptionBg?: () => void;
 }
 
 const InfoAccount: React.FC<InfoAccountProps> = ({
@@ -21,8 +29,23 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
     cover,
     name,
     isOwn,
-    isFollow = false,
+    idUser,
+    isFollow,
+    navigation,
+    user,
+    openOptionAvatar,
+    openOptionBg,
 }) => {
+    const hanleUpdateAccount = async () => {
+        if (user) {
+            navigation.navigate('UpdateAccount', {
+                user: user,
+            });
+        } else {
+            console.log('No user');
+        }
+    };
+
     return (
         <View
             style={{
@@ -39,10 +62,14 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
                 }}
             >
                 <TouchableOpacity
+                    onPress={openOptionBg}
                     activeOpacity={0.6}
                     style={{
                         width: '100%',
                         position: 'relative',
+                        borderColor: COLORS.borderColor,
+                        borderWidth: 1,
+                        borderRadius: 15,
                     }}
                 >
                     <Image
@@ -55,11 +82,10 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
                                 position: 'absolute',
                                 bottom: 0,
                                 right: 5,
-                                zIndex: 9999,
                                 borderRadius: 50,
                                 borderColor: 'white',
                                 borderWidth: 2,
-                                backgroundColor: COLORS.lightWhite,
+                                // backgroundColor: COLORS.lightWhite,
                             }}
                         >
                             <MaterialIcons name="photo-camera" size={20}></MaterialIcons>
@@ -76,7 +102,7 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
                         alignItems: 'center',
                     }}
                 >
-                    <TouchableOpacity activeOpacity={0.6}>
+                    <TouchableOpacity onPress={openOptionAvatar} activeOpacity={0.6}>
                         <Image
                             style={{
                                 width: 150,
@@ -94,11 +120,10 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
                                     position: 'absolute',
                                     bottom: 0,
                                     right: 15,
-                                    zIndex: 9999,
                                     borderRadius: 50,
                                     borderColor: 'white',
                                     borderWidth: 2,
-                                    backgroundColor: COLORS.lightWhite,
+                                    // backgroundColor: COLORS.lightWhite,
                                 }}
                             >
                                 <MaterialIcons
@@ -128,7 +153,7 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
                 >
                     {name}
                 </Text>
-                <View>
+                {/* <View>
                     <Text
                         style={{
                             fontFamily: FONT.regular,
@@ -148,7 +173,7 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
                     >
                         {birthday ? 'Ngày sinh ' + birthday : 'Ngày sinh: Chưa có'}
                     </Text>
-                </View>
+                </View> */}
 
                 {isOwn ? (
                     <TouchableOpacity
@@ -158,6 +183,7 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
                             borderColor: COLORS.black,
                             padding: 5,
                         }}
+                        onPress={hanleUpdateAccount}
                     >
                         <Text
                             style={{

@@ -2,7 +2,7 @@ interface IUser {
     id: string;
     username: string;
     email: string;
-    isLoggedIn: boolean;
+    isLoggedIn?: boolean;
     profile: {
         phoneNumber?: string;
         address?: string;

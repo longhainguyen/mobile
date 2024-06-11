@@ -1,32 +1,63 @@
+import { IShared } from './ResultSearch.type';
+
 export interface ItemItemProps {
     uri: string;
     id: string;
-    type: string;
-    name: string;
+    type?: string;
+    name?: string;
 }
 
 export interface IImage {
     uri: string;
-    name: string;
-    type: string;
+    id: string;
+    type?: string;
 }
 
 export interface IVideo {
     uri: string;
-    name: string;
-    type: string;
+    id: string;
+    type?: string;
+}
+
+export interface IFile {
+    url: string;
+    id: string;
 }
 
 export interface IPost {
     id: string;
     idUser: string;
     userName: string;
+    isPublic: boolean;
+    background: string;
     avartar: string;
-    shares: number;
+    shares: IShared[];
     likes: number;
     comments: number;
-    createAt: string;
     content: string;
-    images: IImage[];
-    videos: IVideo[];
+    images: IFile[];
+    videos: IFile[];
+    isLiked: boolean;
+    isFollowed: boolean;
+    createdAt: string;
+    origin?: IOrigin;
+}
+
+export interface IOrigin {
+    id: number;
+    caption: string;
+    createdAt: string;
+    images: IFile[];
+    videos: IFile[];
+    user: {
+        id: number;
+        username: string;
+        createdAt: string;
+        profile: {
+            id: number;
+            avatar: string;
+            avatarPublicId: any;
+            backgroundPublicId: any;
+        };
+    };
 }

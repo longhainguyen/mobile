@@ -26,6 +26,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/Store';
 import { IImage, IPost, IVideo, ItemItemProps } from '../../type/Post.type';
 import request from '../../config/request';
+import mime from 'mime';
 const { height, width } = Dimensions.get('window');
 
 export default function Post({ navigation }: any) {
@@ -36,6 +37,7 @@ export default function Post({ navigation }: any) {
     const [listItem, setListItem] = useState<ItemItemProps[]>([]);
 
     const handleSubmit = async () => {
+        Keyboard.dismiss();
         const formData = new FormData();
         setIsLoading(true);
         if (listItem.length == 0 && content === '') {
@@ -48,82 +50,58 @@ export default function Post({ navigation }: any) {
         });
 
         formData.append('caption', content);
-        var images: IImage[] = [];
+
         for (var i = 0; i < listImageFiltered.length; i++) {
-            var _image: IImage = {
-                name: listImageFiltered[i].name,
-                type: listImageFiltered[i].type,
-                uri: listImageFiltered[i].uri,
+            const newImageUri = 'file:///' + listImageFiltered[i].uri.split('file:/').join('');
+            const _image = {
+                uri: newImageUri,
+                type: mime.getType(newImageUri),
+                name: newImageUri.split('/').pop(),
             };
 
-            const r = await fetch(_image.uri);
-            const _blobImage = await r.blob();
-
-            formData.append('images', _blobImage, _image.name);
+            formData.append('images', _image);
         }
-
-        // const r = await fetch(listImageFiltered[0].uri);
-        // const _blobImage = await r.blob();
-
-        // formData.append('images', _blobImage, listImageFiltered[0].name);
-        // var images: IImage[] = [];
-        // listImageFiltered.map(async (image) => {
-        //     var _image: IImage = {
-        //         name: image.name,
-        //         type: image.type,
-        //         uri: image.uri,
-        //     };
-
-        //     const r = await fetch(_image.uri);
-        //     const _blobImage = await r.blob();
-
-        //     formData.append('images', _blobImage, _image.name);
-        //     // console.log(formData);
-        // });
 
         var listVideoFiltered = listItem.filter((item) => {
             return item.type === 'video';
         });
 
-        var videos: Blob[] = [];
-        listVideoFiltered.map(async (video) => {
-            var _video: IVideo = {
-                name: video.name,
-                type: video.type,
-                uri: video.uri,
+        for (var i = 0; i < listVideoFiltered.length; i++) {
+            const newVideoUri = 'file:///' + listVideoFiltered[i].uri.split('file:/').join('');
+            const _video = {
+                uri: newVideoUri,
+                type: mime.getType(newVideoUri),
+                name: newVideoUri.split('/').pop(),
             };
 
-            const r = await fetch(_video.uri);
-            const _blobVideo = await r.blob();
-
-            formData.append('videos', _blobVideo, _video.name);
-        });
-
-        console.log(formData);
+            formData.append('videos', _video);
+        }
 
         await request
             .postForm(`/posts/create-post/${stateUser.id}`, formData, {
                 headers: {
+                    accept: 'application/json',
                     'Content-Type': 'multipart/form-data',
                 },
             })
             .then((response) => {
-                console.log(response.data);
-
+                console.log(JSON.stringify(response.data));
                 setIsLoading(false);
-                // setListItem([]);
-                // setContent('');
-                // createTwoButtonAlert({
-                //     title: 'Tạo post mới',
-                //     content: 'Thành công',
-                //     navigateToHome: navigation.navigate('Home'),
-                // });
+                createTwoButtonAlert({
+                    title: 'Tạo bài viết mới',
+                    content: 'Thành công',
+                    navigateToHome: navigation.navigate('Home'),
+                });
             })
-            .catch((e) => {
-                console.log(e);
-
+            .catch((error) => {
+                console.log(error);
                 setIsLoading(false);
                 createTwoButtonAlert({ title: 'Tạo post mới', content: 'Thất bại' });
+            })
+            .finally(() => {
+                setIsLoading(false);
+                setContent('');
+                setListItem([]);
             });
     };
     const hanleDeleteItem = (id: string) => {
@@ -157,7 +135,7 @@ export default function Post({ navigation }: any) {
                 };
                 listImageUri.push(image);
             });
-            setListItem(listImageUri);
+            setListItem(listItem.concat(listImageUri));
         }
     };
 

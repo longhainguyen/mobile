@@ -19,16 +19,24 @@ import { FONT, FONT_SIZE } from '../constants/font';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { likePost } from '../api/getPost';
+import ShareView from './home/Share';
+import { IShared } from '../type/ResultSearch.type';
 
 const { height, width } = Dimensions.get('window');
 
 interface InteractProp {
-    share: number;
+    share: IShared[];
     like: number;
+    postId: number;
+    userId: number;
+    isLike: boolean;
+    isFollow: boolean;
     comment: number;
     borderTopWidth?: number;
     avatar: any;
     atHome?: boolean;
+    openShare?: () => void;
     openComment?: () => void;
 }
 
@@ -38,47 +46,42 @@ const Interact: React.FC<InteractProp> = ({
     like,
     comment,
     openComment,
+    postId,
+    userId,
+    isLike,
+    isFollow,
     avatar,
+    openShare,
     atHome = false,
 }) => {
-    const [isKeyboardDidShow, setIsKeyboardDidShow] = useState(false);
-    const [viewHeight, setViewHeight] = useState(0);
-    const [modalVisible, setModalVisible] = useState(false);
-    const [keyboardHeight, setKeyboardHeight] = useState(0);
+    const [openShareView, setOpenShareView] = useState(false);
+    const [_isLike, set_Islike] = useState(isLike);
+    const [likeCount, setLikeCount] = useState(like);
 
-    const snapPoints = useMemo(() => ['40%', '60%', '80%', '100%'], []);
+    const handleLike = async () => {
+        const response = await likePost({
+            postId: postId,
+            userId: userId,
+        });
+        if (response.status === 201) {
+            if (!_isLike) {
+                setLikeCount(likeCount + 1);
+            }
+            if (_isLike) {
+                setLikeCount(likeCount - 1);
+            }
 
-    const bottomSheet = useRef<BottomSheet>(null);
-
-    const onLayout = (event: { nativeEvent: { layout: { height: any } } }) => {
-        const { height } = event.nativeEvent.layout;
-
-        setViewHeight(height);
-    };
-
-    const turnOffModal = (heightPadding: number) => {
-        if (Math.round(heightPadding) == Math.round(height / 5.5)) {
-            Keyboard.dismiss();
-        } else {
-            setModalVisible(!modalVisible);
+            set_Islike(!_isLike);
         }
     };
 
-    useEffect(() => {
-        const showSubscription = Keyboard.addListener('keyboardDidShow', (event) => {
-            setKeyboardHeight(event.endCoordinates.height);
-            setIsKeyboardDidShow(true);
-        });
-        const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
-            setKeyboardHeight(0);
-            setIsKeyboardDidShow(false);
-        });
+    const handleSharePost = (postId: number) => {
+        console.log(postId);
+    };
 
-        return () => {
-            showSubscription.remove();
-            hideSubscription.remove();
-        };
-    }, []);
+    useEffect(() => {
+        setLikeCount(like);
+    }, [like]);
 
     return (
         <View
@@ -101,6 +104,7 @@ const Interact: React.FC<InteractProp> = ({
                     justifyContent: 'center',
                     alignItems: 'center',
                 }}
+                onPress={openShare}
             >
                 <AntDesign
                     name="sharealt"
@@ -118,25 +122,31 @@ const Interact: React.FC<InteractProp> = ({
                         fontSize: FONT_SIZE.small,
                     }}
                 >
-                    {share}
+                    {share.length}
                 </Text>
             </TouchableOpacity>
             <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
                 <TouchableOpacity
+                    onPress={handleLike}
                     style={{
                         flexDirection: 'row',
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}
                 >
-                    <AntDesign
-                        name="hearto"
-                        size={18}
-                        color="black"
-                        style={{
-                            marginBottom: 2,
-                        }}
-                    />
+                    {_isLike ? (
+                        <AntDesign name="heart" size={18} color="red" />
+                    ) : (
+                        <AntDesign
+                            name="hearto"
+                            size={18}
+                            color="black"
+                            style={{
+                                marginBottom: 2,
+                            }}
+                        />
+                    )}
+
                     <Text
                         style={{
                             textAlign: 'center',
@@ -145,7 +155,7 @@ const Interact: React.FC<InteractProp> = ({
                             fontSize: FONT_SIZE.small,
                         }}
                     >
-                        {like}
+                        {likeCount + ''}
                     </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -173,138 +183,10 @@ const Interact: React.FC<InteractProp> = ({
                             fontSize: FONT_SIZE.small,
                         }}
                     >
-                        {comment}
+                        {comment + ''}
                     </Text>
                 </TouchableOpacity>
             </View>
-
-            {/* <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                ref={modalRef}
-                onRequestClose={() => {
-                    setModalVisible(!modalVisible);
-                }}
-            >
-                <Pressable
-                    onLayout={onLayout}
-                    onPress={() => turnOffModal(viewHeight)}
-                    style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        zIndex: -1,
-                        backgroundColor: modalVisible ? 'rgba(0, 0, 0, 0.5)' : 'transparent',
-                        opacity: 0.5,
-                    }}
-                ></Pressable>
-
-                <View
-                    style={{
-                        backgroundColor: COLORS.white,
-                        borderRadius: 20,
-                        shadowColor: COLORS.shadowColor,
-                        marginTop: atHome ? height - height / 1.03 : height - height / 1.7,
-                        height: atHome
-                            ? isKeyboardDidShow
-                                ? height / 1.03 - keyboardHeight
-                                : height / 1.03
-                            : isKeyboardDidShow
-                            ? height / 1.7 - keyboardHeight
-                            : height / 1.7,
-                        shadowOffset: {
-                            width: 0,
-                            height: 2,
-                        },
-                        shadowOpacity: 0.25,
-                        shadowRadius: 4,
-                        elevation: 5,
-                    }}
-                >
-                    <View
-                        style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            borderBottomWidth: 2,
-                            height: 30,
-                            borderColor: COLORS.borderColor,
-                            marginHorizontal: 15,
-                        }}
-                    >
-                        <Text
-                            style={{
-                                textAlign: 'center',
-                                fontFamily: FONT.regular,
-                                fontSize: FONT_SIZE.small,
-                            }}
-                        >
-                            Bình luận{' '}
-                        </Text>
-                    </View>
-                    <ScrollView
-                        style={{ marginTop: 40, maxHeight: atHome ? height / 1.2 : height / 2.3 }}
-                    >
-                        <View
-                            style={{
-                                height: 1000,
-                                backgroundColor: COLORS.gray,
-                                marginHorizontal: 15,
-                            }}
-                        ></View>
-                    </ScrollView>
-
-                    <View
-                        style={{
-                            position: 'absolute',
-                            bottom: 0,
-                            flexDirection: 'row',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            marginHorizontal: 10,
-                            paddingVertical: 10,
-                        }}
-                    >
-                        <Image
-                            source={avatar}
-                            style={{
-                                borderRadius: 50,
-                                height: 50,
-                                width: 50,
-                                borderWidth: 2,
-                                borderColor: COLORS.background,
-                            }}
-                        />
-                        <View
-                            style={{
-                                paddingVertical: 10,
-                                flex: 1,
-                                backgroundColor: COLORS.lightWhite,
-                                borderRadius: 30,
-                                borderWidth: 1,
-                                borderColor: COLORS.gray,
-                            }}
-                        >
-                            <TextInput
-                                placeholder="Thêm bình luận..."
-                                multiline={true}
-                                placeholderTextColor={COLORS.darkText}
-                                style={{
-                                    backgroundColor: COLORS.lightWhite,
-                                    fontFamily: FONT.regular,
-                                    marginHorizontal: 15,
-                                    fontSize: FONT_SIZE.small,
-                                    paddingRight: 2,
-                                }}
-                            ></TextInput>
-                        </View>
-                    </View>
-                </View>
-            </Modal> */}
         </View>
     );
 };
