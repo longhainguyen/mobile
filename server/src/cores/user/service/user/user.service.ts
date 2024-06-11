@@ -23,10 +23,12 @@ export class UserService {
         @InjectRepository(PostEntity) private PostReposity: Repository<PostEntity>,
         private readonly bcryptService: BcryptService,
     ) {}
-    getUsers() {
-        return this.UserReposity.find({
+
+    getUserById(userId: number) {
+        return this.UserReposity.findOne({
             select: ['id', 'username'],
             relations: ['profile', 'followers', 'followings'],
+            where: { id: userId },
         });
     }
 
