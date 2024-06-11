@@ -78,6 +78,7 @@ export default function Posts({ keyWord, navigation, jumpTo }: PostsProp) {
                     isLiked: post.isLiked,
                     createdAt: post.createdAt,
                     origin: post.origin,
+                    isPublic: post.isPublic,
                 };
                 _postList.push(_post);
             });
@@ -91,11 +92,12 @@ export default function Posts({ keyWord, navigation, jumpTo }: PostsProp) {
         index: number,
         post_id: string,
         avatarUserOwn: any,
-
+        postOpen: IPost,
         bottemSheetInstance: BottomSheet | null,
         lengthComment: number,
     ) => {
         setLengthComment(lengthComment);
+        setPostOpen(postOpen);
         bottemSheetInstance?.snapToIndex(index);
         setAvartarUserOwnPost(avatarUserOwn);
         setPostIdOpen(post_id);
@@ -277,6 +279,7 @@ export default function Posts({ keyWord, navigation, jumpTo }: PostsProp) {
                                         0,
                                         item.id,
                                         stateUser.profile.avatar,
+                                        item,
                                         bottemSheetComment.current,
                                         item.comments,
                                     )
@@ -337,6 +340,7 @@ export default function Posts({ keyWord, navigation, jumpTo }: PostsProp) {
                 <NoResultsScreen />
             )}
             <Comment
+                postOpen={postOpen}
                 userId={parseInt(stateUser.id)}
                 postId={postIdOpen}
                 lengthComment={lengthComment}

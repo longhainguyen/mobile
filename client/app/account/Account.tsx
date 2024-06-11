@@ -136,11 +136,12 @@ export default function Account({ navigation }: any) {
         index: number,
         post_id: string,
         avatarUserOwn: any,
-
+        postOpen: IPost,
         bottemSheetInstance: BottomSheet | null,
         lengthComment: number,
     ) => {
         setLengthComment(lengthComment);
+        setPostOpen(postOpen);
         bottemSheetInstance?.snapToIndex(index);
         setAvartarUserOwnPost(avatarUserOwn);
         setPostIdOpen(post_id);
@@ -382,6 +383,7 @@ export default function Account({ navigation }: any) {
                                         0,
                                         item.id,
                                         stateUser.profile.avatar,
+                                        item,
                                         bottemSheetComment.current,
                                         item.comments,
                                     )
@@ -444,6 +446,7 @@ export default function Account({ navigation }: any) {
             </View>
 
             <Comment
+                postOpen={postOpen}
                 userId={parseInt(stateUser.id)}
                 postId={postIdOpen}
                 lengthComment={lengthComment}

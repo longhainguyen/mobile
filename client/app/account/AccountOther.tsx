@@ -26,6 +26,7 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import Comment from '../../compoments/Comment';
 import ShareView from '../../compoments/home/Share';
 import Option from '../../compoments/home/Option';
+import { IPostOfSearch } from '../../type/ResultSearch.type';
 
 type AccountOtherProps = {
     route: any;
@@ -97,11 +98,12 @@ const AccountOther = ({ route, navigation }: AccountOtherProps) => {
         index: number,
         post_id: string,
         avatarUserOwn: any,
-
+        postOpen: IPost,
         bottemSheetInstance: BottomSheet | null,
         lengthComment: number,
     ) => {
         setLengthComment(lengthComment);
+        setPostOpen(postOpen);
         bottemSheetInstance?.snapToIndex(index);
         setAvartarUserOwnPost(avatarUserOwn);
         setPostIdOpen(post_id);
@@ -124,7 +126,6 @@ const AccountOther = ({ route, navigation }: AccountOtherProps) => {
             <Animated.View
                 style={{
                     elevation: 4,
-                    zIndex: 100,
                     transform: [{ translateY: translateY }],
                 }}
             >
@@ -351,6 +352,7 @@ const AccountOther = ({ route, navigation }: AccountOtherProps) => {
                                     0,
                                     item.id,
                                     stateUser.profile.avatar,
+                                    item,
                                     bottemSheetComment.current,
                                     item.comments,
                                 )
@@ -360,6 +362,7 @@ const AccountOther = ({ route, navigation }: AccountOtherProps) => {
                 )}
             ></FlatList>
             <Comment
+                postOpen={postOpen}
                 userId={parseInt(stateUser.id)}
                 postId={postIdOpen}
                 lengthComment={lengthComment}

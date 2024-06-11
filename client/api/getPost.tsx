@@ -1,5 +1,6 @@
 import request from '../config/request';
 import { IFile, IImage, IPost, IVideo } from '../type/Post.type';
+import { IPostOfSearch } from '../type/ResultSearch.type';
 
 export interface IPostHome {
     id: number;
@@ -45,7 +46,7 @@ export interface IPostHome {
     isFollowed: boolean;
 }
 interface IResponseGetPostHome {
-    data: IPostHome[];
+    data: IPostOfSearch[];
     message?: string;
     status: number;
 }
@@ -114,6 +115,7 @@ const getDataById = async (_page: number, _limit: number, idUser: string, postLi
                 createdAt: post.createdAt,
                 origin: post.origin,
                 background: post.user.profile.background,
+                isPublic: post.isPublic,
             });
         });
 

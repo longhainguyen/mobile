@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     View,
     StyleSheet,
@@ -22,6 +22,12 @@ import { RootState } from '../../redux/Store';
 import PostContent from '../../compoments/PostContent';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation';
+import { MaterialIcons } from '@expo/vector-icons';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import OptionPrivacyrights from '../../compoments/post/OptionPrivacyrights';
+import BottomSheet from '@gorhom/bottom-sheet';
+import OptionPrivacyIcon from '../../compoments/post/OptionPrivacyIcon';
+import { updateCommentMode } from '../../api/commetMode.api';
 
 // type RootStackParamList = {
 //     EditPost: { post: IPost };
@@ -41,6 +47,9 @@ export default function EditPost({ route, navigation }: EditPostProps) {
     const color = useThemeColor({}, 'primary');
     const [listItem, setListItem] = useState<ItemItemProps[]>([]);
     const stateUser = useSelector((state: RootState) => state.reducerUser);
+    const optionPrivacyrightRef = useRef<BottomSheet>(null);
+    const [statusModeComment, setStatusModeComment] = useState('');
+    const [pravicyEye, setPravicyEye] = useState('');
 
     useEffect(() => {
         if (!route.params) {
@@ -98,10 +107,37 @@ export default function EditPost({ route, navigation }: EditPostProps) {
             setListItem(listItem.concat(listImageUri));
         }
     };
+
+    const handleUpdate = async () => {
+        try {
+            const response = await updateCommentMode(route.params?.post.id + '');
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     return (
-        <View style={{ flex: 1, marginTop: 15 }}>
+        <GestureHandlerRootView style={{ flex: 1, marginTop: 15 }}>
             <ButtonBack title="Edit Post" onBack={() => navigation.goBack()} />
             <View style={{ height: 100 }}></View>
+            <View
+                style={{
+                    paddingVertical: 10,
+                    borderWidth: 2,
+                    marginHorizontal: 10,
+                    borderRadius: 10,
+                    borderColor: COLORS.borderColor,
+                    flexDirection: 'row',
+                    justifyContent: 'flex-end',
+                }}
+            >
+                <OptionPrivacyIcon
+                    status={statusModeComment}
+                    IconComponent={<MaterialIcons name="comment" size={24} color="black" />}
+                    optionPrivacyrightRef={optionPrivacyrightRef}
+                />
+            </View>
+
             <TextInput
                 placeholder="What do you think"
                 value={content}
@@ -115,7 +151,12 @@ export default function EditPost({ route, navigation }: EditPostProps) {
                 <TouchableOpacity onPress={handlePickImage}>
                     <Feather name="image" size={24} color={color} />
                 </TouchableOpacity>
-                <Button title="Update" />
+                <Button
+                    title="Update"
+                    onPress={async () => {
+                        await handleUpdate();
+                    }}
+                />
             </Card>
             {listItem.length > 0 && (
                 <FlatList
@@ -158,6 +199,7 @@ export default function EditPost({ route, navigation }: EditPostProps) {
                         }}
                     >
                         <UserIcon
+                            id={route.params.post.idUser}
                             avatar={{ uri: route.params.post.origin.user.profile.avatar }}
                             width={30}
                             height={30}
@@ -214,7 +256,12 @@ export default function EditPost({ route, navigation }: EditPostProps) {
                     </View>
                 )}
             </ScrollView>
-        </View>
+            <OptionPrivacyrights
+                idPost={route.params?.post.id + ''}
+                ref={optionPrivacyrightRef}
+                setStatusModeComment={setStatusModeComment}
+            />
+        </GestureHandlerRootView>
     );
 }
 

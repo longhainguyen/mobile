@@ -37,6 +37,7 @@ import { postComment } from '../../api/comment.api';
 import { IPostHome, getPostHome } from '../../api/getPost';
 import ShareView from '../../compoments/home/Share';
 import Option from '../../compoments/home/Option';
+import { IPostOfSearch } from '../../type/ResultSearch.type';
 
 const { height, width } = Dimensions.get('window');
 
@@ -83,7 +84,7 @@ export default function Home({ navigation }: any) {
             .then((result) => {
                 var _postList: IPost[] = []; // Initialize _postList
 
-                result.data.map((post: IPostHome) => {
+                result.data.map((post: IPostOfSearch) => {
                     const _post: IPost = {
                         id: post.id + '',
                         content: post.caption,
@@ -100,6 +101,7 @@ export default function Home({ navigation }: any) {
                         isLiked: post.isLiked,
                         createdAt: post.createdAt,
                         origin: post.origin,
+                        isPublic: post.isPublic,
                     };
                     _postList.push(_post);
                 });
@@ -121,11 +123,12 @@ export default function Home({ navigation }: any) {
         index: number,
         post_id: string,
         avatarUserOwn: any,
-
+        postOpen: IPost,
         bottemSheetInstance: BottomSheet | null,
         lengthComment: number,
     ) => {
         setLengthComment(lengthComment);
+        setPostOpen(postOpen);
         bottemSheetInstance?.snapToIndex(index);
         setAvartarUserOwnPost(avatarUserOwn);
         setPostIdOpen(post_id);
@@ -361,6 +364,7 @@ export default function Home({ navigation }: any) {
                                     0,
                                     item.id,
                                     stateUser.profile.avatar,
+                                    item,
                                     bottemSheetComment.current,
                                     item.comments,
                                 )
@@ -420,6 +424,7 @@ export default function Home({ navigation }: any) {
             <View style={{ height: 50 }}></View>
 
             <Comment
+                postOpen={postOpen}
                 userId={parseInt(stateUser.id)}
                 postId={postIdOpen}
                 lengthComment={lengthComment}

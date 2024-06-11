@@ -37,6 +37,8 @@ import UserData from '../dataTemp/UserData';
 import { IComment } from '../type/Comment.type';
 import { MaterialIcons } from '@expo/vector-icons';
 import moment from 'moment';
+import { IPostOfSearch } from '../type/ResultSearch.type';
+import { IPost } from '../type/Post.type';
 
 const { height, width } = Dimensions.get('window');
 
@@ -48,6 +50,7 @@ interface Props {
     comment?: string;
     atSinglePost?: boolean;
     lengthComment: number;
+    postOpen?: IPost;
 }
 
 type Ref = BottomSheet;
@@ -293,6 +296,7 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
             snapPoints={props.atSinglePost ? snapPoints : snapPointsHome}
             enablePanDownToClose={true}
             index={-1}
+            style={{ zIndex: 1000 }}
             backdropComponent={renderBackdrop}
             onChange={handleSheetChanges}
             backgroundStyle={{ backgroundColor: COLORS.lightWhite }}
@@ -391,41 +395,56 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
                         }}
                     />
 
-                    <TextInput
-                        ref={inputRef}
-                        placeholder="Thêm bình luận..."
-                        multiline={true}
-                        value={text}
-                        onChangeText={onChangeText}
-                        placeholderTextColor={COLORS.darkText}
-                        style={{
-                            borderRadius: 30,
-                            fontSize: FONT_SIZE.small,
-                            lineHeight: 20,
-                            padding: 8,
-                            flex: 1,
-                            backgroundColor: 'rgba(151, 151, 151, 0.25)',
-                            fontFamily: FONT.regular,
-                            marginBottom: 10,
-                            marginRight: 10,
-                        }}
-                    ></TextInput>
-
-                    <TouchableOpacity
-                        onPress={handlePostComment}
-                        style={{
-                            backgroundColor: COLORS.gray,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            marginRight: 5,
-                            marginBottom: 10,
-                            borderRadius: 50,
-                            width: 35,
-                            height: 35,
-                        }}
-                    >
-                        <AntDesign name="arrowup" size={24} color="black" />
-                    </TouchableOpacity>
+                    {props.postOpen?.isPublic === false && props.userId + '' !== stateUser.id ? (
+                        <View style={{ flex: 1 }}>
+                            <Text
+                                style={{
+                                    marginLeft: 30,
+                                    fontFamily: FONT.regular,
+                                    fontSize: FONT_SIZE.small,
+                                }}
+                            >
+                                Bạn không có quyền bình luận
+                            </Text>
+                        </View>
+                    ) : (
+                        <>
+                            <TextInput
+                                ref={inputRef}
+                                placeholder="Thêm bình luận..."
+                                multiline={true}
+                                value={text}
+                                onChangeText={onChangeText}
+                                placeholderTextColor={COLORS.darkText}
+                                style={{
+                                    borderRadius: 30,
+                                    fontSize: FONT_SIZE.small,
+                                    lineHeight: 20,
+                                    padding: 8,
+                                    flex: 1,
+                                    backgroundColor: 'rgba(151, 151, 151, 0.25)',
+                                    fontFamily: FONT.regular,
+                                    marginBottom: 10,
+                                    marginRight: 10,
+                                }}
+                            ></TextInput>
+                            <TouchableOpacity
+                                onPress={handlePostComment}
+                                style={{
+                                    backgroundColor: COLORS.gray,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    marginRight: 5,
+                                    marginBottom: 10,
+                                    borderRadius: 50,
+                                    width: 35,
+                                    height: 35,
+                                }}
+                            >
+                                <AntDesign name="arrowup" size={24} color="black" />
+                            </TouchableOpacity>
+                        </>
+                    )}
                 </>
             </BottomSheetView>
         </BottomSheet>

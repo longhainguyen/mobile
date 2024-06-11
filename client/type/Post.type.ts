@@ -28,6 +28,7 @@ export interface IPost {
     id: string;
     idUser: string;
     userName: string;
+    isPublic: boolean;
     background: string;
     avartar: string;
     shares: IShared[];

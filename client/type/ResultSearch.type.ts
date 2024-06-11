@@ -4,7 +4,7 @@ import { IUser } from './User.type';
 export interface IPostOfSearch {
     id: number;
     caption: string;
-    isPulich: string;
+    isPublic: boolean;
     createdAt: string;
     images: IFile[];
     videos: IFile[];
