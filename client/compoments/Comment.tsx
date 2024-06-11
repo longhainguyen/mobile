@@ -24,6 +24,10 @@ import {
     Dimensions,
     KeyboardAvoidingView,
     Pressable,
+    Modal,
+    StyleSheet,
+    Button,
+    Alert,
 } from 'react-native';
 import { COLORS } from '../constants';
 import { FONT, FONT_SIZE } from '../constants/font';
@@ -32,13 +36,15 @@ import { AntDesign } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { decremented, setState } from '../redux/stateComment/stateComment';
 import { RootState, store } from '../redux/Store';
-import { getComment, postComment } from '../api/comment.api';
+import { adjustCommentApi, getComment, postComment } from '../api/comment.api';
 import UserData from '../dataTemp/UserData';
 import { IComment } from '../type/Comment.type';
 import { MaterialIcons } from '@expo/vector-icons';
 import moment from 'moment';
 import { IPostOfSearch } from '../type/ResultSearch.type';
 import { IPost } from '../type/Post.type';
+import { Entypo } from '@expo/vector-icons';
+import OptionIcon from './home/OptionIcon';
 
 const { height, width } = Dimensions.get('window');
 
@@ -69,11 +75,20 @@ const Item = ({
     setParentId,
     setPlaceholderInComment,
     scrollToIndex,
+    postId,
 }: ItemCommentProps & { setParentId: (index: number) => void } & {
     setPlaceholderInComment: (text: string) => void;
-} & { scrollToIndex: (index: number) => void }) => {
+} & { scrollToIndex: (index: number) => void } & { postId: string }) => {
+    const [modalVisible, setModalVisible] = useState(false);
     const [display, setDisplay] = useState(false);
     const flatListRef = useRef<FlatList>(null);
+    const stateUser = useSelector((state: RootState) => state.reducerUser);
+    const [commetAdjust, setCommetAdjust] = useState('');
+    const [adjustDisplay, setAdjustDisplay] = useState(false);
+    const [height, setHeight] = useState(40);
+    const [contentComment, setContenComment] = useState(content);
+    const [createdAtComment, setCreatedAtCommet] = useState(createdAt);
+    const MAX_HEIGHT = 80;
 
     const handleAnswer = () => {
         if (input_answer?.current) {
@@ -93,116 +108,229 @@ const Item = ({
         }
     };
 
-    return (
-        <View
-            style={{
-                flexDirection: 'row',
-                alignItems: 'flex-start',
-                paddingBottom: 10,
-                marginLeft: 10,
-                marginTop: 10,
-            }}
-        >
-            <Image
-                style={{
-                    borderRadius: 50,
-                    height: 35,
-                    width: 35,
-                    borderWidth: 2,
-                    borderColor: COLORS.background,
-                }}
-                source={{ uri: user.profile.avatar }}
-            />
+    const handleAdjustComment = async (newContent: string) => {
+        try {
+            const response = await adjustCommentApi(
+                postId,
+                newContent,
+                parseInt(user.id),
+                parseInt(id + ''),
+            );
+            // console.log(response.data);
+            setContenComment(response.data.content);
+            setCreatedAtCommet(response.data.createdAt);
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
+    return (
+        <View>
             <View
                 style={{
+                    flexDirection: 'row',
                     alignItems: 'flex-start',
-                    justifyContent: 'center',
-                    marginLeft: 5,
+                    paddingHorizontal: 10,
+                    paddingBottom: 10,
+                    marginLeft: 10,
+                    marginTop: 10,
                 }}
             >
-                <View style={{ flexDirection: 'row' }}>
-                    <Text style={{ fontFamily: FONT.bold, fontSize: FONT_SIZE.small }}>
-                        {user.username}{' '}
-                    </Text>
-                </View>
+                <Image
+                    style={{
+                        borderRadius: 50,
+                        height: 35,
+                        width: 35,
+                        borderWidth: 2,
+                        borderColor: COLORS.background,
+                    }}
+                    source={{ uri: user.profile.avatar }}
+                />
 
                 <View
                     style={{
-                        flexDirection: 'row',
-                        flexShrink: 1,
-                        maxWidth: width / 1.19,
+                        alignItems: 'flex-start',
+                        justifyContent: 'center',
+                        marginLeft: 5,
+                        width: '88%',
                     }}
                 >
-                    <Text
-                        style={{
-                            fontFamily: FONT.regular,
-                            fontSize: FONT_SIZE.small,
-                        }}
-                    >
-                        {content}
-                    </Text>
-                </View>
-                <View style={{ flexDirection: 'row', gap: 15 }}>
-                    <View>
-                        <Text style={{ color: COLORS.gray }}>
-                            {moment(createdAt).startOf('minutes').fromNow()}
+                    <View style={{ flexDirection: 'row' }}>
+                        <Text style={{ fontFamily: FONT.bold, fontSize: FONT_SIZE.small }}>
+                            {user.username}{' '}
                         </Text>
                     </View>
-                    <TouchableOpacity
-                        onPress={() => {
-                            handleAnswer();
+
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            flexShrink: 1,
+                            maxWidth: width / 1.19,
                         }}
                     >
-                        <Text style={{ color: COLORS.gray }}>Trả lời</Text>
-                    </TouchableOpacity>
-                </View>
+                        <Text
+                            style={{
+                                fontFamily: FONT.regular,
+                                fontSize: FONT_SIZE.small,
+                            }}
+                        >
+                            {contentComment}
+                        </Text>
+                    </View>
+                    <View style={{ flexDirection: 'row', gap: 15 }}>
+                        <View>
+                            <Text style={{ color: COLORS.gray }}>
+                                {moment(createdAtComment).startOf('minutes').fromNow()}
+                            </Text>
+                        </View>
+                        <TouchableOpacity
+                            onPress={() => {
+                                handleAnswer();
+                            }}
+                        >
+                            <Text style={{ color: COLORS.gray }}>Trả lời</Text>
+                        </TouchableOpacity>
+                    </View>
 
-                {childrens && childrens.length > 0 && (
-                    <>
-                        {display === true ? (
-                            <FlatList
-                                ref={flatListRef}
-                                data={childrens}
-                                renderItem={({ item }: { item: ItemCommentProps }) => (
-                                    <Item
-                                        scrollToIndex={() => {
-                                            // console.log(item.id);
-                                            scrollToIndexInChildren(item.id, childrens);
-                                            // scrollToIndex(item.id);
-                                        }}
-                                        setPlaceholderInComment={setPlaceholderInComment}
-                                        childrens={item.childrens}
-                                        content={item.content}
-                                        createdAt={item.createdAt}
-                                        id={item.id}
-                                        user={item.user}
-                                        input_answer={input_answer}
-                                        setParentId={setParentId}
-                                    />
-                                )}
-                            ></FlatList>
-                        ) : (
-                            <TouchableOpacity
-                                style={{}}
-                                onPress={() => {
-                                    setDisplay(true);
-                                }}
-                            >
-                                <Text
-                                    style={{
-                                        fontFamily: FONT.bold,
-                                        fontSize: FONT_SIZE.small,
-                                        color: COLORS.darkText,
+                    {childrens && childrens.length > 0 && (
+                        <>
+                            {display === true ? (
+                                <FlatList
+                                    ref={flatListRef}
+                                    data={childrens}
+                                    renderItem={({ item }: { item: ItemCommentProps }) => (
+                                        <Item
+                                            postId={postId}
+                                            scrollToIndex={() => {
+                                                // console.log(item.id);
+                                                scrollToIndexInChildren(item.id, childrens);
+                                                // scrollToIndex(item.id);
+                                            }}
+                                            setPlaceholderInComment={setPlaceholderInComment}
+                                            childrens={item.childrens}
+                                            content={item.content}
+                                            createdAt={item.createdAt}
+                                            id={item.id}
+                                            user={item.user}
+                                            input_answer={input_answer}
+                                            setParentId={setParentId}
+                                        />
+                                    )}
+                                ></FlatList>
+                            ) : (
+                                <TouchableOpacity
+                                    style={{}}
+                                    onPress={() => {
+                                        setDisplay(true);
                                     }}
                                 >
-                                    Xem thêm {childrens.length} câu trả lời ...
-                                </Text>
-                            </TouchableOpacity>
-                        )}
-                    </>
-                )}
+                                    <Text
+                                        style={{
+                                            fontFamily: FONT.bold,
+                                            fontSize: FONT_SIZE.small,
+                                            color: COLORS.darkText,
+                                        }}
+                                    >
+                                        Xem thêm {childrens.length} câu trả lời ...
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
+                        </>
+                    )}
+                </View>
             </View>
+
+            <TouchableOpacity
+                style={{ position: 'absolute', right: 10, top: 15, padding: 10 }}
+                onPress={() => {
+                    setCommetAdjust(content);
+                    setModalVisible(!modalVisible);
+                }}
+            >
+                <Entypo name="dots-three-vertical" size={15} color="black" />
+            </TouchableOpacity>
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => {
+                    setModalVisible(!modalVisible);
+                }}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        {stateUser.id + '' === user.id + '' ? (
+                            <>
+                                <OptionIcon
+                                    IconComponent={
+                                        <AntDesign name="edit" size={24} color="black" />
+                                    }
+                                    label="Chỉnh sửa"
+                                    onPressOption={() => {
+                                        setAdjustDisplay(!adjustDisplay);
+                                    }}
+                                />
+                                {adjustDisplay && (
+                                    <>
+                                        <TextInput
+                                            multiline={true}
+                                            numberOfLines={4}
+                                            onContentSizeChange={(event) => {
+                                                setHeight(event.nativeEvent.contentSize.height);
+                                            }}
+                                            value={commetAdjust}
+                                            onChangeText={setCommetAdjust}
+                                            style={{
+                                                height: Math.min(MAX_HEIGHT, Math.max(40, height)),
+                                                margin: 12,
+                                                borderWidth: 1,
+                                                padding: 10,
+                                                borderRadius: 10,
+                                            }}
+                                        ></TextInput>
+                                        <View
+                                            style={{
+                                                marginHorizontal: 12,
+                                            }}
+                                        >
+                                            <Button
+                                                color="#f194ff"
+                                                title="Summit"
+                                                onPress={async () => {
+                                                    try {
+                                                        await handleAdjustComment(commetAdjust);
+                                                        setAdjustDisplay(false);
+                                                        Alert.alert('Success');
+                                                    } catch (error) {
+                                                        Alert.alert('Fail');
+                                                    }
+                                                }}
+                                            />
+                                        </View>
+                                    </>
+                                )}
+                            </>
+                        ) : (
+                            <OptionIcon
+                                IconComponent={<AntDesign name="flag" size={24} color="black" />}
+                                label="Báo cáo"
+                                onPressOption={() => {}}
+                            />
+                        )}
+
+                        <AntDesign
+                            name="close"
+                            size={24}
+                            color="black"
+                            onPress={() => {
+                                setModalVisible(!modalVisible);
+                                setAdjustDisplay(false);
+                            }}
+                            style={styles.closeIcon}
+                        />
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 };
@@ -327,6 +455,7 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
                 renderItem={({ item }: { item: IComment }) => (
                     <Pressable>
                         <Item
+                            postId={props.postId}
                             scrollToIndex={scrollToIndex}
                             setPlaceholderInComment={setPlaceholderInComment}
                             setParentId={setParentId}
@@ -464,5 +593,43 @@ const openComment = async (
     // setAvartarUserOwnPost(avatarUserOwn);
     // setPostIdOpen(post_id);
 };
+
+const styles = StyleSheet.create({
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        position: 'absolute',
+        top: height / 2 - 150,
+        left: width / 2 - 150,
+        width: 300,
+        height: 200,
+        backgroundColor: '#fff', // Màu trắng hiện đại
+        borderColor: '#ccc', // Màu viền xám nhạt
+        borderWidth: 2,
+        borderRadius: 15,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.8,
+        shadowRadius: 2,
+        padding: 20,
+        justifyContent: 'center',
+        gap: 2,
+    },
+    closeIcon: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
+    },
+    optionLabel: {
+        fontSize: 16,
+        color: '#333',
+        fontFamily: 'serif', // Sử dụng phông chữ cổ điển
+        marginTop: 10,
+    },
+});
 
 export { openComment };

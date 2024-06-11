@@ -71,9 +71,7 @@ export default function Home({ navigation }: any) {
 
     useEffect(() => {
         try {
-            if (stateUser.id) {
-                getData(0);
-            }
+            getData(0);
         } catch (error) {
             console.log(error);
         }
@@ -155,272 +153,277 @@ export default function Home({ navigation }: any) {
 
     return (
         <GestureHandlerRootView style={{ flex: 1, marginTop: 15 }}>
-            <Animated.View
-                style={{
-                    transform: [{ translateY: translateY }],
-                    elevation: 4,
-                    zIndex: 100,
-                }}
-            >
-                <View
+            <View style={{ backgroundColor: COLORS.lightWhite }}>
+                <Animated.View
                     style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        marginHorizontal: 10,
-                        height: height / 15,
-                        borderBottomWidth: 2,
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        borderColor: COLORS.borderColor,
-                        flexDirection: 'row',
-                        backgroundColor: COLORS.lightWhite,
+                        transform: [{ translateY: translateY }],
+                        elevation: 4,
+                        zIndex: 100,
                     }}
                 >
-                    <TouchableOpacity onPress={scrollToTop}>
-                        <Text style={{ fontFamily: FONT.medium, fontSize: FONT_SIZE.large }}>
-                            Social Network
-                        </Text>
-                    </TouchableOpacity>
+                    <View
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            marginHorizontal: 10,
+                            height: height / 15,
+                            borderBottomWidth: 2,
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            borderColor: COLORS.borderColor,
+                            flexDirection: 'row',
+                            backgroundColor: COLORS.lightWhite,
+                        }}
+                    >
+                        <TouchableOpacity onPress={scrollToTop}>
+                            <Text style={{ fontFamily: FONT.medium, fontSize: FONT_SIZE.large }}>
+                                Social Network
+                            </Text>
+                        </TouchableOpacity>
 
-                    <View style={{ flexDirection: 'row', gap: 3 }}>
-                        <TouchableOpacity
-                            style={{ padding: 5 }}
-                            onPress={() => {
-                                navigation.navigate('Search');
-                            }}
-                        >
-                            <EvilIcons name="search" size={26} color="black" />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={{ padding: 5 }}
-                            onPress={() => {
-                                navigation.navigate('Inform');
-                            }}
-                        >
-                            <EvilIcons name="bell" size={26} color="black" />
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </Animated.View>
-            <FlatList
-                ref={flatListRef}
-                ListHeaderComponent={() => {
-                    return <View style={{ height: 50 }}></View>;
-                }}
-                onScroll={(e) => {
-                    scrollY.setValue(e.nativeEvent.contentOffset.y);
-                }}
-                data={postList}
-                keyExtractor={(item, index) => {
-                    // const keyGenerator = () => '_' + Math.random().toString(36).substr(2, 9);
-                    return index.toString();
-                }}
-                horizontal={false}
-                renderItem={({ item }: { item: IPost }) => (
-                    <View>
-                        <UserIcon
-                            id={item.idUser}
-                            idUserOfPost={item.idUser}
-                            openOption={() => {
-                                handleOpenOption(item.idUser, item, bottemSheetOption.current);
-                            }}
-                            avatar={{ uri: item.avartar }}
-                            width={30}
-                            height={30}
-                            isFollowed={item.isFollowed || false}
-                            userName={item.userName}
-                            isOwner={stateUser.id === item.idUser ? true : false}
-                            openAccount={() => {
-                                if (stateUser.id === item.idUser) {
-                                    navigation.navigate('Account');
-                                } else {
-                                    navigation.navigate('AccountOther', {
-                                        avatar: item.avartar,
-                                        isFollowed: item.isFollowed,
-                                        isOwner: false,
-                                        userName: item.userName,
-                                        idUser: item.idUser,
-                                        cover: item.background,
-                                    });
-                                }
-                            }}
-                        />
-                        <TouchableOpacity
-                            onPress={() =>
-                                navigation.navigate('ShowPost', {
-                                    avatar: item.avartar,
-                                    isFollowed: false,
-                                    userName: item.userName,
-                                    isOwner: item.idUser === stateUser.id ? true : false,
-                                    images: item.images,
-                                    time: item.createdAt,
-                                    description: item.content,
-                                    comment: item.comments,
-                                    like: item.likes,
-                                    isLiked: item.isLiked,
-                                    share: item.shares,
-                                    postId: item.id,
-                                    videos: item.videos,
-                                })
-                            }
-                        >
-                            <PostContent
-                                videos={item.videos}
-                                navigation={navigation}
-                                images={item.images}
-                                time={item.createdAt}
-                                description={item.content}
-                            />
-                        </TouchableOpacity>
-                        {item.origin && (
-                            <View
-                                style={{
-                                    padding: 10,
-                                    marginHorizontal: 10,
-                                    marginVertical: 10,
-                                    borderWidth: 2,
-                                    borderColor: COLORS.borderColor,
-                                    borderRadius: 30,
+                        <View style={{ flexDirection: 'row', gap: 3 }}>
+                            <TouchableOpacity
+                                style={{ padding: 5 }}
+                                onPress={() => {
+                                    navigation.navigate('Search');
                                 }}
                             >
-                                <UserIcon
-                                    id={item.origin.user.id + ''}
-                                    idUserOfPost={item.idUser}
-                                    avatar={{ uri: item.origin.user.profile.avatar }}
-                                    width={30}
-                                    height={30}
-                                    threeDotsDisplay={false}
-                                    userName={item.origin.user.username}
-                                    isOwner={
-                                        stateUser.id === item.origin?.user.id + '' ? true : false
-                                    }
-                                    openAccount={() => {
-                                        if (stateUser.id === item.origin?.user.id + '') {
-                                            navigation.navigate('Account');
-                                        } else {
-                                            navigation.navigate('AccountOther', {
-                                                avatar: item.avartar,
-                                                cover: item.background,
-                                                isFollowed: false,
-                                                isOwner: false,
-                                                userName: item.origin?.user.username,
-                                                idUser: item.origin?.user.id + '',
-                                            });
-                                        }
-                                    }}
-                                />
-                                <TouchableOpacity
-                                    onPress={() =>
-                                        navigation.navigate('ShowPost', {
-                                            avatar: item.origin?.user.profile.avatar,
-                                            isFollowed: item.isFollowed,
-                                            userName: item.origin?.user.username,
-                                            isOwner:
-                                                item.origin?.user.id + '' === stateUser.id
-                                                    ? true
-                                                    : false,
-                                            images: item.origin?.images,
-                                            time: item.origin?.createdAt,
-                                            description: item.origin?.caption,
-                                            comment: item.comments,
-                                            like: item.likes,
-                                            share: item.shares,
-                                            postId: item.id,
-                                            videos: item.videos,
-                                        })
-                                    }
-                                >
-                                    <PostContent
-                                        videos={item.origin.videos}
-                                        navigation={navigation}
-                                        images={item.origin.images}
-                                        time={item.origin.createdAt}
-                                        description={item.origin.caption}
-                                    />
-                                </TouchableOpacity>
-                            </View>
-                        )}
-                        <Interact
-                            isLike={item.isLiked}
-                            postId={parseInt(item.id)}
-                            userId={parseInt(stateUser.id)}
-                            comment={item.comments}
-                            like={item.likes}
-                            share={item.shares}
-                            avatar={item.avartar}
-                            atHome={true}
-                            isFollow={item.isFollowed}
-                            openShare={() => {
-                                openShare(
-                                    parseInt(item.id),
-                                    parseInt(stateUser.id),
-                                    bottemSheetShare.current,
-                                );
-                            }}
-                            openComment={() =>
-                                openComment(
-                                    0,
-                                    item.id,
-                                    stateUser.profile.avatar,
-                                    item,
-                                    bottemSheetComment.current,
-                                    item.comments,
-                                )
-                            }
-                        />
-                    </View>
-                )}
-                refreshControl={
-                    <RefreshControl
-                        refreshing={refreshControl}
-                        onRefresh={async () => {
-                            if (stateUser.id) {
-                                setRefreshControl(true);
-                                setPostList([]);
-                                setPage(0);
-                                setPostList([]);
-                                await getData(page);
-                            }
-
-                            setTimeout(async () => {
-                                setRefreshControl(false);
-                            }, 2000);
-                        }}
-                        colors={[COLORS.green]}
-                    />
-                }
-                ListFooterComponent={
-                    isLoading ? (
-                        <View
-                            style={{
-                                marginTop: 10,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                flexDirection: 'row',
-                                padding: 15,
-                            }}
-                        >
-                            <ActivityIndicator size={'large'} color={COLORS.green} />
+                                <EvilIcons name="search" size={26} color="black" />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={{ padding: 5 }}
+                                onPress={() => {
+                                    navigation.navigate('Inform');
+                                }}
+                            >
+                                <EvilIcons name="bell" size={26} color="black" />
+                            </TouchableOpacity>
                         </View>
-                    ) : null
-                }
-                onEndReached={async () => {
-                    if (postList) {
-                        setIsLoading(true);
-                        console.log(page, 'at home');
+                    </View>
+                </Animated.View>
+                <FlatList
+                    ref={flatListRef}
+                    ListHeaderComponent={() => {
+                        return <View style={{ height: 50 }}></View>;
+                    }}
+                    onScroll={(e) => {
+                        scrollY.setValue(e.nativeEvent.contentOffset.y);
+                    }}
+                    data={postList}
+                    keyExtractor={(item, index) => {
+                        // const keyGenerator = () => '_' + Math.random().toString(36).substr(2, 9);
+                        return index.toString();
+                    }}
+                    horizontal={false}
+                    renderItem={({ item }: { item: IPost }) => (
+                        <View>
+                            <UserIcon
+                                id={item.idUser}
+                                idUserOfPost={item.idUser}
+                                openOption={() => {
+                                    handleOpenOption(item.idUser, item, bottemSheetOption.current);
+                                }}
+                                avatar={{ uri: item.avartar }}
+                                width={30}
+                                height={30}
+                                isFollowed={item.isFollowed || false}
+                                userName={item.userName}
+                                isOwner={stateUser.id === item.idUser ? true : false}
+                                openAccount={() => {
+                                    if (stateUser.id === item.idUser) {
+                                        navigation.navigate('Account');
+                                    } else {
+                                        navigation.navigate('AccountOther', {
+                                            avatar: item.avartar,
+                                            isFollowed: item.isFollowed,
+                                            isOwner: false,
+                                            userName: item.userName,
+                                            idUser: item.idUser,
+                                            cover: item.background,
+                                        });
+                                    }
+                                }}
+                            />
+                            <TouchableOpacity
+                                onPress={() =>
+                                    navigation.navigate('ShowPost', {
+                                        avatar: item.avartar,
+                                        isFollowed: false,
+                                        userName: item.userName,
+                                        isOwner: item.idUser === stateUser.id ? true : false,
+                                        images: item.images,
+                                        time: item.createdAt,
+                                        description: item.content,
+                                        comment: item.comments,
+                                        like: item.likes,
+                                        isLiked: item.isLiked,
+                                        share: item.shares,
+                                        postId: item.id,
+                                        videos: item.videos,
+                                    })
+                                }
+                            >
+                                <PostContent
+                                    videos={item.videos}
+                                    navigation={navigation}
+                                    images={item.images}
+                                    time={item.createdAt}
+                                    description={item.content}
+                                />
+                            </TouchableOpacity>
+                            {item.origin && (
+                                <View
+                                    style={{
+                                        padding: 10,
+                                        marginHorizontal: 10,
+                                        marginVertical: 10,
+                                        borderWidth: 2,
+                                        borderColor: COLORS.borderColor,
+                                        borderRadius: 30,
+                                    }}
+                                >
+                                    <UserIcon
+                                        id={item.origin.user.id + ''}
+                                        idUserOfPost={item.idUser}
+                                        avatar={{ uri: item.origin.user.profile.avatar }}
+                                        width={30}
+                                        height={30}
+                                        threeDotsDisplay={false}
+                                        userName={item.origin.user.username}
+                                        isOwner={
+                                            stateUser.id === item.origin?.user.id + ''
+                                                ? true
+                                                : false
+                                        }
+                                        openAccount={() => {
+                                            if (stateUser.id === item.origin?.user.id + '') {
+                                                navigation.navigate('Account');
+                                            } else {
+                                                navigation.navigate('AccountOther', {
+                                                    avatar: item.avartar,
+                                                    cover: item.background,
+                                                    isFollowed: false,
+                                                    isOwner: false,
+                                                    userName: item.origin?.user.username,
+                                                    idUser: item.origin?.user.id + '',
+                                                });
+                                            }
+                                        }}
+                                    />
+                                    <TouchableOpacity
+                                        onPress={() =>
+                                            navigation.navigate('ShowPost', {
+                                                avatar: item.origin?.user.profile.avatar,
+                                                isFollowed: item.isFollowed,
+                                                userName: item.origin?.user.username,
+                                                isOwner:
+                                                    item.origin?.user.id + '' === stateUser.id
+                                                        ? true
+                                                        : false,
+                                                images: item.origin?.images,
+                                                time: item.origin?.createdAt,
+                                                description: item.origin?.caption,
+                                                comment: item.comments,
+                                                like: item.likes,
+                                                share: item.shares,
+                                                postId: item.id,
+                                                videos: item.videos,
+                                            })
+                                        }
+                                    >
+                                        <PostContent
+                                            videos={item.origin.videos}
+                                            navigation={navigation}
+                                            images={item.origin.images}
+                                            time={item.origin.createdAt}
+                                            description={item.origin.caption}
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                            )}
+                            <Interact
+                                isLike={item.isLiked}
+                                postId={parseInt(item.id)}
+                                userId={parseInt(stateUser.id)}
+                                comment={item.comments}
+                                like={item.likes}
+                                share={item.shares}
+                                avatar={item.avartar}
+                                atHome={true}
+                                isFollow={item.isFollowed}
+                                openShare={() => {
+                                    openShare(
+                                        parseInt(item.id),
+                                        parseInt(stateUser.id),
+                                        bottemSheetShare.current,
+                                    );
+                                }}
+                                openComment={() =>
+                                    openComment(
+                                        0,
+                                        item.id,
+                                        stateUser.profile.avatar,
+                                        item,
+                                        bottemSheetComment.current,
+                                        item.comments,
+                                    )
+                                }
+                            />
+                        </View>
+                    )}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshControl}
+                            onRefresh={async () => {
+                                if (stateUser.id) {
+                                    setRefreshControl(true);
+                                    setPostList([]);
+                                    setPage(0);
+                                    setPostList([]);
+                                    await getData(page);
+                                }
 
-                        await getData(page).then(() => {
-                            setPage(page + 1);
-                        });
-                        setTimeout(async () => {
-                            setIsLoading(false);
-                        }, 2000);
+                                setTimeout(async () => {
+                                    setRefreshControl(false);
+                                }, 2000);
+                            }}
+                            colors={[COLORS.green]}
+                        />
                     }
-                }}
-                onEndReachedThreshold={0.1}
-            />
+                    ListFooterComponent={
+                        isLoading ? (
+                            <View
+                                style={{
+                                    marginTop: 10,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    flexDirection: 'row',
+                                    padding: 15,
+                                }}
+                            >
+                                <ActivityIndicator size={'large'} color={COLORS.green} />
+                            </View>
+                        ) : null
+                    }
+                    onEndReached={async () => {
+                        if (postList) {
+                            setIsLoading(true);
+                            console.log(page, 'at home');
+
+                            await getData(page).then(() => {
+                                setPage(page + 1);
+                            });
+                            setTimeout(async () => {
+                                setIsLoading(false);
+                            }, 2000);
+                        }
+                    }}
+                    onEndReachedThreshold={0.1}
+                />
+            </View>
+
             <View style={{ height: 50 }}></View>
 
             <Comment

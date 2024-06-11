@@ -173,6 +173,8 @@ const Option = forwardRef<Ref, Props>((props, ref) => {
     };
 
     const handleShowAvatar = () => {
+        // console.log(props.user?.id);
+
         props.navigation.navigate('ShowImage', {
             sources: [{ url: props.user?.profile.avatar }],
         });
@@ -259,10 +261,22 @@ const Option = forwardRef<Ref, Props>((props, ref) => {
                         {props.isShowImage && props.isShowImage === true ? (
                             <View>
                                 <OptionIcon
+                                    onPressOption={() => {
+                                        if (props.image === 'avatar') {
+                                            handleShowAvatar();
+                                        } else if (props.image === 'bg') {
+                                            handleShowBG();
+                                        }
+                                    }}
                                     IconComponent={
                                         <Entypo name="resize-full-screen" size={24} color="black" />
                                     }
                                     label="Xem ảnh"
+                                />
+
+                                <OptionIcon
+                                    IconComponent={<Feather name="flag" size={24} color="black" />}
+                                    label="Báo cáo"
                                 />
                             </View>
                         ) : (
