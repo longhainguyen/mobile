@@ -86,9 +86,13 @@ const Item = ({
     const [commetAdjust, setCommetAdjust] = useState('');
     const [adjustDisplay, setAdjustDisplay] = useState(false);
     const [height, setHeight] = useState(40);
-    const [contentComment, setContenComment] = useState(content);
+    const [contentComment, setContentComment] = useState('');
     const [createdAtComment, setCreatedAtCommet] = useState(createdAt);
     const MAX_HEIGHT = 80;
+
+    useEffect(() => {
+        setContentComment(content);
+    }, [content]);
 
     const handleAnswer = () => {
         if (input_answer?.current) {
@@ -117,7 +121,7 @@ const Item = ({
                 parseInt(id + ''),
             );
             // console.log(response.data);
-            setContenComment(response.data.content);
+            setContentComment(response.data.content);
             setCreatedAtCommet(response.data.createdAt);
         } catch (error) {
             console.log(error);
@@ -346,6 +350,11 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
     const inputRef = useRef<TextInput>(null);
     const [answerTo, setAnswerTo] = useState('');
     const [placeholderInComment, setPlaceholderInComment] = useState('');
+    const [lengthComment, setLengthComment] = useState(0);
+
+    useEffect(() => {
+        setLengthComment(props.lengthComment);
+    }, [listComment]);
 
     const clearState = () => {
         setListComment([]);
@@ -368,32 +377,37 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
     }, [stateComment]);
 
     const handlePostComment = async () => {
-        const response = await postComment({
-            content: text,
-            parentId: parentId,
-            postId: props.postId || '',
-            userId: props.userId || -1,
-        });
-        console.log(response);
-        const newComment: IComment = {
-            childrens: [],
-            content: response.content,
-            createdAt: response.createdAt,
-            id: response.id,
-            user: stateUser,
-        };
-        if (parentId === 0) {
-            setListComment([newComment].concat(listComment));
-        } else {
-            listComment.map((comment) => {
-                if (comment.id === parentId) {
-                    comment.childrens.push(newComment);
-                }
+        try {
+            const response = await postComment({
+                content: text,
+                parentId: parentId,
+                postId: props.postId || '',
+                userId: props.userId || -1,
             });
-        }
 
-        Keyboard.dismiss();
-        onChangeText('');
+            const newComment: IComment = {
+                childrens: [],
+                content: response.content,
+                createdAt: response.createdAt,
+                id: response.id,
+                user: stateUser,
+            };
+
+            if (parentId === 0) {
+                setListComment([newComment].concat(listComment));
+            } else {
+                listComment.map((comment) => {
+                    if (comment.id === parentId) {
+                        comment.childrens.push(newComment);
+                    }
+                });
+            }
+
+            Keyboard.dismiss();
+            onChangeText('');
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     const handleSheetChanges = useCallback((index: number) => {
@@ -445,7 +459,7 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
                     backgroundColor: COLORS.white,
                 }}
             >
-                Comments {props.lengthComment}
+                Comments {lengthComment}
             </Text>
 
             <FlatList
