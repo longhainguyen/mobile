@@ -8,15 +8,34 @@ import { COLORS } from '../constants';
 import { Entypo } from '@expo/vector-icons';
 import { RootStackParamList } from '.';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { useSelector } from 'react-redux';
-import { RootState } from '../redux/Store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../redux/Store';
+import { useEffect } from 'react';
+import { connectSocket, socketActions } from '../redux/socket/socket.slice';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'BottomTab', 'MyStack'>;
 
 const Tab = createBottomTabNavigator();
 
 const BottomTab = ({ route, navigation }: Props) => {
+    const appDispatch: AppDispatch = useDispatch();
     const stateComment = useSelector((state: RootState) => state.reducer.index);
+
+    const setUpSocket = async () => {
+        const action = await appDispatch(connectSocket());
+        appDispatch(socketActions.onJoinApp());
+    };
+
+    const disconnectSocketHandler = () => {
+        appDispatch(socketActions.disconnectSocket());
+    };
+
+    useEffect(() => {
+        setUpSocket();
+        return () => {
+            disconnectSocketHandler();
+        };
+    }, []);
 
     return (
         <Tab.Navigator
