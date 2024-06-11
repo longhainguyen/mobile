@@ -77,4 +77,25 @@ const getComment = async (idPost: string, limit?: number, page?: number) => {
     });
 };
 
-export { postComment, getComment };
+const adjustCommentApi = async (
+    idPost: string,
+    content: string,
+    userId: number,
+    commentId: number,
+) => {
+    return await request.patch(
+        `/posts/update-comment-post/${idPost}`,
+        {
+            content: content,
+            userId: userId,
+            commentId: commentId,
+        },
+        {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        },
+    );
+};
+
+export { postComment, getComment, adjustCommentApi };

@@ -11,5 +11,13 @@ interface IUser {
         avatar: string;
         background: string;
     };
+
+    followers?: IFollower[];
+    followings?: IFollower[];
 }
-export { IUser };
+
+interface IFollower {
+    id: number;
+    username: string;
+}
+export { IUser, IFollower };

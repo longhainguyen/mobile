@@ -1,5 +1,6 @@
 import request from '../config/request';
 import mime from 'mime';
+import { IUser } from '../type/User.type';
 
 interface IRequestUpdateUser {
     username: string;
@@ -51,4 +52,8 @@ const updateBg = async (bg: string, idUser: string) => {
     });
 };
 
-export { updateUser, updateAvatar, updateBg };
+const getUserById = async (idUser: string) => {
+    return await request.get<IUser>(`/users/${idUser}`);
+};
+
+export { updateUser, updateAvatar, updateBg, getUserById };

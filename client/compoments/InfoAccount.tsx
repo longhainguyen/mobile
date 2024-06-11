@@ -1,11 +1,15 @@
-import { TouchableOpacity, View, Image, Text } from 'react-native';
+import { TouchableOpacity, View, Image, Text, Pressable, SafeAreaView } from 'react-native';
 import { COLORS } from '../constants';
 import { MaterialIcons } from '@expo/vector-icons';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FONT, FONT_SIZE } from '../constants/font';
 import UserData from '../dataTemp/UserData';
-import { updateUser } from '../api/user.api';
+import { getUserById, updateUser } from '../api/user.api';
 import { IUser } from '../type/User.type';
+import { useSelector } from 'react-redux';
+import { RootState } from '../redux/Store';
+import { followUser, unFollowUser } from '../api/follow.api';
+import createTwoButtonAlert from './AlertComponent';
 
 interface InfoAccountProps {
     avatar: any;
@@ -36,6 +40,8 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
     openOptionAvatar,
     openOptionBg,
 }) => {
+    const stateUser = useSelector((state: RootState) => state.reducerUser);
+    const [isFollowed, setIsFollow] = useState(false);
     const hanleUpdateAccount = async () => {
         if (user) {
             navigation.navigate('UpdateAccount', {
@@ -46,8 +52,54 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
         }
     };
 
+    const handleGetUserById = async (idUser: string) => {
+        try {
+            const response = await getUserById(idUser);
+            if (response.data.followers) {
+                setIsFollow(false);
+                for (const follower of response.data.followers) {
+                    if (follower.id + '' === stateUser.id) {
+                        setIsFollow(true);
+                        break;
+                    }
+                }
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    useEffect(() => {
+        handleGetUserById(idUser);
+    }, []);
+
+    const handleFollow = async () => {
+        if (idUser && stateUser.id) {
+            try {
+                if (!isFollowed) {
+                    const response = await followUser({
+                        followingId: parseInt(idUser),
+                        userId: parseInt(stateUser.id),
+                    });
+                    setIsFollow(true);
+                } else {
+                    const response = await unFollowUser({
+                        followingId: parseInt(idUser),
+                        userId: parseInt(stateUser.id),
+                    });
+                    setIsFollow(false);
+                }
+            } catch (error) {
+                createTwoButtonAlert({
+                    content: 'Error',
+                    title: 'Follow',
+                });
+            }
+        }
+    };
+
     return (
-        <View
+        <SafeAreaView
             style={{
                 borderBottomColor: COLORS.borderColor,
                 borderBottomWidth: 2,
@@ -201,9 +253,12 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
                             borderRadius: 30,
                             borderWidth: 1,
                             borderColor: COLORS.black,
-                            backgroundColor: isFollow ? COLORS.white : COLORS.green,
+                            backgroundColor: isFollowed ? COLORS.white : COLORS.green,
                             padding: 5,
                             paddingHorizontal: 10,
+                        }}
+                        onPress={async () => {
+                            await handleFollow();
                         }}
                     >
                         <Text
@@ -213,12 +268,12 @@ const InfoAccount: React.FC<InfoAccountProps> = ({
                                 textAlign: 'center',
                             }}
                         >
-                            {isFollow ? 'Following' : 'Follow'}
+                            {isFollowed ? 'Following' : 'Follow'}
                         </Text>
                     </TouchableOpacity>
                 )}
             </View>
-        </View>
+        </SafeAreaView>
     );
 };
 
