@@ -28,6 +28,7 @@ import {
     StyleSheet,
     Button,
     Alert,
+    ActivityIndicator,
 } from 'react-native';
 import { COLORS } from '../constants';
 import { FONT, FONT_SIZE } from '../constants/font';
@@ -343,37 +344,80 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
     const snapPoints = useMemo(() => ['50%'], []);
     const snapPointsHome = useMemo(() => ['80%'], []);
     const [listComment, setListComment] = useState<IComment[]>([]);
+    const [listCommentDisplay, setListCommentDisplay] = useState<IComment[]>([]);
     const [text, onChangeText] = useState('');
     const [parentId, setParentId] = useState(0);
     const stateComment = useSelector((state: RootState) => state.reducer.index);
     const flatListRef = useRef<FlatList>(null);
     const inputRef = useRef<TextInput>(null);
-    const [answerTo, setAnswerTo] = useState('');
     const [placeholderInComment, setPlaceholderInComment] = useState('');
     const [lengthComment, setLengthComment] = useState(0);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
+    const LIMIT = 5;
+    const [initialLoading, setInitialLoading] = useState(true);
 
-    useEffect(() => {
-        setLengthComment(props.lengthComment);
-    }, [listComment]);
+    // useEffect(() => {
+    //     setLengthComment(props.lengthComment);
+    // }, [listComment]);
 
     const clearState = () => {
+        console.log('clear state at comment');
         setListComment([]);
+        setLengthComment(0);
+        setPage(1);
         onChangeText('');
         setParentId(0);
         setPlaceholderInComment('');
+        setHasMore(true);
+        setIsLoading(false);
     };
 
-    const handleGetComment = async () => {
+    const handleGetComment = async (page: number) => {
+        if (isLoading || !hasMore) {
+            console.log('Not load comment');
+
+            return;
+        }
+
+        setIsLoading(true);
         try {
-            const resposne = await getComment(props.postId, 10, 0);
-            setListComment(resposne.data);
+            if (props.postId.length > 0) {
+                const resposne = await getComment(props.postId, LIMIT, page);
+                if (resposne.data.length > 0) {
+                    setListComment((prevComments) => [...prevComments, ...resposne.data]);
+                    setPage(page + 1);
+                } else {
+                    setHasMore(false);
+                }
+            }
         } catch (error) {
             console.log(error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
+    const handleLoadMore = async () => {
+        if (!isLoading && hasMore) {
+            await handleGetComment(page);
+        }
+    };
+
+    const renderFooter = () => {
+        if (!isLoading) return null;
+        return <ActivityIndicator size="large" color="#0000ff" />;
+    };
+
     useEffect(() => {
-        handleGetComment();
+        if (stateComment === 0 && props.postId.length > 0) {
+            handleGetComment(0);
+            setLengthComment(props.lengthComment);
+            console.log('load comment lan dau');
+        } else if (stateComment === -1) {
+            clearState();
+        }
     }, [stateComment]);
 
     const handlePostComment = async () => {
@@ -483,6 +527,9 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
                     </Pressable>
                 )}
                 keyExtractor={(item, index) => index.toString()}
+                ListFooterComponent={renderFooter}
+                onEndReached={handleLoadMore}
+                onEndReachedThreshold={0.5}
             ></FlatList>
 
             <BottomSheetView

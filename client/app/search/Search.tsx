@@ -136,7 +136,7 @@ export default function Search({ navigation, route }: SearchProps) {
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-            <View style={{ flex: 1, marginTop: 15 }}>
+            <View style={{ flex: 1, marginTop: 15, zIndex: -100 }}>
                 <View
                     style={{
                         marginHorizontal: 10,
@@ -198,6 +198,7 @@ export default function Search({ navigation, route }: SearchProps) {
                                 )}
                                 style={{
                                     backgroundColor: 'white',
+                                    zIndex: 0,
                                 }}
                             />
                         )}
@@ -252,19 +253,19 @@ export default function Search({ navigation, route }: SearchProps) {
                             data={results?.posts}
                             renderItem={({ item }: { item: IPostOfSearch }) => {
                                 return (
-                                    <View
-                                        // onPress={async () => {
-                                        //     const historyItem: IHistorySearchItem = {
-                                        //         type: 'post',
-                                        //         post: item,
-                                        //     };
-                                        //     // handleSaveHistorySearch(historyItem);
-                                        //     navigation.navigate('ShowPost', {
-                                        //         isOwner:
-                                        //             item.user.id === stateUser.id ? true : false,
-                                        //         postId: item.id,
-                                        //     });
-                                        // }}
+                                    <TouchableOpacity
+                                        onPress={async () => {
+                                            // const historyItem: IHistorySearchItem = {
+                                            //     type: 'post',
+                                            //     post: item,
+                                            // };
+                                            // handleSaveHistorySearch(historyItem);
+                                            navigation.navigate('ShowPost', {
+                                                isOwner:
+                                                    item.user.id === stateUser.id ? true : false,
+                                                postId: item.id,
+                                            });
+                                        }}
                                         style={{
                                             paddingBottom: 10,
                                             marginHorizontal: 10,
@@ -277,7 +278,7 @@ export default function Search({ navigation, route }: SearchProps) {
                                             avatar={item.user.profile.avatar}
                                             caption={item.caption}
                                         />
-                                    </View>
+                                    </TouchableOpacity>
                                 );
                             }}
                         />

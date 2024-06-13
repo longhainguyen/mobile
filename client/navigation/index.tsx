@@ -39,6 +39,7 @@ export type RootStackParamList = {
     ShowImage: undefined;
     ShowPost: undefined;
     CommentHome: undefined;
+    Home: undefined;
     AccountOther: undefined;
     Search: undefined;
     Inform: undefined;
