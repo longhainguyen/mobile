@@ -1,3 +1,4 @@
+import { NotificationEntity } from '@entities/notification.entity';
 import { PostEntity } from '@entities/post.entity';
 import { ProfileEntity } from '@entities/profile.entity';
 import { UserEntity } from '@entities/user.entity';
@@ -19,8 +20,7 @@ import { Like, Repository } from 'typeorm';
 export class UserService {
     constructor(
         @InjectRepository(UserEntity) private UserReposity: Repository<UserEntity>,
-        @InjectRepository(ProfileEntity) private ProfileReposity: Repository<ProfileEntity>,
-        @InjectRepository(PostEntity) private PostReposity: Repository<PostEntity>,
+        @InjectRepository(NotificationEntity) private NotificationReposity: Repository<NotificationEntity>,
         private readonly bcryptService: BcryptService,
     ) {}
 
@@ -88,7 +88,7 @@ export class UserService {
     }
 
     async changePassword(id: number, { oldPassword, newPassword }: IChangePassword) {
-        const user = await this.UserReposity.findOneBy({ id });
+        const user = await this.UserReposity.findOne({ select: ['id', 'username', 'password'], where: { id } });
         if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
         const isPasswordMatch = await this.bcryptService.comparePassword(oldPassword, user.password);
         if (!isPasswordMatch) throw new HttpException('Old password is incorrect', HttpStatus.BAD_REQUEST);
@@ -96,5 +96,14 @@ export class UserService {
         user.password = hashedPassword;
         await this.UserReposity.save(user);
         return;
+    }
+
+    async getNotification(userId: number) {
+        return this.NotificationReposity.find({
+            select: ['id', 'type', 'ownerId', 'isReaded', 'createdAt'],
+            where: { ownerId: userId },
+            order: { createdAt: 'DESC' },
+            relations: ['user.profile'],
+        });
     }
 }

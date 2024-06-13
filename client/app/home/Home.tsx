@@ -199,6 +199,17 @@ export default function Home({ navigation }: any) {
                                 }}
                             >
                                 <EvilIcons name="bell" size={26} color="black" />
+                                <View
+                                    style={{
+                                        position: 'absolute',
+                                        top: 12,
+                                        right: 9,
+                                        height: 8,
+                                        width: 8,
+                                        borderRadius: 4,
+                                        backgroundColor: COLORS.redButton,
+                                    }}
+                                ></View>
                             </TouchableOpacity>
                         </View>
                     </View>

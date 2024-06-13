@@ -4,6 +4,7 @@ import stateUserSlice from './stateUser/stateUser';
 import statePageSlice from './stateLoadMore/statePage';
 import stateHistorySlice from './stateHistorySearch/stateHistory';
 import { socketSlice } from './socket/socket.slice';
+import { notifySlice } from './notify/notify.slice';
 
 export const store = configureStore({
     reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
         reducerLoadMore: statePageSlice.reducer,
         reducerHistorySearch: stateHistorySlice.reducer,
         socketReducer: socketSlice.reducer,
+        notifyReducer: notifySlice.reducer,
     },
 });
 

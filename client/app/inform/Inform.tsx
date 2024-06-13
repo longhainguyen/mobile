@@ -5,7 +5,10 @@ import TodayNotificationsScreen from '../../compoments/TodayNotification';
 import PreviousNotificationsScreen from '../../compoments/Previousnotification';
 import DayAgoNotificationsScreen from '../../compoments/DayAgoNotification';
 import ButtonBack from '../../compoments/ButtonBack';
-
+import { INotifyItem } from '../../type/notify.type';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../redux/Store';
+import { NotificationItem } from '../../compoments/NotificationItem';
 type Notification = {
     id: string;
     user: string;
@@ -81,6 +84,7 @@ type NotificationProps = {
 };
 
 const NotificationsScreen = ({ route, navigation }: NotificationProps) => {
+    const notifyState = useSelector((state: RootState) => state.notifyReducer);
     return (
         <View style={styles.container1}>
             <ButtonBack title="Thông báo" onBack={() => navigation.goBack()} />
@@ -88,9 +92,13 @@ const NotificationsScreen = ({ route, navigation }: NotificationProps) => {
                 <Text style={styles.headerText}></Text>
             </View>
             <View style={{ flex: 1, flexDirection: 'column', gap: 4 }}>
-                <TodayNotificationsScreen style={styles.notificationSection} />
+                {/* <TodayNotificationsScreen style={styles.notificationSection} />
                 <DayAgoNotificationsScreen style={styles.notificationSection} />
-                <PreviousNotificationsScreen style={styles.notificationSection} />
+                <PreviousNotificationsScreen style={styles.notificationSection} /> */}
+                {notifyState?.data &&
+                    notifyState.data.map((item, index) => (
+                        <NotificationItem key={index} notification={item} />
+                    ))}
             </View>
         </View>
     );

@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../redux/Store';
 import { useEffect } from 'react';
 import { connectSocket, socketActions } from '../redux/socket/socket.slice';
+import { fetchNotification } from '../redux/notify/notify.slice';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'BottomTab', 'MyStack'>;
 
@@ -19,6 +20,7 @@ const Tab = createBottomTabNavigator();
 
 const BottomTab = ({ route, navigation }: Props) => {
     const appDispatch: AppDispatch = useDispatch();
+    const userState = useSelector((state: RootState) => state.reducerUser);
     const stateComment = useSelector((state: RootState) => state.reducer.index);
 
     const setUpSocket = async () => {
@@ -36,6 +38,12 @@ const BottomTab = ({ route, navigation }: Props) => {
             disconnectSocketHandler();
         };
     }, []);
+
+    useEffect(() => {
+        if (userState.id) {
+            appDispatch(fetchNotification(userState.id));
+        }
+    }, [userState.id]);
 
     return (
         <Tab.Navigator

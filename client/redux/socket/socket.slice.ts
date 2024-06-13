@@ -42,5 +42,4 @@ export const socketSlice = createSlice({
     },
 });
 
-export const socketReducer = socketSlice.reducer;
 export const socketActions = socketSlice.actions;

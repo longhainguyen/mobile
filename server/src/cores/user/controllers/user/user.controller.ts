@@ -67,4 +67,10 @@ export class UserController {
     changePassword(@Param('id', ParseIntPipe) id: number, @Body(new ValidationPipe()) data: ChangePasswordDto) {
         return this.UserService.changePassword(id, { ...data });
     }
+
+    @Get('notifications/:id')
+    @HttpCode(HttpStatus.OK)
+    getNotifications(@Param('id', ParseIntPipe) id: number) {
+        return this.UserService.getNotification(id);
+    }
 }
