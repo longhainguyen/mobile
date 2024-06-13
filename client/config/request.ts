@@ -14,12 +14,11 @@ request.interceptors.request.use(
         const accessToken = await AsyncStorage.getItem('accessToken');
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;
+        } else {
+            // Điều hướng đến trang login nếu không có accessToken
+            // const navigation = useNavigation();
+            // navigation.navigate('Login');
         }
-        // else {
-        //     // Điều hướng đến trang login nếu không có accessToken
-        //     const navigation = useNavigation();
-        //     navigation.navigate('Login');
-        // }
         return config;
     },
     (error) => {

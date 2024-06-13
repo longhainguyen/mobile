@@ -21,7 +21,7 @@ import createTwoButtonAlert from '../AlertComponent';
 import { Entypo } from '@expo/vector-icons';
 import { IUser } from '../../type/User.type';
 import * as ImagePicker from 'expo-image-picker';
-import { updateAvatar, updateBg } from '../../api/user.api';
+import { deleteAvatar, deleteBg, updateAvatar, updateBg } from '../../api/user.api';
 import { setStateUser } from '../../redux/stateUser/stateUser';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -129,11 +129,11 @@ const Option = forwardRef<Ref, Props>((props, ref) => {
                                 store.dispatch(setStateUser(user));
                                 await AsyncStorage.setItem('User', JSON.stringify(user));
                             }
-                            alert('Update avatar success');
+                            alert('Update background success');
                         })
                         .catch((e) => {
                             console.log(e);
-                            alert('Update avatar fail');
+                            alert('Update background fail');
                         })
                         .finally(() => {
                             if (ref && typeof ref === 'object' && 'current' in ref) {
@@ -186,6 +186,39 @@ const Option = forwardRef<Ref, Props>((props, ref) => {
         });
     };
 
+    const handleDeleteImage = async () => {
+        try {
+            if (props.image === 'avatar') {
+                const response = await deleteAvatar(props.user?.id + '');
+                const userString = await AsyncStorage.getItem('User');
+                if (userString) {
+                    const user = JSON.parse(userString);
+                    user.profile.avatar = response.data.avatar;
+                    store.dispatch(setStateUser(user));
+                    await AsyncStorage.setItem('User', JSON.stringify(user));
+                }
+            } else if (props.image === 'bg') {
+                const response = await deleteBg(props.user?.id + '');
+                const userString = await AsyncStorage.getItem('User');
+                if (userString) {
+                    const user = JSON.parse(userString);
+                    user.profile.background = response.data.avatar;
+                    store.dispatch(setStateUser(user));
+                    await AsyncStorage.setItem('User', JSON.stringify(user));
+                }
+            }
+
+            alert('Delete image success');
+        } catch (error) {
+            alert('Delete image fail');
+            console.log(error);
+        } finally {
+            if (ref && typeof ref === 'object' && 'current' in ref) {
+                ref.current?.close();
+            }
+        }
+    };
+
     return (
         <BottomSheet
             ref={ref}
@@ -227,6 +260,9 @@ const Option = forwardRef<Ref, Props>((props, ref) => {
                                     label="Xem ảnh"
                                 />
                                 <OptionIcon
+                                    onPressOption={async () => {
+                                        await handleDeleteImage();
+                                    }}
                                     IconComponent={
                                         <AntDesign name="delete" size={24} color="black" />
                                     }

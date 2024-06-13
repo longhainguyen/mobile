@@ -7,6 +7,7 @@ import {
     Alert,
     TouchableWithoutFeedback,
     Keyboard,
+    TouchableOpacity,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import ButtonBack from '../../compoments/ButtonBack';
@@ -98,7 +99,7 @@ export default function UpdateAccount({ navigation, route }: UpdateAccountProps)
             <View style={{ flex: 1 }}>
                 <ButtonBack title="Update Account" onBack={() => navigation.goBack()} />
                 <View style={{ height: 100 }}></View>
-                <View style={{ gap: 4, justifyContent: 'center' }}>
+                <View style={{ gap: 10, justifyContent: 'center' }}>
                     <TextInput style={styles.input} value={userName} onChangeText={setUserName} />
                     <Text style={styles.input}>{user?.email}</Text>
                     <View
@@ -108,7 +109,10 @@ export default function UpdateAccount({ navigation, route }: UpdateAccountProps)
                             alignItems: 'center',
                         }}
                     >
-                        <Button title="Save" onPress={handleSaveInfo} />
+                        {/* <Button title="Save" onPress={handleSaveInfo} /> */}
+                        <TouchableOpacity style={styles.button} onPress={handleSaveInfo}>
+                            <Text style={styles.buttonText}>Save</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </View>
@@ -119,10 +123,32 @@ export default function UpdateAccount({ navigation, route }: UpdateAccountProps)
 const styles = StyleSheet.create({
     input: {
         height: 40,
-        margin: 12,
         borderWidth: 1,
+        borderColor: '#ccc',
         padding: 10,
+        marginHorizontal: 15,
         fontFamily: FONT.regular,
         fontSize: FONT_SIZE.small,
+        borderRadius: 8, // tạo bo tròn các góc
+        backgroundColor: '#f9f9f9', // nền trắng nhạt
+    },
+
+    button: {
+        height: 50,
+        paddingHorizontal: 20,
+        backgroundColor: '#6200EE',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 25, // Bo tròn góc nút
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 3,
+        elevation: 5, // Tạo độ bóng trên Android
+    },
+    buttonText: {
+        color: '#fff',
+        fontFamily: FONT.bold,
+        fontSize: FONT_SIZE.medium,
     },
 });
