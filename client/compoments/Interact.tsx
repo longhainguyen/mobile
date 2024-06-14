@@ -64,15 +64,16 @@ const Interact: React.FC<InteractProp> = ({
     const appDispatch: AppDispatch = useDispatch();
 
     const handleLike = async () => {
-        const response = await likePost({
-            postId: postId,
-            userId: userId,
-        });
-        if (response?.notificationId) {
-            console.log('notificationId:----------', response.notificationId);
-            appDispatch(socketActions.onLikePost({ notificationId: response.notificationId }));
-        }
-        if (response.status === 201) {
+        try {
+            const response = await likePost({
+                postId: postId,
+                userId: userId,
+            });
+            if (response?.notificationId) {
+                console.log('notificationId:----------', response.notificationId);
+                appDispatch(socketActions.onLikePost({ notificationId: response.notificationId }));
+            }
+
             if (!_isLike) {
                 setLikeCount(likeCount + 1);
             }
@@ -81,6 +82,8 @@ const Interact: React.FC<InteractProp> = ({
             }
 
             set_Islike(!_isLike);
+        } catch (error) {
+            console.log(error);
         }
     };
 

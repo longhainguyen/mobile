@@ -1,8 +1,8 @@
 enum ECommentRight {
-    ALL = 'Tất cả',
-    FOLLOWER = 'Người theo dõi',
-    SPECIFIC = 'Người chỉ định',
-    DISABLE = 'Tắt',
+    ALL = 'all',
+    FOLLOWER = 'followers',
+    SPECIFIC = 'point',
+    DISABLE = 'off',
 }
 
 export { ECommentRight };

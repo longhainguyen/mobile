@@ -41,6 +41,13 @@ export interface IPost {
     isFollowed: boolean;
     createdAt: string;
     origin?: IOrigin;
+    mode: string;
+    publicUsers: IPublicUser[];
+}
+
+export interface IPublicUser {
+    id: number;
+    username: string;
 }
 
 export interface IOrigin {

@@ -110,6 +110,8 @@ export default function Home({ navigation }: any) {
                         createdAt: post.createdAt,
                         origin: post.origin,
                         isPublic: post.isPublic,
+                        mode: post.mode,
+                        publicUsers: post.publicUsers,
                     };
                     _postList.push(_post);
                 });

@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native';
+import { View, Text, Keyboard } from 'react-native';
 import React, { forwardRef, useCallback, useMemo, useRef } from 'react';
 import BottomSheet, { BottomSheetBackdrop, BottomSheetView } from '@gorhom/bottom-sheet';
 import { COLORS } from '../../constants';
@@ -8,16 +8,21 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { SimpleLineIcons } from '@expo/vector-icons';
 import { ECommentRight } from '../../enum/OptionPrivacy';
 import { updateCommentMode } from '../../api/commetMode.api';
+import { RootState, store } from '../../redux/Store';
+import { setState } from '../../redux/stateComment/stateComment';
+import { useSelector } from 'react-redux';
 
 type Ref = BottomSheet;
 
 interface Props {
+    navigation: any;
     setStatusModeComment: React.Dispatch<React.SetStateAction<string>>;
-    idPost: string;
+    idPost?: string;
 }
 
 const OptionPrivacyrights = forwardRef<Ref, Props>((props, ref) => {
     const snapPoints = useMemo(() => ['30%', '50%', '90%'], []);
+    const stateSelectedUser = useSelector((state: RootState) => state.selectedUserReducer);
 
     const renderBackdrop = useCallback(
         (props: any) => (
@@ -34,7 +39,15 @@ const OptionPrivacyrights = forwardRef<Ref, Props>((props, ref) => {
 
     const handleSheetChange = useCallback((index: number) => {
         // console.log('handleSheetChange', index);
+        if (index == -1) {
+            Keyboard.dismiss();
+        }
+        store.dispatch(setState(index));
     }, []);
+
+    const hanleChooseUser = () => {
+        props.navigation.navigate('ListUser');
+    };
 
     return (
         <BottomSheet
@@ -65,6 +78,7 @@ const OptionPrivacyrights = forwardRef<Ref, Props>((props, ref) => {
                 <OptionIcon
                     onPressOption={() => {
                         handleClose();
+                        hanleChooseUser();
                         props.setStatusModeComment(ECommentRight.SPECIFIC);
                     }}
                     IconComponent={

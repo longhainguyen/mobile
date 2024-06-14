@@ -46,6 +46,7 @@ import { IPostOfSearch } from '../type/ResultSearch.type';
 import { IPost } from '../type/Post.type';
 import { Entypo } from '@expo/vector-icons';
 import OptionIcon from './home/OptionIcon';
+import { ECommentRight } from '../enum/OptionPrivacy';
 
 const { height, width } = Dimensions.get('window');
 
@@ -362,6 +363,17 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
     //     setLengthComment(props.lengthComment);
     // }, [listComment]);
 
+    const [isPublicUser, setIsPublicUser] = useState(false);
+    useEffect(() => {
+        if (props.postOpen?.publicUsers) {
+            props.postOpen.publicUsers.map((user) => {
+                if (user.id + '' === stateUser.id) {
+                    setIsPublicUser(true);
+                }
+            });
+        }
+    }, []);
+
     const clearState = () => {
         console.log('clear state at comment');
         setListComment([]);
@@ -599,40 +611,42 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
                         </View>
                     ) : (
                         <>
-                            <TextInput
-                                ref={inputRef}
-                                placeholder="Thêm bình luận..."
-                                multiline={true}
-                                value={text}
-                                onChangeText={onChangeText}
-                                placeholderTextColor={COLORS.darkText}
-                                style={{
-                                    borderRadius: 30,
-                                    fontSize: FONT_SIZE.small,
-                                    lineHeight: 20,
-                                    padding: 8,
-                                    flex: 1,
-                                    backgroundColor: 'rgba(151, 151, 151, 0.25)',
-                                    fontFamily: FONT.regular,
-                                    marginBottom: 10,
-                                    marginRight: 10,
-                                }}
-                            ></TextInput>
-                            <TouchableOpacity
-                                onPress={handlePostComment}
-                                style={{
-                                    backgroundColor: COLORS.gray,
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    marginRight: 5,
-                                    marginBottom: 10,
-                                    borderRadius: 50,
-                                    width: 35,
-                                    height: 35,
-                                }}
-                            >
-                                <AntDesign name="arrowup" size={24} color="black" />
-                            </TouchableOpacity>
+                            <>
+                                <TextInput
+                                    ref={inputRef}
+                                    placeholder="Thêm bình luận..."
+                                    multiline={true}
+                                    value={text}
+                                    onChangeText={onChangeText}
+                                    placeholderTextColor={COLORS.darkText}
+                                    style={{
+                                        borderRadius: 30,
+                                        fontSize: FONT_SIZE.small,
+                                        lineHeight: 20,
+                                        padding: 8,
+                                        flex: 1,
+                                        backgroundColor: 'rgba(151, 151, 151, 0.25)',
+                                        fontFamily: FONT.regular,
+                                        marginBottom: 10,
+                                        marginRight: 10,
+                                    }}
+                                ></TextInput>
+                                <TouchableOpacity
+                                    onPress={handlePostComment}
+                                    style={{
+                                        backgroundColor: COLORS.gray,
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        marginRight: 5,
+                                        marginBottom: 10,
+                                        borderRadius: 50,
+                                        width: 35,
+                                        height: 35,
+                                    }}
+                                >
+                                    <AntDesign name="arrowup" size={24} color="black" />
+                                </TouchableOpacity>
+                            </>
                         </>
                     )}
                 </>

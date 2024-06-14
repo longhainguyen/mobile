@@ -31,22 +31,39 @@ import OptionPrivacyrights from '../../compoments/post/OptionPrivacyrights';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet from '@gorhom/bottom-sheet';
 import { MaterialIcons } from '@expo/vector-icons';
+import { ECommentRight } from '../../enum/OptionPrivacy';
+import { IUser } from '../../type/User.type';
 
 const { height, width } = Dimensions.get('window');
 
-export default function Post({ navigation }: any) {
+export default function Post({ route, navigation }: any) {
     const [content, setContent] = useState('');
     const color = useThemeColor({}, 'primary');
     const stateUser = useSelector((state: RootState) => state.reducerUser);
     const [isLoading, setIsLoading] = useState(false);
     const [listItem, setListItem] = useState<ItemItemProps[]>([]);
     const optionPrivacyrightRef = useRef<BottomSheet>(null);
-    const [statusModeComment, setStatusModeComment] = useState('');
+    const [statusModeComment, setStatusModeComment] = useState('all');
+    // const { selectedUsers } = route.params;
 
     const handleSubmit = async () => {
         Keyboard.dismiss();
         const formData = new FormData();
         setIsLoading(true);
+
+        if (statusModeComment === ECommentRight.SPECIFIC) {
+            if (route.params) {
+                const { selectedUsers }: { selectedUsers: IUser[] } = route.params;
+                const selectedUserIds = selectedUsers.map((user) => user.id);
+                formData.append(
+                    'commentMode',
+                    JSON.stringify({ mode: statusModeComment, visibleUsers: selectedUserIds }),
+                );
+            }
+        } else {
+            formData.append('commentMode', JSON.stringify({ mode: statusModeComment }));
+        }
+
         if (listItem.length == 0 && content === '') {
             createTwoButtonAlert({ title: 'Tạo post mới', content: 'Thất bại' });
             setIsLoading(false);
@@ -147,7 +164,9 @@ export default function Post({ navigation }: any) {
     };
 
     return (
-        <GestureHandlerRootView style={{ flex: 1, backgroundColor: COLORS.lightWhite }}>
+        <GestureHandlerRootView
+            style={{ flex: 1, backgroundColor: COLORS.lightWhite, marginTop: 15 }}
+        >
             {/* <TouchableWithoutFeedback
                 onPress={Keyboard.dismiss}
                 accessible={false}
@@ -180,11 +199,18 @@ export default function Post({ navigation }: any) {
                             justifyContent: 'flex-end',
                         }}
                     >
-                        <OptionPrivacyIcon
-                            status={statusModeComment}
-                            IconComponent={<MaterialIcons name="comment" size={24} color="black" />}
-                            optionPrivacyrightRef={optionPrivacyrightRef}
-                        />
+                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                            <OptionPrivacyIcon
+                                status={statusModeComment}
+                                IconComponent={
+                                    <MaterialIcons name="comment" size={24} color="black" />
+                                }
+                                optionPrivacyrightRef={optionPrivacyrightRef}
+                            />
+                            {statusModeComment === ECommentRight.SPECIFIC && route.params && (
+                                <Text>{route.params.selectedUsers.length} users</Text>
+                            )}
+                        </View>
                     </View>
 
                     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
@@ -246,7 +272,7 @@ export default function Post({ navigation }: any) {
                 )}
             </View>
             <OptionPrivacyrights
-                idPost={'1'}
+                navigation={navigation}
                 ref={optionPrivacyrightRef}
                 setStatusModeComment={setStatusModeComment}
             />

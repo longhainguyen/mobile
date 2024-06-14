@@ -1,4 +1,4 @@
-import { IFile, IOrigin } from './Post.type';
+import { IFile, IOrigin, IPublicUser } from './Post.type';
 import { IUser } from './User.type';
 
 export interface IPostOfSearch {
@@ -11,11 +11,12 @@ export interface IPostOfSearch {
     user: IUser;
     shareds: IShared[];
     origin: IOrigin;
-    publicUsers: [];
     likeCount: number;
     commentCount: number;
     isLiked: boolean;
     isFollowed: boolean;
+    mode: string;
+    publicUsers: IPublicUser[];
 }
 
 export interface IShared {
