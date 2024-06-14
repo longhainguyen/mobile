@@ -6,6 +6,7 @@ import { CloudinaryService } from '@shares/modules/cloudinary/cloudinary.service
 import { Repository } from 'typeorm';
 import { UploadApiErrorResponse, UploadApiResponse } from 'cloudinary';
 import { CommentMode } from '@constants/enums/comment.enum';
+import { ICanSeePost } from '@interfaces/post.interface';
 
 @Injectable()
 export class PostService {
@@ -17,7 +18,26 @@ export class PostService {
         private readonly CloudinaryService: CloudinaryService,
     ) {}
 
-    async createPost(id: number, { caption, images, videos, mode = CommentMode.ALL }: ICreateFormDataPost) {
+    private async getPublicUsers({ postId, userId, visibleUsers }: ICanSeePost) {
+        const post = await this.PostReposity.findOne({
+            where: { id: postId, user: { id: userId } },
+            relations: ['publicUsers'],
+        });
+        if (!post) throw new HttpException('Post not found', HttpStatus.BAD_REQUEST);
+        // if (visibleUsers.length > 0) post.isPublic = false;
+        const filterPublicUsers = post.publicUsers.filter((item) => visibleUsers.includes(item.id));
+        const filterVisibleUsers = visibleUsers.filter((item) => !filterPublicUsers.find((user) => user.id === item));
+        await Promise.all(
+            filterVisibleUsers.map(async (_userId) => {
+                const user = await this.UserReposity.findOneBy({ id: _userId });
+                if (!user) throw new HttpException(`User ${_userId} not found`, HttpStatus.BAD_REQUEST);
+                filterPublicUsers.push(user);
+            }),
+        );
+        return filterPublicUsers;
+    }
+
+    async createPost(id: number, { caption, images, videos, commentMode }: ICreateFormDataPost) {
         const user = await this.UserReposity.findOne({
             select: ['id', 'username'],
             relations: ['followers'],
@@ -57,10 +77,15 @@ export class PostService {
             );
             newPost.videos = [...videoEntities];
         }
-        newPost.mode = mode;
-        if (mode === CommentMode.FOLLOWERS) {
-            newPost.publicUsers = user?.followers || [];
-        }
+        newPost.mode = commentMode.mode;
+        if (commentMode.mode === CommentMode.ALL) newPost.publicUsers = [];
+        if (commentMode.mode === CommentMode.FOLLOWERS) newPost.publicUsers = user.followers;
+        if (commentMode.mode === CommentMode.POINT && commentMode?.visibleUsers)
+            newPost.publicUsers = await this.getPublicUsers({
+                postId: newPost.id,
+                userId: id,
+                visibleUsers: commentMode.visibleUsers,
+            });
         const savedPost = await this.PostReposity.save(newPost);
         return savedPost;
     }

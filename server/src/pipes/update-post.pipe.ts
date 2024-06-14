@@ -4,7 +4,7 @@ import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common';
 export class PostParseJsonPipe implements PipeTransform {
     transform(value: any, metadata: ArgumentMetadata) {
         console.log(value);
-        if (metadata.type === 'body' && metadata.data === 'deleted') {
+        if (metadata.type === 'body' && (metadata.data === 'deleted' || metadata.data === 'commentMode')) {
             if (value) value = JSON.parse(value);
         }
         return value;

@@ -25,6 +25,10 @@ export interface IUpdatePost {
         images?: number[];
         videos?: number[];
     };
+    commentMode?: {
+        mode: string;
+        visibleUsers?: number[];
+    };
 }
 
 export interface IUpdateCommentPost {

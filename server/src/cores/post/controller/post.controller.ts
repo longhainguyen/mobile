@@ -55,12 +55,14 @@ export class PostController {
     async createPost(
         @Param('id', ParseIntPipe) id: number,
         @Body() post: CreatePostDto,
+        @Body('commentMode', PostParseJsonPipe) commentMode: { mode: string; visibleUsers?: number[] },
         @UploadedFiles() files: { images: Express.Multer.File[]; videos: Express.Multer.File[] },
     ) {
         const newPost = await this.PostService.createPost(id, {
             ...post,
             images: files.images,
             videos: files.videos,
+            commentMode,
         });
         return { ...newPost, videos: newPost?.videos || [], images: newPost?.images || [] };
     }
@@ -101,6 +103,7 @@ export class PostController {
         @Param('postId', ParseIntPipe) postId: number,
         @Body(new ValidationPipe()) data: UpdatePostDto,
         @Body('deleted', PostParseJsonPipe) deleted: { images?: number[]; videos?: number[] },
+        @Body('commentMode', PostParseJsonPipe) commentMode: { mode: string; visibleUsers?: number[] },
         @UploadedFiles() files: { images: Express.Multer.File[]; videos: Express.Multer.File[] },
     ) {
         const updatePost: IUpdatePost = {
@@ -115,6 +118,7 @@ export class PostController {
         if (files?.videos) {
             updatePost.videos = files.videos;
         }
+        if (commentMode) updatePost.commentMode = commentMode;
         return this.EditPostService.updatePost(updatePost);
     }
 

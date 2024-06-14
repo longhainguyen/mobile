@@ -1,3 +1,4 @@
+import { CommentMode } from '@constants/enums/comment.enum';
 import { CommentEntity, ImageEntity, LikeEntity, PostEntity, UserEntity, VideoEntity } from '@entities/index';
 import {
     ICanSeePost,
@@ -22,16 +23,49 @@ export class EditPostService {
         private readonly CloudinaryService: CloudinaryService,
     ) {}
 
-    async updatePost({ caption, deleted, postId, userId, images = [], videos = [] }: IUpdatePost) {
-        const user = await this.UserReposity.findOneBy({ id: userId });
+    private async getPublicUsers({ postId, userId, visibleUsers }: ICanSeePost) {
+        const post = await this.PostReposity.findOne({
+            where: { id: postId, user: { id: userId } },
+            relations: ['publicUsers'],
+        });
+        if (!post) throw new HttpException('Post not found', HttpStatus.BAD_REQUEST);
+        // if (visibleUsers.length > 0) post.isPublic = false;
+        const filterPublicUsers = post.publicUsers.filter((item) => visibleUsers.includes(item.id));
+        const filterVisibleUsers = visibleUsers.filter((item) => !filterPublicUsers.find((user) => user.id === item));
+        await Promise.all(
+            filterVisibleUsers.map(async (_userId) => {
+                const user = await this.UserReposity.findOneBy({ id: _userId });
+                if (!user) throw new HttpException(`User ${_userId} not found`, HttpStatus.BAD_REQUEST);
+                filterPublicUsers.push(user);
+            }),
+        );
+        return { post, filterPublicUsers };
+    }
+
+    async updatePost({ caption, deleted, postId, userId, images = [], videos = [], commentMode }: IUpdatePost) {
+        const user = await this.UserReposity.findOne({
+            select: ['id', 'username'],
+            relations: ['followers'],
+            where: { id: userId },
+        });
         if (!user) throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
         const post = await this.PostReposity.findOne({
-            select: ['id', 'caption'],
+            select: ['id', 'caption', 'mode'],
             where: { id: postId, user: { id: userId } },
-            relations: ['images', 'videos'],
+            relations: ['images', 'videos', 'publicUsers'],
         });
         if (!post) throw new HttpException('Post not found', HttpStatus.BAD_REQUEST);
         post.caption = caption;
+        if (commentMode) {
+            post.mode = commentMode.mode;
+            if (commentMode.mode === CommentMode.ALL) post.publicUsers = [];
+            if (commentMode.mode === CommentMode.FOLLOWERS) post.publicUsers = user.followers;
+            if (commentMode.mode === CommentMode.POINT && commentMode?.visibleUsers)
+                post.publicUsers = (
+                    await this.getPublicUsers({ postId, userId, visibleUsers: commentMode.visibleUsers })
+                ).filterPublicUsers;
+        }
+
         if (deleted?.images) {
             await Promise.all(
                 deleted.images.map(async (imageId) => {
@@ -153,23 +187,8 @@ export class EditPostService {
         return this.PostReposity.delete({ id: postId });
     }
 
-    async updateWhoCanCommentPost({ postId, userId, visibleUsers }: ICanSeePost) {
-        const post = await this.PostReposity.findOne({
-            where: { id: postId, user: { id: userId } },
-            relations: ['publicUsers'],
-        });
-        if (!post) throw new HttpException('Post not found', HttpStatus.BAD_REQUEST);
-        // if (visibleUsers.length > 0) post.isPublic = false;
-        const filterPublicUsers = post.publicUsers.filter((item) => visibleUsers.includes(item.id));
-        const filterVisibleUsers = visibleUsers.filter((item) => !filterPublicUsers.find((user) => user.id === item));
-        await Promise.all(
-            filterVisibleUsers.map(async (_userId) => {
-                const user = await this.UserReposity.findOneBy({ id: _userId });
-                if (!user) throw new HttpException(`User ${_userId} not found`, HttpStatus.BAD_REQUEST);
-                filterPublicUsers.push(user);
-            }),
-        );
-        post.publicUsers = filterPublicUsers;
+    async updateWhoCanCommentPost(data: ICanSeePost) {
+        const { post } = await this.getPublicUsers({ ...data });
         return this.PostReposity.save(post);
     }
 }
