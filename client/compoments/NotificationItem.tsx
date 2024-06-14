@@ -1,9 +1,14 @@
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { INotifyItem } from '../type/notify.type';
 import { useMemo } from 'react';
 import { ENotifyType } from '../enum/notify';
 
-export const NotificationItem = ({ notification }: { notification: INotifyItem }) => {
+export interface INotifyItemProps {
+    notification: INotifyItem;
+    onNavigate: (postId: number, notificationId: number) => void;
+}
+
+export const NotificationItem = ({ notification, onNavigate }: INotifyItemProps) => {
     const typeNotify: string = useMemo(() => {
         let text: string = '';
         switch (notification.type) {
@@ -24,7 +29,14 @@ export const NotificationItem = ({ notification }: { notification: INotifyItem }
     }, [notification]);
 
     return (
-        <View style={styles.notificationItem}>
+        <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={() => onNavigate(notification?.postId, notification.id)}
+            style={[
+                styles.notificationItem,
+                { backgroundColor: notification.isReaded ? '#fff' : '#f9f9f9' },
+            ]}
+        >
             <Image source={{ uri: notification.user.profile.avatar }} style={styles.userImage} />
             <View style={styles.notificationText}>
                 <Text>
@@ -34,7 +46,7 @@ export const NotificationItem = ({ notification }: { notification: INotifyItem }
                 <Text style={styles.time}>{new Date(notification.createdAt).toLocaleString()}</Text>
             </View>
             {/* <Icon name="heart" size={20} color="#900" /> */}
-        </View>
+        </TouchableOpacity>
     );
 };
 
@@ -59,8 +71,6 @@ const styles = StyleSheet.create({
         padding: 10,
         borderBottomWidth: 1,
         borderBottomColor: '#ccc',
-        marginTop: 10,
-        marginBottom: 0,
     },
     userImage: {
         width: 50,

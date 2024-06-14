@@ -12,7 +12,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../redux/Store';
 import { useEffect } from 'react';
 import { connectSocket, socketActions } from '../redux/socket/socket.slice';
-import { fetchNotification } from '../redux/notify/notify.slice';
+import { fetchNotification, notifyAction } from '../redux/notify/notify.slice';
+import { OnLikedPostCallBack } from '../type/notify.type';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'BottomTab', 'MyStack'>;
 
@@ -23,12 +24,18 @@ const BottomTab = ({ route, navigation }: Props) => {
     const userState = useSelector((state: RootState) => state.reducerUser);
     const stateComment = useSelector((state: RootState) => state.reducer.index);
 
+    const onLikedPostCb: OnLikedPostCallBack = (notification) => {
+        if (notification) appDispatch(notifyAction.addNotify(notification));
+    };
+
     const setUpSocket = async () => {
         const action = await appDispatch(connectSocket());
         appDispatch(socketActions.onJoinApp());
+        appDispatch(socketActions.onLikedPost(onLikedPostCb));
     };
 
     const disconnectSocketHandler = () => {
+        appDispatch(socketActions.offLikedPost());
         appDispatch(socketActions.disconnectSocket());
     };
 

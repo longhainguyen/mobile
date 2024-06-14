@@ -4,3 +4,7 @@ export interface ISocketState {
     socket: Socket;
     isConnected: boolean;
 }
+
+export interface ILikeSocket {
+    notificationId: number;
+}

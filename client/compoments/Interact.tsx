@@ -22,6 +22,9 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { likePost } from '../api/getPost';
 import ShareView from './home/Share';
 import { IShared } from '../type/ResultSearch.type';
+import { AppDispatch } from '../redux/Store';
+import { useDispatch } from 'react-redux';
+import { socketActions } from '../redux/socket/socket.slice';
 
 const { height, width } = Dimensions.get('window');
 
@@ -58,11 +61,17 @@ const Interact: React.FC<InteractProp> = ({
     const [_isLike, set_Islike] = useState(isLike);
     const [likeCount, setLikeCount] = useState(like);
 
+    const appDispatch: AppDispatch = useDispatch();
+
     const handleLike = async () => {
         const response = await likePost({
             postId: postId,
             userId: userId,
         });
+        if (response?.notificationId) {
+            console.log('notificationId:----------', response.notificationId);
+            appDispatch(socketActions.onLikePost({ notificationId: response.notificationId }));
+        }
         if (response.status === 201) {
             if (!_isLike) {
                 setLikeCount(likeCount + 1);

@@ -100,10 +100,21 @@ export class UserService {
 
     async getNotification(userId: number) {
         return this.NotificationReposity.find({
-            select: ['id', 'type', 'ownerId', 'isReaded', 'createdAt'],
+            select: ['id', 'type', 'ownerId', 'postId', 'isReaded', 'createdAt'],
             where: { ownerId: userId },
             order: { createdAt: 'DESC' },
             relations: ['user.profile'],
         });
+    }
+
+    async markReadedNotification(userId: number, notificationId: number) {
+        const notification = await this.NotificationReposity.findOne({
+            select: ['id', 'isReaded'],
+            where: { id: notificationId, ownerId: userId },
+        });
+        if (!notification) throw new HttpException('Notification not found', HttpStatus.NOT_FOUND);
+        notification.isReaded = true;
+        await this.NotificationReposity.save(notification);
+        return;
     }
 }

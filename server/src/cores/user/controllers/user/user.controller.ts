@@ -73,4 +73,10 @@ export class UserController {
     getNotifications(@Param('id', ParseIntPipe) id: number) {
         return this.UserService.getNotification(id);
     }
+
+    @Patch('notifications/read/:id')
+    @HttpCode(HttpStatus.OK)
+    readNotification(@Param('id', ParseIntPipe) id: number, @Body('userId', ParseIntPipe) userId: number) {
+        return this.UserService.markReadedNotification(userId, id);
+    }
 }

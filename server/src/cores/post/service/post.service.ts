@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CloudinaryService } from '@shares/modules/cloudinary/cloudinary.service';
 import { Repository } from 'typeorm';
 import { UploadApiErrorResponse, UploadApiResponse } from 'cloudinary';
+import { CommentMode } from '@constants/enums/comment.enum';
 
 @Injectable()
 export class PostService {
@@ -16,8 +17,12 @@ export class PostService {
         private readonly CloudinaryService: CloudinaryService,
     ) {}
 
-    async createPost(id: number, { caption, images, videos }: ICreateFormDataPost) {
-        const user = await this.UserReposity.findOneBy({ id });
+    async createPost(id: number, { caption, images, videos, mode = CommentMode.ALL }: ICreateFormDataPost) {
+        const user = await this.UserReposity.findOne({
+            select: ['id', 'username'],
+            relations: ['followers'],
+            where: { id },
+        });
         if (!user) throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
         const newPost = this.PostReposity.create({ caption, user });
         if (images) {
@@ -51,6 +56,10 @@ export class PostService {
                 }),
             );
             newPost.videos = [...videoEntities];
+        }
+        newPost.mode = mode;
+        if (mode === CommentMode.FOLLOWERS) {
+            newPost.publicUsers = user?.followers || [];
         }
         const savedPost = await this.PostReposity.save(newPost);
         return savedPost;

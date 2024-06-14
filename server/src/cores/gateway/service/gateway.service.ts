@@ -27,7 +27,7 @@ export class GatewayService {
 
     async getNotificationById(notificationId: number): Promise<NotificationEntity> {
         return this.NotifyReposity.findOne({
-            select: ['id', 'ownerId', 'type', 'isReaded', 'createdAt'],
+            select: ['id', 'ownerId', 'type', 'isReaded', 'createdAt', 'postId'],
             relations: ['user.profile'],
             where: { id: notificationId },
         });

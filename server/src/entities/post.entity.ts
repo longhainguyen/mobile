@@ -24,6 +24,12 @@ export class PostEntity {
     @Column({ type: 'boolean', default: true })
     isPublic: boolean;
 
+    @Column({ type: 'varchar', nullable: true })
+    mode: string;
+
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    createdAt: Date;
+
     @OneToMany(() => ImageEntity, (image) => image.post)
     images: ImageEntity[];
 
@@ -41,9 +47,6 @@ export class PostEntity {
 
     @OneToMany(() => CommentEntity, (comment) => comment.post)
     comments: CommentEntity[];
-
-    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-    createdAt: Date;
 
     @ManyToOne(() => UserEntity, (user) => user.posts)
     user: UserEntity;

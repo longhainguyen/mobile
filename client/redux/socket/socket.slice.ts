@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Socket, io } from 'socket.io-client';
-import { ISocketState } from '../../type/socket.type';
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { ILikeSocket, ISocketState } from '../../type/socket.type';
+import { PayloadAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { INotifyItem, OnLikedPostCallBack } from '../../type/notify.type';
 const baseURL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.0.106:3000';
 const socket: Socket = io(baseURL, {
     autoConnect: false,
@@ -23,6 +24,17 @@ export const socketSlice = createSlice({
     reducers: {
         onJoinApp(state) {
             state.socket.emit('join-app');
+        },
+        onLikePost(state, action: PayloadAction<ILikeSocket>) {
+            state.socket.emit('like-post', action.payload);
+        },
+        onLikedPost(state, action: PayloadAction<OnLikedPostCallBack>) {
+            state.socket.on('liked-post', (data: INotifyItem) => {
+                action.payload(data);
+            });
+        },
+        offLikedPost(state) {
+            state.socket.off('liked-post');
         },
         disconnectSocket(state) {
             state.socket.disconnect();

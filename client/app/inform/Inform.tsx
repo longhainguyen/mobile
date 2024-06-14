@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { View, Text, FlatList, Image, StyleSheet, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import TodayNotificationsScreen from '../../compoments/TodayNotification';
@@ -6,9 +6,10 @@ import PreviousNotificationsScreen from '../../compoments/Previousnotification';
 import DayAgoNotificationsScreen from '../../compoments/DayAgoNotification';
 import ButtonBack from '../../compoments/ButtonBack';
 import { INotifyItem } from '../../type/notify.type';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../redux/Store';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../redux/Store';
 import { NotificationItem } from '../../compoments/NotificationItem';
+import { notifyAction, readNotification } from '../../redux/notify/notify.slice';
 type Notification = {
     id: string;
     user: string;
@@ -85,19 +86,32 @@ type NotificationProps = {
 
 const NotificationsScreen = ({ route, navigation }: NotificationProps) => {
     const notifyState = useSelector((state: RootState) => state.notifyReducer);
+    const userState = useSelector((state: RootState) => state.reducerUser);
+    const appDispatch: AppDispatch = useDispatch();
+    const navigatePost = useCallback((postId: number, notificationId: number) => {
+        appDispatch(readNotification({ notifyId: notificationId, userId: userState.id }));
+        navigation.navigate('ShowPost', {
+            isOwner: true,
+            postId,
+        });
+    }, []);
     return (
         <View style={styles.container1}>
             <ButtonBack title="Thông báo" onBack={() => navigation.goBack()} />
             <View style={styles.header}>
                 <Text style={styles.headerText}></Text>
             </View>
-            <View style={{ flex: 1, flexDirection: 'column', gap: 4 }}>
+            <View style={{ flex: 1, flexDirection: 'column', gap: 5 }}>
                 {/* <TodayNotificationsScreen style={styles.notificationSection} />
                 <DayAgoNotificationsScreen style={styles.notificationSection} />
                 <PreviousNotificationsScreen style={styles.notificationSection} /> */}
                 {notifyState?.data &&
                     notifyState.data.map((item, index) => (
-                        <NotificationItem key={index} notification={item} />
+                        <NotificationItem
+                            key={index}
+                            notification={item}
+                            onNavigate={navigatePost}
+                        />
                     ))}
             </View>
         </View>

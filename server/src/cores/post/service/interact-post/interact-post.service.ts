@@ -44,6 +44,7 @@ export class InteractPostService {
                 where: { id: postId },
             });
             if (!post) throw new HttpException('Post not found', HttpStatus.BAD_REQUEST);
+            if (post.user.id === userId) return;
             const newLike = this.LikeReposity.create({ userId, post });
             await this.LikeReposity.save(newLike);
             const newNotify = this.NotificationReposity.create({
@@ -63,9 +64,20 @@ export class InteractPostService {
     async sharePost(id: number, { originId, caption }: ISharePost) {
         const user = await this.UserReposity.findOneBy({ id });
         if (!user) throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
-        const origin = await this.PostReposity.findOneBy({ id: originId });
+        const origin = await this.PostReposity.findOne({
+            select: ['id'],
+            where: { id: originId },
+            relations: ['user'],
+        });
         if (!origin) throw new HttpException('Origin post not found', HttpStatus.BAD_REQUEST);
         const newPost = this.PostReposity.create({ caption, user, origin });
+        const newNotify = this.NotificationReposity.create({
+            type: 'share',
+            ownerId: origin.user.id,
+            postId: newPost.id,
+            user,
+        });
+        await this.NotificationReposity.save(newNotify);
         return await this.PostReposity.save(newPost);
     }
 }

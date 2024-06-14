@@ -15,18 +15,23 @@ export const fetchNotification = createAsyncThunk(
     },
 );
 
+export const readNotification = createAsyncThunk(
+    'notify/readNotification',
+    async ({ notifyId, userId }: { notifyId: number; userId: string }) => {
+        const response = await request.patch(`users/notifications/read/${notifyId}`, {
+            userId,
+        });
+        return { notifyId };
+    },
+);
+
 export const notifySlice = createSlice({
     name: 'notify',
     initialState: initialNotifyState,
     reducers: {
-        setNotify: (state, action: PayloadAction<INotifyItem[]>) => {
-            state.data = action.payload;
-        },
         addNotify: (state, action: PayloadAction<INotifyItem>) => {
+            state.isNotify = true;
             state.data.unshift(action.payload);
-        },
-        removeNotify: (state, action: PayloadAction<number>) => {
-            state.data = state.data.filter((item) => item.id !== action.payload);
         },
         readNotify: (state, action: PayloadAction<number>) => {
             state.data = state.data.map((item) =>
@@ -41,6 +46,15 @@ export const notifySlice = createSlice({
         builder.addCase(fetchNotification.fulfilled, (state, action) => {
             console.log('fetchNotification.fulfilled', action.payload);
             state.data = action.payload;
+            const isNotReaded = action.payload.some((item) => !item.isReaded);
+            if (isNotReaded) {
+                state.isNotify = true;
+            }
+        });
+        builder.addCase(readNotification.fulfilled, (state, action) => {
+            state.data = state.data.map((item) =>
+                item.id === action.payload.notifyId ? { ...item, isReaded: true } : item,
+            );
         });
     },
 });

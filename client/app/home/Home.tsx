@@ -29,15 +29,16 @@ import _list_comments from '../../dataTemp/CommentData';
 import { EvilIcons } from '@expo/vector-icons';
 import request from '../../config/request';
 import { IFile, IImage, IPost, IVideo } from '../../type/Post.type';
-import { RootState, store } from '../../redux/Store';
+import { AppDispatch, RootState, store } from '../../redux/Store';
 import { incremented } from '../../redux/stateLoadMore/statePage';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Video } from 'expo-av';
 import { postComment } from '../../api/comment.api';
 import { IPostHome, getPostHome } from '../../api/getPost';
 import ShareView from '../../compoments/home/Share';
 import Option from '../../compoments/home/Option';
 import { IPostOfSearch } from '../../type/ResultSearch.type';
+import { notifyAction } from '../../redux/notify/notify.slice';
 
 const { height, width } = Dimensions.get('window');
 
@@ -63,6 +64,8 @@ export default function Home({ navigation }: any) {
     });
     const [postOpen, setPostOpen] = useState<IPost>();
 
+    const notifyState = useSelector((state: RootState) => state.notifyReducer);
+    const appDispatch: AppDispatch = useDispatch();
     const scrollToTop = () => {
         if (flatListRef.current) {
             flatListRef.current.scrollToOffset({ offset: 0, animated: true });
@@ -195,21 +198,24 @@ export default function Home({ navigation }: any) {
                             <TouchableOpacity
                                 style={{ padding: 5 }}
                                 onPress={() => {
+                                    appDispatch(notifyAction.setNotifyStatus(false));
                                     navigation.navigate('Inform');
                                 }}
                             >
                                 <EvilIcons name="bell" size={26} color="black" />
-                                <View
-                                    style={{
-                                        position: 'absolute',
-                                        top: 12,
-                                        right: 9,
-                                        height: 8,
-                                        width: 8,
-                                        borderRadius: 4,
-                                        backgroundColor: COLORS.redButton,
-                                    }}
-                                ></View>
+                                {notifyState.isNotify && (
+                                    <View
+                                        style={{
+                                            position: 'absolute',
+                                            top: 12,
+                                            right: 9,
+                                            height: 8,
+                                            width: 8,
+                                            borderRadius: 4,
+                                            backgroundColor: COLORS.redButton,
+                                        }}
+                                    />
+                                )}
                             </TouchableOpacity>
                         </View>
                     </View>

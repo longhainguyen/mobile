@@ -15,7 +15,7 @@ export class GetPostService {
     ) {}
 
     public basePostOptions: FindManyOptions<PostEntity> = {
-        select: ['id', 'caption', 'isPublic', 'createdAt'],
+        select: ['id', 'caption', 'isPublic', 'createdAt', 'mode'],
         relations: [
             'images',
             'videos',

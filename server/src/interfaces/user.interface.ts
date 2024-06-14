@@ -39,6 +39,7 @@ export interface ICreateFormDataPost {
     caption: string;
     images?: Express.Multer.File[];
     videos?: Express.Multer.File[];
+    mode: string;
 }
 
 export interface IFollowUser {

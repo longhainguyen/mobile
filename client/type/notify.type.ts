@@ -4,6 +4,7 @@ export interface INotifyItem {
     ownerId: number;
     isReaded: boolean;
     createdAt: string;
+    postId: number;
     user: {
         id: number;
         username: string;
@@ -19,3 +20,5 @@ export interface INotifyState {
     isNotify: boolean;
     data: INotifyItem[];
 }
+
+export type OnLikedPostCallBack = (notification: INotifyItem) => void;

@@ -135,6 +135,7 @@ interface ILikePost {
 }
 interface IResponseLikePost {
     status: number;
+    notificationId?: number;
 }
 
 const likePost = async (data: ILikePost) => {
@@ -150,6 +151,7 @@ const likePost = async (data: ILikePost) => {
         })
         .then((response) => {
             _response.status = response.status;
+            if ((response.data as any)?.id) _response.notificationId = (response.data as any).id;
         })
         .catch((e) => {
             if (e.response) {
