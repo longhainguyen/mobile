@@ -22,6 +22,7 @@ import EditPost from '../app/post/EditPost';
 import UpdateAccount from '../app/account/UpdateAccount';
 import { IUser } from '../type/User.type';
 import { IPost } from '../type/Post.type';
+import ChangePassword from '../app/account/ChangePassword';
 
 const theme = {
     ...DefaultTheme,
@@ -39,6 +40,7 @@ export type RootStackParamList = {
     ShowImage: undefined;
     ShowPost: undefined;
     CommentHome: undefined;
+    Home: undefined;
     AccountOther: undefined;
     Search: undefined;
     Inform: undefined;
@@ -49,6 +51,12 @@ export type RootStackParamList = {
           }
         | undefined;
     UpdateAccount:
+        | {
+              user: IUser;
+          }
+        | undefined;
+
+    ChangePassword:
         | {
               user: IUser;
           }
@@ -80,6 +88,7 @@ const NotLoggInNav = () => {
             <RootStack.Screen name="Inform" component={Inform} />
             <RootStack.Screen name="EditPost" component={EditPost} />
             <RootStack.Screen name="UpdateAccount" component={UpdateAccount} />
+            <RootStack.Screen name="ChangePassword" component={ChangePassword} />
         </RootStack.Navigator>
     );
 };
@@ -109,6 +118,7 @@ const LoggedInNav = () => {
             <RootStack.Screen name="Inform" component={Inform} />
             <RootStack.Screen name="EditPost" component={EditPost} />
             <RootStack.Screen name="UpdateAccount" component={UpdateAccount} />
+            <RootStack.Screen name="ChangePassword" component={ChangePassword} />
         </RootStack.Navigator>
     );
 };

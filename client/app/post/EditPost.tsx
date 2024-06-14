@@ -8,6 +8,9 @@ import {
     ImageBackground,
     FlatList,
     ScrollView,
+    Keyboard,
+    ActivityIndicator,
+    Dimensions,
 } from 'react-native';
 import ButtonBack from '../../compoments/ButtonBack';
 import { COLORS } from '../../constants';
@@ -28,12 +31,17 @@ import OptionPrivacyrights from '../../compoments/post/OptionPrivacyrights';
 import BottomSheet from '@gorhom/bottom-sheet';
 import OptionPrivacyIcon from '../../compoments/post/OptionPrivacyIcon';
 import { updateCommentMode } from '../../api/commetMode.api';
+import mime from 'mime';
+import { ETypeFile } from '../../enum/FIle';
+import { updatePost } from '../../api/post.api';
+import createTwoButtonAlert from '../../compoments/AlertComponent';
 
 // type RootStackParamList = {
 //     EditPost: { post: IPost };
 // };
 
 // type EditPostRouteProp = RouteProp<RootStackParamList, 'EditPost'>;
+const { height, width } = Dimensions.get('window');
 
 type EditPostProps = NativeStackScreenProps<RootStackParamList, 'EditPost'>;
 
@@ -46,10 +54,13 @@ export default function EditPost({ route, navigation }: EditPostProps) {
     const [content, setContent] = useState('');
     const color = useThemeColor({}, 'primary');
     const [listItem, setListItem] = useState<ItemItemProps[]>([]);
+    const [listIdImageDeleted, setListIdImageDeleted] = useState<string[]>([]);
+    const [listIdVideoDeleted, setListIdVideoDeleted] = useState<string[]>([]);
+    const [listItemNew, setListItemNew] = useState<ItemItemProps[]>([]);
     const stateUser = useSelector((state: RootState) => state.reducerUser);
     const optionPrivacyrightRef = useRef<BottomSheet>(null);
     const [statusModeComment, setStatusModeComment] = useState('');
-    const [pravicyEye, setPravicyEye] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         if (!route.params) {
@@ -72,8 +83,14 @@ export default function EditPost({ route, navigation }: EditPostProps) {
         }
     }, []);
 
-    const hanleDeleteItem = (id: string) => {
-        var listImageFiltered = listItem.filter((image) => {
+    const hanleDeleteItem = (id: string, uri: string) => {
+        if (mime.getType(uri) === ETypeFile.VIDEO) {
+            setListIdVideoDeleted((prevArray) => [...prevArray, id]);
+        } else if (mime.getType(uri) === ETypeFile.IMAGE) {
+            setListIdImageDeleted((prevArray) => [...prevArray, id]);
+        }
+
+        const listImageFiltered = listItem.filter((image) => {
             if (image.id !== id) {
                 return image;
             }
@@ -91,12 +108,12 @@ export default function EditPost({ route, navigation }: EditPostProps) {
             videoQuality: 1,
         });
         if (!result.canceled) {
-            var listImageUri: ItemItemProps[] = [];
-            var id = 0;
+            let listImageUri: ItemItemProps[] = [];
+            let id = 0;
 
             result.assets.map((item) => {
                 id++;
-                var image: ItemItemProps = {
+                let image: ItemItemProps = {
                     uri: item.uri,
                     type: item.type || '',
                     id: id + '',
@@ -104,15 +121,81 @@ export default function EditPost({ route, navigation }: EditPostProps) {
                 };
                 listImageUri.push(image);
             });
+            setListItemNew(listItemNew.concat(listImageUri));
             setListItem(listItem.concat(listImageUri));
         }
     };
 
     const handleUpdate = async () => {
+        Keyboard.dismiss();
+        const formData = new FormData();
+        setIsLoading(true);
+        formData.append('caption', content);
+        formData.append(
+            'deleted',
+            JSON.stringify({
+                images: listIdImageDeleted,
+                videos: listIdVideoDeleted,
+            }),
+        );
+
+        const listImageFiltered = listItem.filter((item) => {
+            return item.type === 'image';
+        });
+
+        for (let i = 0; i < listImageFiltered.length; i++) {
+            const newImageUri = 'file:///' + listImageFiltered[i].uri.split('file:/').join('');
+            const _image = {
+                uri: newImageUri,
+                type: mime.getType(newImageUri),
+                name: newImageUri.split('/').pop(),
+            };
+
+            formData.append('images', _image);
+        }
+
+        const listVideoFiltered = listItem.filter((item) => {
+            return item.type === 'video';
+        });
+
+        for (let i = 0; i < listVideoFiltered.length; i++) {
+            const newVideoUri = 'file:///' + listVideoFiltered[i].uri.split('file:/').join('');
+            const _video = {
+                uri: newVideoUri,
+                type: mime.getType(newVideoUri),
+                name: newVideoUri.split('/').pop(),
+            };
+
+            formData.append('videos', _video);
+        }
+
         try {
-            const response = await updateCommentMode(route.params?.post.id + '');
+            const response = await updatePost(formData, route.params?.post.id + '');
+            setIsLoading(false);
+            setContent('');
+            setListItem([]);
+            setListIdImageDeleted([]);
+            setListIdVideoDeleted([]);
+            setListItemNew([]);
+            createTwoButtonAlert({
+                title: 'Update bài viết',
+                content: 'Thành công',
+                // navigateToHome: () => {
+                //     navigation.navigate('Home');
+                // },
+            });
+            navigation.navigate('Home');
         } catch (error) {
+            setIsLoading(false);
+            createTwoButtonAlert({ title: 'Update post ', content: 'Thất bại' });
             console.log(error);
+        } finally {
+            setIsLoading(false);
+            // setContent('');
+            // setListItem([]);
+            // setListIdImageDeleted([]);
+            // setListIdVideoDeleted([]);
+            // setListItemNew([]);
         }
     };
 
@@ -176,7 +259,7 @@ export default function EditPost({ route, navigation }: EditPostProps) {
                         >
                             <TouchableOpacity
                                 style={styles.imageButton}
-                                onPress={() => hanleDeleteItem(item.id)}
+                                onPress={() => hanleDeleteItem(item.id, item.uri)}
                             >
                                 <Feather name="x" size={16} color="black" />
                             </TouchableOpacity>
@@ -256,6 +339,17 @@ export default function EditPost({ route, navigation }: EditPostProps) {
                     </View>
                 )}
             </ScrollView>
+            {isLoading && (
+                <ActivityIndicator
+                    style={{
+                        position: 'absolute',
+                        top: height / 2,
+                        left: width / 2 - 20,
+                    }}
+                    size="large"
+                    color="#0000ff"
+                />
+            )}
             <OptionPrivacyrights
                 idPost={route.params?.post.id + ''}
                 ref={optionPrivacyrightRef}

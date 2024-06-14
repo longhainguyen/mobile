@@ -56,4 +56,30 @@ const getUserById = async (idUser: string) => {
     return await request.get<IUser>(`/users/${idUser}`);
 };
 
-export { updateUser, updateAvatar, updateBg, getUserById };
+const deleteAvatar = async (idUser: string) => {
+    // console.log(idUser);
+    return await request.delete(`/profiles/delete-avatar/${idUser}`);
+};
+
+const deleteBg = async (idUser: string) => {
+    // console.log(idUser);
+
+    return await request.delete(`/profiles/delete-background/${idUser}`);
+};
+
+const updatePassword = async (oldPassword: string, newPassword: string, idUser: string) => {
+    return await request.patch(
+        `/users/change-password/${idUser}`,
+        {
+            oldPassword: oldPassword,
+            newPassword: newPassword,
+        },
+        {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+        },
+    );
+};
+
+export { updateUser, updateAvatar, updateBg, getUserById, deleteAvatar, deleteBg, updatePassword };

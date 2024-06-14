@@ -1,5 +1,5 @@
 import { Feather } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
     Image,
     Text,
@@ -14,7 +14,6 @@ import {
     ActivityIndicator,
     KeyboardAvoidingView,
     Platform,
-    TouchableWithoutFeedback,
     Keyboard,
 } from 'react-native';
 import { Button, Card, useThemeColor } from '../../compoments/Themed';
@@ -27,6 +26,12 @@ import { RootState } from '../../redux/Store';
 import { IImage, IPost, IVideo, ItemItemProps } from '../../type/Post.type';
 import request from '../../config/request';
 import mime from 'mime';
+import OptionPrivacyIcon from '../../compoments/post/OptionPrivacyIcon';
+import OptionPrivacyrights from '../../compoments/post/OptionPrivacyrights';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import BottomSheet from '@gorhom/bottom-sheet';
+import { MaterialIcons } from '@expo/vector-icons';
+
 const { height, width } = Dimensions.get('window');
 
 export default function Post({ navigation }: any) {
@@ -35,6 +40,8 @@ export default function Post({ navigation }: any) {
     const stateUser = useSelector((state: RootState) => state.reducerUser);
     const [isLoading, setIsLoading] = useState(false);
     const [listItem, setListItem] = useState<ItemItemProps[]>([]);
+    const optionPrivacyrightRef = useRef<BottomSheet>(null);
+    const [statusModeComment, setStatusModeComment] = useState('');
 
     const handleSubmit = async () => {
         Keyboard.dismiss();
@@ -45,13 +52,13 @@ export default function Post({ navigation }: any) {
             setIsLoading(false);
             return;
         }
-        var listImageFiltered = listItem.filter((item) => {
+        const listImageFiltered = listItem.filter((item) => {
             return item.type === 'image';
         });
 
         formData.append('caption', content);
 
-        for (var i = 0; i < listImageFiltered.length; i++) {
+        for (let i = 0; i < listImageFiltered.length; i++) {
             const newImageUri = 'file:///' + listImageFiltered[i].uri.split('file:/').join('');
             const _image = {
                 uri: newImageUri,
@@ -62,11 +69,11 @@ export default function Post({ navigation }: any) {
             formData.append('images', _image);
         }
 
-        var listVideoFiltered = listItem.filter((item) => {
+        const listVideoFiltered = listItem.filter((item) => {
             return item.type === 'video';
         });
 
-        for (var i = 0; i < listVideoFiltered.length; i++) {
+        for (let i = 0; i < listVideoFiltered.length; i++) {
             const newVideoUri = 'file:///' + listVideoFiltered[i].uri.split('file:/').join('');
             const _video = {
                 uri: newVideoUri,
@@ -122,12 +129,12 @@ export default function Post({ navigation }: any) {
             videoQuality: 1,
         });
         if (!result.canceled) {
-            var listImageUri: ItemItemProps[] = [];
-            var id = 0;
+            let listImageUri: ItemItemProps[] = [];
+            let id = 0;
 
             result.assets.map((item) => {
                 id++;
-                var image: ItemItemProps = {
+                let image: ItemItemProps = {
                     uri: item.uri,
                     type: item.type || '',
                     id: id + '',
@@ -140,8 +147,13 @@ export default function Post({ navigation }: any) {
     };
 
     return (
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-            <View style={{ flex: 1, backgroundColor: COLORS.lightWhite }}>
+        <GestureHandlerRootView style={{ flex: 1, backgroundColor: COLORS.lightWhite }}>
+            {/* <TouchableWithoutFeedback
+                onPress={Keyboard.dismiss}
+                accessible={false}
+            ></TouchableWithoutFeedback> */}
+            {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}> */}
+            <View>
                 <Card style={[styles.container, {}]}>
                     <View
                         style={{
@@ -155,6 +167,24 @@ export default function Post({ navigation }: any) {
                         <Text style={{ fontFamily: FONT.medium, fontSize: FONT_SIZE.large }}>
                             Bài viết mới
                         </Text>
+                    </View>
+
+                    <View
+                        style={{
+                            paddingVertical: 10,
+                            borderWidth: 2,
+                            marginHorizontal: 10,
+                            borderRadius: 10,
+                            borderColor: COLORS.borderColor,
+                            flexDirection: 'row',
+                            justifyContent: 'flex-end',
+                        }}
+                    >
+                        <OptionPrivacyIcon
+                            status={statusModeComment}
+                            IconComponent={<MaterialIcons name="comment" size={24} color="black" />}
+                            optionPrivacyrightRef={optionPrivacyrightRef}
+                        />
                     </View>
 
                     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
@@ -215,7 +245,13 @@ export default function Post({ navigation }: any) {
                     />
                 )}
             </View>
-        </TouchableWithoutFeedback>
+            <OptionPrivacyrights
+                idPost={'1'}
+                ref={optionPrivacyrightRef}
+                setStatusModeComment={setStatusModeComment}
+            />
+            {/* </TouchableWithoutFeedback> */}
+        </GestureHandlerRootView>
     );
 }
 

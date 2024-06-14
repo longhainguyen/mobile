@@ -107,8 +107,6 @@ const ShowPost = ({ route, navigation }: ShowPostProps) => {
         bottemSheetInstance?.snapToIndex(0);
     };
 
-    console.log(singlePost?.isFollowed);
-
     return (
         <GestureHandlerRootView style={{ flex: 1, marginTop: 15 }}>
             <ButtonBack title="Post" onBack={() => navigation.goBack()} />
@@ -117,27 +115,30 @@ const ShowPost = ({ route, navigation }: ShowPostProps) => {
                 <View style={{ height: 55 }}></View>
                 <UserIcon
                     openOption={() => {
-                        handleOpenOption(
-                            singlePost?.user.id + '',
-                            {
-                                avartar: singlePost?.user.profile.avatar + '',
-                                background: singlePost?.user.profile.background + '',
-                                comments: singlePost?.commentCount || 0,
-                                content: singlePost?.caption + '',
-                                createdAt: singlePost?.createdAt + '',
-                                id: singlePost?.id + '',
-                                idUser: singlePost?.user.id + '',
-                                images: singlePost?.images || [],
-                                isFollowed: singlePost?.isFollowed || false,
-                                isLiked: singlePost?.isLiked || false,
-                                likes: singlePost?.likeCount || 0,
-                                shares: singlePost?.shareds || [],
-                                userName: singlePost?.user.username + '',
-                                videos: singlePost?.videos || [],
-                                origin: singlePost?.origin,
-                            },
-                            bottemSheetOption.current,
-                        );
+                        if (singlePost) {
+                            handleOpenOption(
+                                singlePost.user.id,
+                                {
+                                    avartar: singlePost.user.profile.avatar,
+                                    background: singlePost.user.profile.background,
+                                    comments: singlePost.commentCount,
+                                    content: singlePost.caption,
+                                    createdAt: singlePost.createdAt,
+                                    id: singlePost.id + '',
+                                    idUser: singlePost.user.id + '',
+                                    images: singlePost.images,
+                                    isFollowed: singlePost.isFollowed,
+                                    isLiked: singlePost.isLiked,
+                                    likes: singlePost.likeCount,
+                                    shares: singlePost.shareds,
+                                    userName: singlePost.user.username,
+                                    videos: singlePost.videos,
+                                    origin: singlePost.origin,
+                                    isPublic: singlePost.isPublic,
+                                },
+                                bottemSheetOption.current,
+                            );
+                        }
                     }}
                     id={singlePost?.user.id + ''}
                     avatar={{ uri: singlePost?.user.profile.avatar }}

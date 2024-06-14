@@ -13,7 +13,7 @@ import {
     ActivityIndicator,
     Animated,
 } from 'react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS } from '../../constants';
 import UserIcon from '../../compoments/UserIcon';
@@ -39,6 +39,7 @@ import ShareView from '../../compoments/home/Share';
 import Option from '../../compoments/home/Option';
 import { IPostOfSearch } from '../../type/ResultSearch.type';
 import { notifyAction } from '../../redux/notify/notify.slice';
+import { useFocusEffect } from '@react-navigation/native';
 
 const { height, width } = Dimensions.get('window');
 
@@ -79,6 +80,12 @@ export default function Home({ navigation }: any) {
             console.log(error);
         }
     }, []);
+
+    useFocusEffect(
+        useCallback(() => {
+            getData(0);
+        }, []),
+    );
 
     const getData = async (_page: number) => {
         await getPostHome(stateUser.id, 5, _page)

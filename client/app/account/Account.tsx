@@ -33,6 +33,7 @@ import ModalCompoment from '../../compoments/ModalCompoment';
 import ShareView from '../../compoments/home/Share';
 import Option from '../../compoments/home/Option';
 import { IUser } from '../../type/User.type';
+import { updatePassword } from '../../api/user.api';
 
 const { height, width } = Dimensions.get('window');
 
@@ -229,6 +230,12 @@ export default function Account({ navigation }: any) {
                     </View>
                 </Animated.View>
                 <ModalCompoment
+                    hangdleChangePassword={() => {
+                        navigation.navigate('ChangePassword', {
+                            user: user,
+                        });
+                    }}
+                    user={user}
                     modalVisible={modalVisible}
                     setModalVisible={setModalVisible}
                     logOut={logout}

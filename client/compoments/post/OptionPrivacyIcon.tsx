@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Keyboard } from 'react-native';
 import React from 'react';
 import BottomSheet from '@gorhom/bottom-sheet';
 
@@ -21,6 +21,8 @@ export default function OptionPrivacyIcon({
                 width: 100,
             }}
             onPress={() => {
+                Keyboard.dismiss();
+
                 optionPrivacyrightRef.current?.snapToIndex(0);
             }}
         >
