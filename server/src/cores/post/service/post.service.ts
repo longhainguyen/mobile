@@ -37,7 +37,7 @@ export class PostService {
         return filterPublicUsers;
     }
 
-    async createPost(id: number, { caption, images, videos, commentMode }: ICreateFormDataPost) {
+    async createPost(id: number, { caption, images, videos, commentMode, checkin }: ICreateFormDataPost) {
         const user = await this.UserReposity.findOne({
             select: ['id', 'username'],
             relations: ['followers'],
@@ -86,6 +86,7 @@ export class PostService {
                 userId: id,
                 visibleUsers: commentMode.visibleUsers,
             });
+        if (checkin) newPost.checkin = checkin;
         const savedPost = await this.PostReposity.save(newPost);
         return savedPost;
     }

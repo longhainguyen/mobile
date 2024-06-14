@@ -71,6 +71,8 @@ export class InteractPostService {
         });
         if (!origin) throw new HttpException('Origin post not found', HttpStatus.BAD_REQUEST);
         const newPost = this.PostReposity.create({ caption, user, origin });
+
+        await this.PostReposity.save(newPost);
         const newNotify = this.NotificationReposity.create({
             type: 'share',
             ownerId: origin.user.id,
@@ -78,6 +80,6 @@ export class InteractPostService {
             user,
         });
         await this.NotificationReposity.save(newNotify);
-        return await this.PostReposity.save(newPost);
+        return newPost;
     }
 }

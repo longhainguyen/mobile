@@ -27,6 +27,9 @@ export class PostEntity {
     @Column({ type: 'varchar', nullable: true })
     mode: string;
 
+    @Column({ type: 'varchar', nullable: true })
+    checkin: string;
+
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;
 

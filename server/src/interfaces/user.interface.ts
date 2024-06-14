@@ -37,6 +37,7 @@ export interface ICreatePost {
 
 export interface ICreateFormDataPost {
     caption: string;
+    checkin?: string;
     images?: Express.Multer.File[];
     videos?: Express.Multer.File[];
     commentMode: {

@@ -42,7 +42,16 @@ export class EditPostService {
         return { post, filterPublicUsers };
     }
 
-    async updatePost({ caption, deleted, postId, userId, images = [], videos = [], commentMode }: IUpdatePost) {
+    async updatePost({
+        caption,
+        deleted,
+        postId,
+        userId,
+        images = [],
+        videos = [],
+        commentMode,
+        checkin,
+    }: IUpdatePost) {
         const user = await this.UserReposity.findOne({
             select: ['id', 'username'],
             relations: ['followers'],
@@ -56,6 +65,7 @@ export class EditPostService {
         });
         if (!post) throw new HttpException('Post not found', HttpStatus.BAD_REQUEST);
         post.caption = caption;
+        if (checkin) post.checkin = checkin;
         if (commentMode) {
             post.mode = commentMode.mode;
             if (commentMode.mode === CommentMode.ALL) post.publicUsers = [];

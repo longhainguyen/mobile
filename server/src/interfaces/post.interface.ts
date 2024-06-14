@@ -19,6 +19,7 @@ export interface IUpdatePost {
     userId: number;
     postId: number;
     caption: string;
+    checkin?: string;
     images?: Express.Multer.File[];
     videos?: Express.Multer.File[];
     deleted: {

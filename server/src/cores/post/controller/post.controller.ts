@@ -119,6 +119,7 @@ export class PostController {
             updatePost.videos = files.videos;
         }
         if (commentMode) updatePost.commentMode = commentMode;
+        if (data?.checkin) updatePost.checkin = data.checkin;
         return this.EditPostService.updatePost(updatePost);
     }
 
