@@ -16,7 +16,7 @@ export interface IPostOfSearch {
     isLiked: boolean;
     isFollowed: boolean;
     mode: string;
-    publicUsers: IPublicUser[];
+    publicUsers: IUser[];
     checkin: string;
 }
 

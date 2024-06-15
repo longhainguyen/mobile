@@ -1,4 +1,5 @@
 import { IShared } from './ResultSearch.type';
+import { IUser } from './User.type';
 
 export interface ItemItemProps {
     uri: string;
@@ -42,7 +43,7 @@ export interface IPost {
     createdAt: string;
     origin?: IOrigin;
     mode: string;
-    publicUsers: IPublicUser[];
+    publicUsers: IUser[];
     checkin: string;
 }
 
