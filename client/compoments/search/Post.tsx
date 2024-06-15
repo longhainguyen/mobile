@@ -79,6 +79,9 @@ export default function Posts({ keyWord, navigation, jumpTo }: PostsProp) {
                     createdAt: post.createdAt,
                     origin: post.origin,
                     isPublic: post.isPublic,
+                    checkin: post.checkin,
+                    mode: post.mode,
+                    publicUsers: post.publicUsers,
                 };
                 _postList.push(_post);
             });

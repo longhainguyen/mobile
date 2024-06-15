@@ -24,7 +24,7 @@ export default function ListUser({ route, navigation }: any) {
     const [selectedUsers, setSelectUsers] = useState<IUser[]>([]);
 
     useEffect(() => {
-        if (route.params) {
+        if (route.params.listUser) {
             const listUser: IUser[] = route.params.listUser;
             setSelectUsers(listUser);
         }

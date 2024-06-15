@@ -530,7 +530,7 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
                     backgroundColor: COLORS.white,
                 }}
             >
-                Comments {lengthComment}
+                Comments
             </Text>
 
             <FlatList

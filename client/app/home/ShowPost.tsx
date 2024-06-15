@@ -108,7 +108,7 @@ const ShowPost = ({ route, navigation }: ShowPostProps) => {
     };
 
     return (
-        <GestureHandlerRootView style={{ flex: 1, marginTop: 15 }}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
             <ButtonBack title="Post" onBack={() => navigation.goBack()} />
 
             <ScrollView>
@@ -135,6 +135,9 @@ const ShowPost = ({ route, navigation }: ShowPostProps) => {
                                     videos: singlePost.videos,
                                     origin: singlePost.origin,
                                     isPublic: singlePost.isPublic,
+                                    checkin: singlePost.checkin,
+                                    mode: singlePost.mode,
+                                    publicUsers: singlePost.publicUsers,
                                 },
                                 bottemSheetOption.current,
                             );
@@ -199,7 +202,7 @@ const ShowPost = ({ route, navigation }: ShowPostProps) => {
                                             isFollowed: singlePost.isFollowed,
                                             isOwner: false,
                                             userName: singlePost.user.username,
-                                            idUser: singlePost.user.id,
+                                            idUser: singlePost.origin.user.id + '',
                                         });
                                     }
                                 }}
