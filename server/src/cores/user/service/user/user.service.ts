@@ -1,16 +1,6 @@
 import { NotificationEntity } from '@entities/notification.entity';
-import { PostEntity } from '@entities/post.entity';
-import { ProfileEntity } from '@entities/profile.entity';
 import { UserEntity } from '@entities/user.entity';
-import {
-    IChangePassword,
-    ICreatePost,
-    ICreateProfile,
-    IFindUser,
-    IFollowUser,
-    IUpdateUser,
-    IUserInfor,
-} from '@interfaces/user.interface';
+import { IChangePassword, IFindUser, IFollowUser, IUpdateUser } from '@interfaces/user.interface';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BcryptService } from '@shares/services/bcrypt/bcrypt.service';
@@ -37,8 +27,6 @@ export class UserService {
             select: ['id', 'username'],
             where: { username: Like(`%${keyword}%`) },
             order: { username: 'ASC' },
-            skip: limit * page,
-            take: limit,
         });
     }
 

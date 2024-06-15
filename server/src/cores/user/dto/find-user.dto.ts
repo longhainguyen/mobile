@@ -4,6 +4,4 @@ export class FindUserDto {
     @IsDefined()
     @IsString()
     keyword: string;
-    limit?: number;
-    page?: number;
 }
