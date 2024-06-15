@@ -93,6 +93,8 @@ export default function Home({ navigation }: any) {
                 var _postList: IPost[] = []; // Initialize _postList
 
                 result.data.map((post: IPostOfSearch) => {
+                    console.log(post.mode);
+
                     const _post: IPost = {
                         id: post.id + '',
                         content: post.caption,
@@ -112,6 +114,7 @@ export default function Home({ navigation }: any) {
                         isPublic: post.isPublic,
                         mode: post.mode,
                         publicUsers: post.publicUsers,
+                        checkin: post.checkin,
                     };
                     _postList.push(_post);
                 });
@@ -292,6 +295,7 @@ export default function Home({ navigation }: any) {
                                 }
                             >
                                 <PostContent
+                                    checkIn={item.checkin}
                                     videos={item.videos}
                                     navigation={navigation}
                                     images={item.images}

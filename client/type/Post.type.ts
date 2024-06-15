@@ -43,6 +43,7 @@ export interface IPost {
     origin?: IOrigin;
     mode: string;
     publicUsers: IPublicUser[];
+    checkin: string;
 }
 
 export interface IPublicUser {

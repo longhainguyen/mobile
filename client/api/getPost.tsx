@@ -116,6 +116,9 @@ const getDataById = async (_page: number, _limit: number, idUser: string, postLi
                 origin: post.origin,
                 background: post.user.profile.background,
                 isPublic: post.isPublic,
+                checkin: post.checkin,
+                mode: post.mode,
+                publicUsers: post.publicUsers,
             });
         });
 

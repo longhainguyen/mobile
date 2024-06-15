@@ -104,6 +104,7 @@ interface PostContentProp {
     images: IFile[];
     description: string | null;
     videos: IFile[];
+    checkIn?: string;
 }
 
 const PostContent = forwardRef<Ref, PostContentProp>((props, ref) => {
@@ -124,6 +125,19 @@ const PostContent = forwardRef<Ref, PostContentProp>((props, ref) => {
             >
                 {moment(props.time).startOf('minutes').fromNow()}
             </Text>
+            {props.checkIn && (
+                <Text
+                    style={{
+                        fontSize: 16,
+                        fontWeight: 'bold',
+                        color: COLORS.primary, // Màu chữ theo hằng số primary
+                        marginTop: 10,
+                        textAlign: 'center',
+                    }}
+                >
+                    {props.checkIn}
+                </Text>
+            )}
             {(props.images || props.videos) && (
                 <SafeAreaView>
                     <FlatList

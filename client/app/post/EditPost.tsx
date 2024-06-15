@@ -35,6 +35,9 @@ import mime from 'mime';
 import { ETypeFile } from '../../enum/FIle';
 import { updatePost } from '../../api/post.api';
 import createTwoButtonAlert from '../../compoments/AlertComponent';
+import { ECommentRight } from '../../enum/OptionPrivacy';
+import { AntDesign } from '@expo/vector-icons';
+import CheckIn from '../../compoments/Location';
 
 // type RootStackParamList = {
 //     EditPost: { post: IPost };
@@ -61,12 +64,21 @@ export default function EditPost({ route, navigation }: EditPostProps) {
     const optionPrivacyrightRef = useRef<BottomSheet>(null);
     const [statusModeComment, setStatusModeComment] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [address, setAddress] = useState('');
 
     useEffect(() => {
         if (!route.params) {
             console.log('post is undefined in edit page');
         } else {
             setContent(route.params.post.content);
+            if (route.params.post.checkin) {
+                setAddress(route.params.post.checkin);
+            }
+            console.log(route.params.post.mode, 'mode comment');
+            if (route.params.post.mode) {
+                setStatusModeComment(route.params.post.mode);
+            }
+
             const itemListOfPost: IFile[] = route.params.post.videos.concat(
                 route.params.post.images,
             );
@@ -206,21 +218,66 @@ export default function EditPost({ route, navigation }: EditPostProps) {
             <View
                 style={{
                     paddingVertical: 10,
-                    borderWidth: 2,
-                    marginHorizontal: 10,
-                    borderRadius: 10,
+                    paddingHorizontal: 15,
+                    borderWidth: 1,
                     borderColor: COLORS.borderColor,
-                    flexDirection: 'row',
-                    justifyContent: 'flex-end',
+                    borderRadius: 10,
+                    marginHorizontal: 10,
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    backgroundColor: '#FFFFFF', // White background for modern look
+                    shadowColor: '#000', // Shadow for depth
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.1,
+                    shadowRadius: 4,
+                    elevation: 3,
                 }}
             >
-                <OptionPrivacyIcon
-                    status={statusModeComment}
-                    IconComponent={<MaterialIcons name="comment" size={24} color="black" />}
-                    optionPrivacyrightRef={optionPrivacyrightRef}
-                />
-            </View>
+                <View
+                    style={{
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        paddingHorizontal: 10,
+                    }}
+                >
+                    <View style={{ height: 50 }}>
+                        <CheckIn setLocationCheckin={setAddress} />
+                    </View>
 
+                    {address.length > 0 && (
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                gap: 2,
+                            }}
+                        >
+                            <Text style={{ marginTop: 4, fontSize: 14, color: '#333' }}>
+                                {address}
+                            </Text>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    setAddress('');
+                                }}
+                            >
+                                <AntDesign name="delete" size={24} color="black" />
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                </View>
+
+                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                    <OptionPrivacyIcon
+                        status={statusModeComment}
+                        IconComponent={<MaterialIcons name="comment" size={24} color="black" />}
+                        optionPrivacyrightRef={optionPrivacyrightRef}
+                    />
+                    {/* {statusModeComment === ECommentRight.SPECIFIC && route.params && (
+                                <Text>{route.params.selectedUsers.length} users</Text>
+                            )} */}
+                </View>
+            </View>
             <TextInput
                 placeholder="What do you think"
                 value={content}
@@ -351,7 +408,8 @@ export default function EditPost({ route, navigation }: EditPostProps) {
                 />
             )}
             <OptionPrivacyrights
-                idPost={route.params?.post.id + ''}
+                navigation={navigation}
+                // idPost={route.params?.post.id + ''}
                 ref={optionPrivacyrightRef}
                 setStatusModeComment={setStatusModeComment}
             />
@@ -373,10 +431,16 @@ const styles = StyleSheet.create({
         marginHorizontal: 10,
     },
     textInput: {
-        fontSize: 18,
-        color: COLORS.black,
-        marginTop: 8,
-        marginLeft: 8,
+        marginTop: 15,
+        backgroundColor: '#FFFFFF', // Màu nền trắng
+        borderWidth: 1,
+        borderColor: COLORS.borderColor,
+        borderRadius: 10,
+        padding: 10,
+        fontSize: 16,
+        minHeight: 100, // Chiều cao tối thiểu
+        textAlignVertical: 'top', // Hiển thị văn bản từ trên xuống
+        color: COLORS.darkText,
     },
     image: {
         height: 100,

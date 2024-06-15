@@ -17,6 +17,7 @@ export interface IPostOfSearch {
     isFollowed: boolean;
     mode: string;
     publicUsers: IPublicUser[];
+    checkin: string;
 }
 
 export interface IShared {

@@ -1,13 +1,9 @@
 import React from 'react';
 import { SafeAreaView, StyleSheet } from 'react-native';
-import ProfileScreen from '../../compoments/Location';
+import CheckIn from '../../compoments/Location';
 
 const App = () => {
-    return (
-        <SafeAreaView style={styles.container}>
-            <ProfileScreen />
-        </SafeAreaView>
-    );
+    return <SafeAreaView style={styles.container}>{/* <CheckIn /> */}</SafeAreaView>;
 };
 
 const styles = StyleSheet.create({

@@ -503,12 +503,6 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
         }
     };
 
-    const is =
-        props.postOpen?.mode !== ECommentRight.ALL &&
-        isPublicUser === false &&
-        props.postOpen?.idUser + '' !== stateUser.id;
-    console.log(isPublicUser);
-
     return (
         <BottomSheet
             ref={ref}
