@@ -22,17 +22,19 @@ import {
 @Controller('users')
 export class UserController {
     constructor(private UserService: UserService) {}
+
+    @Get('find-by-name')
+    @HttpCode(HttpStatus.OK)
+    @UsePipes(new ValidationPipe())
+    getUsersByName(@Body() findUserDto: FindUserDto) {
+        console.log(findUserDto);
+        return this.UserService.getUsersByName({ ...findUserDto });
+    }
+
     @Get(':userId')
     @HttpCode(HttpStatus.OK)
     getUsers(@Param('userId', ParseIntPipe) userId: number) {
         return this.UserService.getUserById(userId);
-    }
-
-    @Get('find-by-name')
-    @UsePipes(new ValidationPipe())
-    @HttpCode(HttpStatus.OK)
-    getUsersByName(@Body() findUserDto: FindUserDto) {
-        return this.UserService.getUsersByName({ ...findUserDto });
     }
 
     @Patch('update-user/:id')

@@ -30,6 +30,7 @@ export class GetPostService {
             'origin.user',
             'origin.user.profile',
             'publicUsers',
+            'publicUsers.profile',
         ],
     };
 
