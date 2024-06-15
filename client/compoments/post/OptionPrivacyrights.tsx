@@ -11,11 +11,13 @@ import { updateCommentMode } from '../../api/commetMode.api';
 import { RootState, store } from '../../redux/Store';
 import { setState } from '../../redux/stateComment/stateComment';
 import { useSelector } from 'react-redux';
+import { IUser } from '../../type/User.type';
 
 type Ref = BottomSheet;
 
 interface Props {
     navigation: any;
+    listUserSpecific?: IUser[];
     setStatusModeComment: React.Dispatch<React.SetStateAction<string>>;
     idPost?: string;
 }
@@ -46,7 +48,9 @@ const OptionPrivacyrights = forwardRef<Ref, Props>((props, ref) => {
     }, []);
 
     const hanleChooseUser = () => {
-        props.navigation.navigate('ListUser');
+        props.navigation.navigate('ListUser', {
+            listUser: props.listUserSpecific,
+        });
     };
 
     return (

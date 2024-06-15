@@ -7,6 +7,7 @@ import {
     TouchableOpacity,
     ImageBackground,
     FlatList,
+    Image,
     ScrollView,
     Keyboard,
     ActivityIndicator,
@@ -38,6 +39,8 @@ import createTwoButtonAlert from '../../compoments/AlertComponent';
 import { ECommentRight } from '../../enum/OptionPrivacy';
 import { AntDesign } from '@expo/vector-icons';
 import CheckIn from '../../compoments/Location';
+import { IUser } from '../../type/User.type';
+import { FONT, FONT_SIZE } from '../../constants/font';
 
 // type RootStackParamList = {
 //     EditPost: { post: IPost };
@@ -46,12 +49,12 @@ import CheckIn from '../../compoments/Location';
 // type EditPostRouteProp = RouteProp<RootStackParamList, 'EditPost'>;
 const { height, width } = Dimensions.get('window');
 
-type EditPostProps = NativeStackScreenProps<RootStackParamList, 'EditPost'>;
+// type EditPostProps = NativeStackScreenProps<RootStackParamList, 'EditPost'>;
 
-// type EditPostProps = {
-//     route: any;
-//     navigation: any;
-// };
+type EditPostProps = {
+    route: any;
+    navigation: any;
+};
 
 export default function EditPost({ route, navigation }: EditPostProps) {
     const [content, setContent] = useState('');
@@ -142,6 +145,21 @@ export default function EditPost({ route, navigation }: EditPostProps) {
         Keyboard.dismiss();
         const formData = new FormData();
         setIsLoading(true);
+        if (address.length > 0) {
+            formData.append('checkin', address);
+        }
+        if (statusModeComment === ECommentRight.SPECIFIC) {
+            if (route.params) {
+                const { selectedUsers }: { selectedUsers: IUser[] } = route.params;
+                const selectedUserIds = selectedUsers.map((user) => user.id);
+                formData.append(
+                    'commentMode',
+                    JSON.stringify({ mode: statusModeComment, visibleUsers: selectedUserIds }),
+                );
+            }
+        } else {
+            formData.append('commentMode', JSON.stringify({ mode: statusModeComment }));
+        }
         formData.append('caption', content);
         formData.append(
             'deleted',
@@ -203,11 +221,11 @@ export default function EditPost({ route, navigation }: EditPostProps) {
             console.log(error);
         } finally {
             setIsLoading(false);
-            // setContent('');
-            // setListItem([]);
-            // setListIdImageDeleted([]);
-            // setListIdVideoDeleted([]);
-            // setListItemNew([]);
+            setContent('');
+            setListItem([]);
+            setListIdImageDeleted([]);
+            setListIdVideoDeleted([]);
+            setListItemNew([]);
         }
     };
 
@@ -225,8 +243,8 @@ export default function EditPost({ route, navigation }: EditPostProps) {
                     marginHorizontal: 10,
                     flexDirection: 'column',
                     justifyContent: 'space-between',
-                    backgroundColor: '#FFFFFF', // White background for modern look
-                    shadowColor: '#000', // Shadow for depth
+                    backgroundColor: '#FFFFFF', // Nền trắng cho phong cách hiện đại
+                    shadowColor: '#000', // Bóng đổ tạo chiều sâu
                     shadowOffset: { width: 0, height: 2 },
                     shadowOpacity: 0.1,
                     shadowRadius: 4,
@@ -235,47 +253,126 @@ export default function EditPost({ route, navigation }: EditPostProps) {
             >
                 <View
                     style={{
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        paddingHorizontal: 10,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'flex-start',
+                        gap: 3,
                     }}
                 >
-                    <View style={{ height: 50 }}>
+                    <View
+                        style={{
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <Image
+                            source={{ uri: stateUser.profile.avatar }}
+                            style={{
+                                borderRadius: 50,
+                                height: 70,
+                                width: 70,
+                                borderWidth: 2,
+                                borderColor: COLORS.background,
+                            }}
+                        />
+                        <View style={{ paddingLeft: 10 }}>
+                            <Text
+                                style={{
+                                    fontSize: FONT_SIZE.small,
+                                    fontFamily: FONT.bold,
+                                    marginTop: 5,
+                                }}
+                            >
+                                {stateUser.username}
+                            </Text>
+                            <View>
+                                <View
+                                    style={{
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        backgroundColor: '#ADD8E6', // Màu nền xanh nhạt
+                                        borderColor: '#000', // Màu viền
+                                        borderRadius: 5, // Bo góc viền (nếu cần)
+                                        padding: 5,
+                                    }}
+                                >
+                                    <OptionPrivacyIcon
+                                        status={statusModeComment}
+                                        IconComponent={
+                                            <MaterialIcons name="comment" size={17} color="blue" />
+                                        }
+                                        optionPrivacyrightRef={optionPrivacyrightRef}
+                                    />
+                                    {statusModeComment === ECommentRight.SPECIFIC &&
+                                        route.params.post.publicUsers && (
+                                            <Text style={{ color: 'blue' }}>
+                                                {route.params.post.publicUsers.length} users
+                                            </Text>
+                                        )}
+                                </View>
+                            </View>
+                        </View>
+                    </View>
+                </View>
+            </View>
+
+            <View
+                style={{
+                    marginTop: 15,
+                    paddingVertical: 10,
+                    paddingHorizontal: 15,
+                    borderWidth: 1,
+                    borderColor: COLORS.borderColor,
+                    borderRadius: 10,
+                    marginHorizontal: 10,
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    backgroundColor: '#FFFFFF', // Nền trắng cho phong cách hiện đại
+                    shadowColor: '#000', // Bóng đổ tạo chiều sâu
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.1,
+                    shadowRadius: 4,
+                    elevation: 3,
+                }}
+            >
+                <View
+                    style={{
+                        height: 50,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        paddingHorizontal: 10, // Thêm khoảng cách padding bên trong View
+                    }}
+                >
+                    <View style={{ flex: 1 }}>
                         <CheckIn setLocationCheckin={setAddress} />
                     </View>
 
                     {address.length > 0 && (
                         <View
                             style={{
+                                flex: 2, // Cho phép View này chiếm 2/3 không gian
                                 flexDirection: 'row',
-                                justifyContent: 'space-between',
                                 alignItems: 'center',
-                                gap: 2,
+                                marginLeft: 10,
                             }}
                         >
-                            <Text style={{ marginTop: 4, fontSize: 14, color: '#333' }}>
+                            <Text
+                                style={{
+                                    flex: 1, // Cho phép Text mở rộng để chiếm không gian còn lại
+                                    marginRight: 10, // Khoảng cách giữa Text và nút xóa
+                                }}
+                                numberOfLines={5} // Giới hạn số dòng hiển thị là 1
+                                ellipsizeMode="tail" // Thêm dấu ba chấm ở cuối nếu bị tràn
+                            >
                                 {address}
                             </Text>
-                            <TouchableOpacity
-                                onPress={() => {
-                                    setAddress('');
-                                }}
-                            >
-                                <AntDesign name="delete" size={24} color="black" />
+                            <TouchableOpacity onPress={() => setAddress('')}>
+                                <MaterialIcons name="close" size={20} color="red" />
                             </TouchableOpacity>
                         </View>
                     )}
-                </View>
-
-                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                    <OptionPrivacyIcon
-                        status={statusModeComment}
-                        IconComponent={<MaterialIcons name="comment" size={24} color="black" />}
-                        optionPrivacyrightRef={optionPrivacyrightRef}
-                    />
-                    {/* {statusModeComment === ECommentRight.SPECIFIC && route.params && (
-                                <Text>{route.params.selectedUsers.length} users</Text>
-                            )} */}
                 </View>
             </View>
             <TextInput
@@ -410,6 +507,7 @@ export default function EditPost({ route, navigation }: EditPostProps) {
             <OptionPrivacyrights
                 navigation={navigation}
                 // idPost={route.params?.post.id + ''}
+                listUserSpecific={route.params.post.publicUsers && route.params.post.publicUsers}
                 ref={optionPrivacyrightRef}
                 setStatusModeComment={setStatusModeComment}
             />

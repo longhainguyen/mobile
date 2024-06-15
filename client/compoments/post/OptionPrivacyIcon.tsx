@@ -20,19 +20,18 @@ export default function OptionPrivacyIcon({
             style={{
                 justifyContent: 'center',
                 alignItems: 'center',
-                paddingHorizontal: 10,
-                height: 50,
-                width: 100,
+                flexDirection: 'row',
+                gap: 2,
+                minWidth: 50,
+                maxWidth: 80,
             }}
             onPress={() => {
                 Keyboard.dismiss();
-
                 optionPrivacyrightRef.current?.snapToIndex(0);
             }}
         >
             {IconComponent}
-            <Text>{status}</Text>
-            {/* <Text>{status === ECommentRight.SPECIFIC && stateSelectedUser.length}</Text> */}
+            <Text style={{ color: 'blue', textAlign: 'center' }}>{status}</Text>
         </TouchableOpacity>
     );
 }

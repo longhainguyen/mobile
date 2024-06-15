@@ -18,10 +18,17 @@ import { Button } from '../../compoments/Themed';
 
 const { height, width } = Dimensions.get('window');
 
-export default function ListUser({ navigation }: any) {
+export default function ListUser({ route, navigation }: any) {
     const [search, setSearch] = useState('');
     const [results, setResults] = useState<IResultSearch>();
     const [selectedUsers, setSelectUsers] = useState<IUser[]>([]);
+
+    useEffect(() => {
+        if (route.params) {
+            const listUser: IUser[] = route.params.listUser;
+            setSelectUsers(listUser);
+        }
+    }, []);
 
     const handleSelectUser = (user: IUser) => {
         if (!selectedUsers.some((selectedUser) => selectedUser.id === user.id)) {

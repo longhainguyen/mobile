@@ -15,6 +15,7 @@ import { forwardRef, useEffect, useRef, useState } from 'react';
 import moment from 'moment';
 import { IFile, IImage } from '../type/Post.type';
 import { Video, ResizeMode } from 'expo-av';
+import { EvilIcons } from '@expo/vector-icons';
 
 const { height, width } = Dimensions.get('window');
 const maxLength = 100;
@@ -126,17 +127,33 @@ const PostContent = forwardRef<Ref, PostContentProp>((props, ref) => {
                 {moment(props.time).startOf('minutes').fromNow()}
             </Text>
             {props.checkIn && (
-                <Text
+                <View
                     style={{
-                        fontSize: 16,
-                        fontWeight: 'bold',
-                        color: COLORS.primary, // Màu chữ theo hằng số primary
-                        marginTop: 10,
-                        textAlign: 'center',
+                        flexDirection: 'row', // Sắp xếp theo hàng ngang
+                        alignItems: 'center', // Căn giữa theo trục dọc
+                        padding: 10,
+                        backgroundColor: '#FFF', // Màu nền trắng
+                        borderRadius: 10,
+                        shadowColor: '#000', // Màu của bóng
+                        shadowOffset: { width: 0, height: 2 }, // Vị trí của bóng
+                        shadowOpacity: 0.1, // Độ mờ của bóng
+                        shadowRadius: 4, // Bán kính của bóng
+                        elevation: 3, // Độ nâng cho bóng (Android)
+                        marginVertical: 10, // Khoảng cách theo trục dọc
                     }}
                 >
-                    {props.checkIn}
-                </Text>
+                    <EvilIcons name="location" size={24} color="black" />
+                    <Text
+                        style={{
+                            fontSize: 16,
+                            fontWeight: 'bold',
+                            color: COLORS.darkText,
+                            marginLeft: 8,
+                        }}
+                    >
+                        {props.checkIn}
+                    </Text>
+                </View>
             )}
             {(props.images || props.videos) && (
                 <SafeAreaView>
