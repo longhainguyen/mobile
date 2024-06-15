@@ -358,21 +358,24 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
     const [isLoading, setIsLoading] = useState(false);
     const LIMIT = 5;
     const [initialLoading, setInitialLoading] = useState(true);
+    const [open, setOpen] = useState(false);
 
     // useEffect(() => {
     //     setLengthComment(props.lengthComment);
     // }, [listComment]);
 
     const [isPublicUser, setIsPublicUser] = useState(false);
-    useEffect(() => {
-        if (props.postOpen?.publicUsers) {
-            props.postOpen.publicUsers.map((user) => {
-                if (user.id + '' === stateUser.id) {
-                    setIsPublicUser(true);
-                }
-            });
-        }
-    }, []);
+    // useEffect(() => {
+    //     if (props.postOpen?.publicUsers) {
+    //         console.log('check here');
+
+    //         props.postOpen.publicUsers.map((user) => {
+    //             if (user.id + '' === stateUser.id) {
+    //                 setIsPublicUser(true);
+    //             }
+    //         });
+    //     }
+    // }, []);
 
     const clearState = () => {
         console.log('clear state at comment');
@@ -384,6 +387,8 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
         setPlaceholderInComment('');
         setHasMore(true);
         setIsLoading(false);
+        setIsPublicUser(false);
+        setOpen(false);
     };
 
     const handleGetComment = async (page: number) => {
@@ -423,10 +428,18 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
     };
 
     useEffect(() => {
-        if (stateComment === 0 && props.postId.length > 0) {
+        if (stateComment === 0 && props.postId.length > 0 && open === true) {
             handleGetComment(0);
             setLengthComment(props.lengthComment);
             console.log('load comment lan dau');
+            if (props.postOpen?.publicUsers) {
+                console.log('check here');
+                props.postOpen.publicUsers.map((user) => {
+                    if (user.id + '' === stateUser.id) {
+                        setIsPublicUser(true);
+                    }
+                });
+            }
         } else if (stateComment === -1) {
             clearState();
         }
@@ -470,6 +483,8 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
         if (index == -1) {
             clearState();
             Keyboard.dismiss();
+        } else {
+            setOpen(true);
         }
         store.dispatch(setState(index));
     }, []);
@@ -487,6 +502,12 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
             flatListRef.current?.scrollToIndex({ index, animated: true });
         }
     };
+
+    const is =
+        props.postOpen?.mode !== ECommentRight.ALL &&
+        isPublicUser === false &&
+        props.postOpen?.idUser + '' !== stateUser.id;
+    console.log(isPublicUser);
 
     return (
         <BottomSheet
@@ -597,7 +618,11 @@ const Comment = forwardRef<Ref, Props>((props, ref) => {
                         }}
                     />
 
-                    {props.postOpen?.isPublic === false && props.userId + '' !== stateUser.id ? (
+                    {(props.postOpen?.mode === ECommentRight.DISABLE &&
+                        props.postOpen.idUser + '' !== stateUser.id) ||
+                    (props.postOpen?.mode !== ECommentRight.ALL &&
+                        isPublicUser === false &&
+                        props.postOpen?.idUser + '' !== stateUser.id) ? (
                         <View style={{ flex: 1 }}>
                             <Text
                                 style={{
